@@ -3,8 +3,6 @@ module github.com/hamradiolog-net/adif
 go 1.23.4
 
 require (
-	github.com/Eminlin/GoADIFLog v0.0.0-20230310080720-51e6fad1c012
-	github.com/Matir/adifparser v0.0.0-20230124172935-2c465737f437
 	github.com/hamradiolog-net/adif-spec v0.0.2
 	github.com/stretchr/testify v1.10.0
 )

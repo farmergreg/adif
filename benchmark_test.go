@@ -3,16 +3,15 @@ package adif
 import (
 	"encoding/json"
 	"io"
-	"os"
 	"strings"
 	"testing"
 
 	_ "embed"
-
-	eminlin "github.com/Eminlin/GoADIFLog"
-	eminlinformat "github.com/Eminlin/GoADIFLog/format"
-	matir "github.com/Matir/adifparser"
-)
+	/*
+		eminlin "github.com/Eminlin/GoADIFLog"
+		eminlinformat "github.com/Eminlin/GoADIFLog/format"
+		matir "github.com/Matir/adifparser"
+	*/)
 
 func BenchmarkAllTestFiles(b *testing.B) {
 	fs, err := testFileFS.ReadDir("testdata")
@@ -100,6 +99,7 @@ func BenchmarkReadJSON(b *testing.B) {
 	}
 }
 
+/*
 func BenchmarkReadMatir(b *testing.B) {
 	var qsoList []matir.ADIFRecord
 	b.ResetTimer()
@@ -144,6 +144,7 @@ func BenchmarkReadEminlin(b *testing.B) {
 	_ = len(log)
 	os.Remove(realFile)
 }
+*/
 
 func BenchmarkWriteThisLibrary(b *testing.B) {
 	qsoListNative := loadTestData()
@@ -178,6 +179,7 @@ func BenchmarkWriteJSON(b *testing.B) {
 	}
 }
 
+/*
 func BenchmarkWriteMatir(b *testing.B) {
 	// Setup Matir test data
 	var qsoListMatir []matir.ADIFRecord
@@ -200,6 +202,7 @@ func BenchmarkWriteMatir(b *testing.B) {
 		_ = sb.String()
 	}
 }
+*/
 
 /*
 // Eminlin does not support writing adi files
