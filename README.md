@@ -23,8 +23,8 @@ The unit tests provide examples of how to use the library.
 
 ## Benchmarks
 
-- 300% - 2180% Faster ADI Reading
-- 180% - 1100% Faster ADI Writing
+- 300% - 2180% Faster Reading ADI
+- 180% - 1100% Faster Writing ADI
 
 ```
 Benchmark                                                                 Iterations          Time/op
