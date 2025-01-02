@@ -14,8 +14,8 @@ This even though JSON is a much more compact format than ADI.
 
 ## Usage
 
-This library provides two ways to parse ADI files: using the low-level `ADIFParser` directly or using the higher-level `Document` type.
-The interfaces and implementations are designed to be idiomatic go and work well with the go standard library.
+This library provides two ways to parse ADI files: using `ADIFParser` to stream records, or using the `Document` type to load the entire file into memory.
+Both are easy to use and implement standard interfaces that make them easy to use with the go library.
 
 The unit tests provide examples of how to use the library.
 
@@ -27,20 +27,18 @@ The unit tests provide examples of how to use the library.
 - Reading ADI: 300% - 2180% Faster
 - Writing ADI: 180% - 1100% Faster
 
-```
-Benchmark                                                                 Iterations          Time/op
-
-cpu: AMD Ryzen 9 7950X 16-Core Processor
-BenchmarkReadThisLibrary-32                                                 1626            714559 ns/op
-BenchmarkReadJSON-32                                                         409           2903384 ns/op
-BenchmarkReadMatir-32                                                        416           2873248 ns/op
-BenchmarkReadEminlin-32                                                       70          16312785 ns/op
-
-BenchmarkWriteThisLibrary-32                                                4488            245656 ns/op
-BenchmarkWriteJSON-32                                                       1666            694251 ns/op
-BenchmarkWriteMatir-32                                                       408           2921377 ns/op
-BenchmarkWriteEminlin-32                                                     N/A               N/A
-```
+| Benchmark  (AMD Ryzen 9 7950X)          | Iterations | Time/op (ns) |
+|-----------------------------------------|-----------:|-------------:|
+| **Read Operations**                     |            |              |
+| This Library                            | 1,626      | 714,559      |
+| JSON                                    | 409        | 2,903,384    |
+| Matir                                   | 416        | 2,873,248    |
+| Eminlin                                 | 70         | 16,312,785   |
+| **Write Operations**                    |            |              |
+| This Library                            | 4,488      | 245,656      |
+| JSON                                    | 1,666      | 694,251      |
+| Matir                                   | 408        | 2,921,377    |
+| Eminlin                                 | N/A        | N/A          |
 
 ## Future Work
 
