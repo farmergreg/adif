@@ -32,6 +32,11 @@ func NewRecord(initialCapacity int) *Record {
 	}
 }
 
+// Reset clears the record of all fields.
+func (r *Record) Reset() {
+	r.Fields = r.Fields[:0]
+}
+
 // Get returns the value for a given field.
 // If the field is empty, or does not exist, an empty string is returned.
 func (r *Record) Get(field adifield.Field) string {

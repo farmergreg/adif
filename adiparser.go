@@ -78,8 +78,8 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 			if !p.skipHeader && len(result.Fields) > 0 {
 				return result, n, nil
 			}
-			// the record is not empty, reset it to prepare for the next record
-			result = NewRecord(p.preAllocateFields)
+			// skipping EOH; reset to prepare to read the next record
+			result.Reset()
 			continue
 		case adifield.EOR:
 			if len(result.Fields) > 0 {
