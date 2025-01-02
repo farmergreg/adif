@@ -13,16 +13,17 @@ import (
 // The version of this library.
 // See https://semver.org/
 //
-//	MAJOR version == Incompatible API changes.
-//	MINOR version == Added functionality in a backward compatible manner
-//	PATCH version == Backward compatible bug fixes.
+//	MAJOR version      == Incompatible API changes.
+//	MINOR version      == Added functionality in a backward compatible manner
+//	PATCH version      == Backward compatible bug fixes.
+//	PRERELEASE version == Pre-release version (optional). This should be empty ("") or start with a dash (e.g. "-rc1").
 //
 // Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
 const (
-	VERSION_MAJOR      = 0        // Major version number
-	VERSION_MINOR      = 0        // Minor version number
-	VERSION_PATCH      = 1        // Patch version number
-	VERSION_PRERELEASE = "-alpha" // Pre-release version (optional). This should be empty ("") or start with a dash (e.g. "-rc1").
+	VERSION_MAJOR      = 0
+	VERSION_MINOR      = 0
+	VERSION_PATCH      = 1
+	VERSION_PRERELEASE = "-alpha"
 )
 
 // AdifHeaderPreamble is always printed immediately before the header record.
