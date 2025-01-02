@@ -37,6 +37,5 @@ Both are simple to use and implement standard interfaces that make them easy to 
 
 ## Future Work
 
-How could this library be faster yet?
-Internally, this library attempts to take advantage of the go stdlib's use of simd.
-However, I think there is an opportunity to use SIMD directly to further speed up parsing.
+This library attempts to take advantage of the go stdlib's use of simd.
+However, I think there is an opportunity to use simd directly to further speed up parsing.
