@@ -14,8 +14,8 @@ This even though JSON is a much more compact format than ADI.
 
 ## Usage
 
-This library provides two ways to parse ADI files: using [ADIFParser](https://github.com/hamradiolog-net/adif/blob/main/adiparser_test.go) to stream records, or using the [Document](https://github.com/hamradiolog-net/adif/blob/main/document_test.go) type to load the entire file into memory.
-Both are easy to use and implement standard interfaces that make them easy to use with the go library.
+This library provides two ways to parse ADI files: using [ADIFParser](https://github.com/hamradiolog-net/adif/blob/main/adiparser.go) ([examples](https://github.com/hamradiolog-net/adif/blob/main/adiparser_test.go)) to stream records, or using the [Document](https://github.com/hamradiolog-net/adif/blob/main/document.go) ([examples](https://github.com/hamradiolog-net/adif/blob/main/document_test.go)) type to load the entire file into memory.
+Both are simple to use and implement standard interfaces that make them easy to use with the go library.
 
 ## Benchmarks
 
