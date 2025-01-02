@@ -8,8 +8,8 @@
 
 This ADI parser is my attempt to create a fast, efficient ADIF parser for ADI formatted data.
 
-This library also outperforms other ADI libraries that I've tested to date.
-Additionally, this library is able to convert to and from ADI faster than the built-in go json library can convert the same data to and from JSON.
+This library outperforms other ADI libraries that I've tested to date.
+Additionally, this library is able to convert to and from ADI faster than the go json marshaller can convert the same data to and from JSON.
 This even though JSON is a much more compact format than ADI.
 
 ## Usage
