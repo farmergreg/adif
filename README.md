@@ -1,4 +1,4 @@
-# World's Fastest ADI Parser
+# World's Fastest ADI Parser?
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -6,15 +6,16 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/go.mod)
 [![License](https://img.shields.io/github/license/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/LICENSE)
 
-This ADI parser is my attempt to create the fastest and most efficient ADI parser in the world.
-While there is certainly room for improvement (e.g. more simd!), this library is faster than other adi libraries I've tested.
-This library is also faster than converting to/from JSON using the go std library.
-ADI files are typically significantly larger than the same data in JSON format, so I am quite happy with the performance this library provides.
+This ADI parser is my attempt to create a fast, efficient ADIF parser for ADI formatted data.
+
+This library also outperforms other ADI libraries that I've tested to date.
+Additionally, this library is able to convert to and from ADI faster than the built-in go json library can convert the same data to and from JSON.
+This even though JSON is a much more compact format than ADI.
 
 ## Usage
 
 This library provides two ways to parse ADI files: using the low-level `ADIFParser` directly or using the higher-level `Document` type.
-The interfaces and implementations are designed to be idiomatic go and interface well with the golang stdlib.
+The interfaces and implementations are designed to be idiomatic go and work well with the go standard library.
 
 The unit tests provide examples of how to use the library.
 
@@ -23,8 +24,8 @@ The unit tests provide examples of how to use the library.
 
 ## Benchmarks
 
-- 300% - 2180% Faster Reading ADI
-- 180% - 1100% Faster Writing ADI
+- Reading ADI: 300% - 2180% Faster
+- Writing ADI: 180% - 1100% Faster
 
 ```
 Benchmark                                                                 Iterations          Time/op

@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"io"
 
-	adifield "github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
 var _ ADIFParser = (*adiParser)(nil) // Implements ADIFParser
