@@ -129,10 +129,10 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 	// field name string interning
 	fastToUpper(volatileField)
 	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
-	if def, ok := p.appFieldMap[field]; ok {
-		field = def
-	} else if def, ok := adifield.FieldMap[field]; ok {
-		field = def.ID
+	if fieldDef, ok := adifield.FieldMap[field]; ok {
+		field = fieldDef.ID
+	} else if id, ok := p.appFieldMap[field]; ok {
+		field = id
 	} else {
 		field = adifield.Field(string(volatileField))
 		p.appFieldMap[field] = field
