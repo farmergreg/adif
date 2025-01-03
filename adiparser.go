@@ -13,7 +13,7 @@ var _ ADIFParser = (*adiParser)(nil) // Implements ADIFParser
 
 const (
 	// 1MB - this is the maximum size of a field value that we will accept.
-	// This is intended to be a generous limit for most applications while providing protection against malformed and/or malicious input.
+	// This is intended to be a generous limit for most applications while providing some protection against malformed and/or malicious input.
 	//
 	// The data is part of the ADIF "Data-Specifier."
 	// Per the ADIF spec:
@@ -37,6 +37,9 @@ type adiParser struct {
 
 	// skipHeader is true if the header record should be skipped.
 	skipHeader bool
+
+	// true if we expect no more headers after the current record
+	expectEOROnly bool
 }
 
 // NewADIParser returns an ADIFParser that can parse ADIF *.adi formatted records.
@@ -51,7 +54,7 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
-		appFieldMap:       make(map[adifield.Field]adifield.Field, 11),
+		appFieldMap:       make(map[adifield.Field]adifield.Field, 7),
 	}
 
 	return p
@@ -84,13 +87,23 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 
 		switch field {
 		case adifield.EOH:
-			if !p.skipHeader && len(result.Fields) > 0 {
-				return result, n, nil
+			if p.expectEOROnly {
+				return result, n, ErrUnexpectedEOH
 			}
-			// skipping EOH; reset to prepare to read the next record
+			p.expectEOROnly = true
+
+			if len(result.Fields) > 0 {
+				if !p.skipHeader {
+					return result, n, nil
+				}
+			}
+			// we are skipping returning the EOH record (if any)
+			// reset to prepare to read the next record
 			result.Reset()
 			continue
 		case adifield.EOR:
+			p.expectEOROnly = true
+
 			if len(result.Fields) > 0 {
 				if len(result.Fields) > p.preAllocateFields {
 					p.preAllocateFields = len(result.Fields)
@@ -109,7 +122,7 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 // parseOneField reads the next field definition and returns the field name, value, and the number of bytes read.
 //
 // It is heavily optimized for speed and memory use.
-// Currently, It can double the speed of go's stdlib JSON marshaling for similar data.
+// Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
 //
 // Future Plans: I would like to take a look at using simd directly.
 // However, the current implementation IS attempting to take advantage of the standard library's existing simd capabilities.
@@ -126,7 +139,7 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
 
-	// field name string interning
+	// Step 2.1: field name string interning - reduce memory allocations
 	fastToUpper(volatileField)
 	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
 	if fieldDef, ok := adifield.FieldMap[field]; ok {
@@ -156,7 +169,8 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 		}
 
 		// Step 4: Read the field value (if any)
-		// inlining v.s. a function call gains a tiny amount of performance...
+		// ParseDataLength ensures that length is a reasonable value for us.
+		// inlining v.s. a function call gains a tiny, but measurable amount of performance...
 		if length > 0 {
 			if cap(p.bufValue) < length {
 				p.bufValue = make([]byte, length)
@@ -193,14 +207,16 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 //
 //	<F:L:T>
 func (p *adiParser) readDataSpecifierVolatile() (volatileSpecifier []byte, n int64, err error) {
-	// If ReadSlice returns bufio.ErrBufferFull this accumulates ALL of the bytes read.
-	// In most cases, this will be null because we won't hit the bufio.ErrBufferFull condition.
+	// If ReadSlice returns bufio.ErrBufferFull, accumulator will contain ALL of the bytes read.
+	// In most cases, accumulator will be null because we won't hit the bufio.ErrBufferFull condition.
 	var accumulator []byte
 	for {
 		volatileSpecifier, err = p.r.ReadSlice('>')
 		n += int64(len(volatileSpecifier))
 		if err == nil {
 			if accumulator != nil {
+				// We've found '>' and have accumulated some bytes.
+				// Update volatileSpecifier to point at the accumulated bytes before breaking out of the loop.
 				volatileSpecifier = append(accumulator, volatileSpecifier...)
 			}
 			break

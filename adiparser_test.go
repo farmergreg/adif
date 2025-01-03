@@ -187,6 +187,8 @@ func TestParseNoRecords(t *testing.T) {
 		{"Empty tag with quad colon", "<::::>fake", true},
 		{"tag open and close", "<>", true},
 		{"tag open and close with colon", "<:>", true},
+		{"EOR after EOH", "<EOR><EOH>", true},
+		{"Duplicate EOH", "<EOH><EOH>", true},
 	}
 
 	for _, tt := range tests {
