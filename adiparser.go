@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"unsafe"
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
@@ -31,6 +32,9 @@ type adiParser struct {
 
 	// skipHeader is true if the header record should be skipped.
 	skipHeader bool
+
+	// fieldMap is a map of field names used to reduce allocations via string interning.
+	fieldMap map[adifield.Field]adifield.Field
 }
 
 // NewADIParser returns an ADIFParser that can parse ADIF *.adi formatted records.
@@ -41,11 +45,18 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 		br = bufio.NewReader(r)
 	}
 
-	return &adiParser{
+	p := &adiParser{
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
+		fieldMap:          make(map[adifield.Field]adifield.Field, len(adifield.FieldMap)+10),
 	}
+
+	// pre-populate our internal fieldMap
+	for _, v := range adifield.FieldMap {
+		p.fieldMap[v.ID] = v.ID
+	}
+	return p
 }
 
 // Parse reads and returns the next Record.
@@ -117,7 +128,13 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
 	fastToUpper(volatileField)
-	field = adifield.Field(string(volatileField))
+	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
+	if def, ok := p.fieldMap[field]; !ok {
+		field = adifield.Field(string(volatileField))
+		p.fieldMap[field] = field
+	} else {
+		field = def
+	}
 
 	// Step 3: Parse Field Length
 	var length int
@@ -145,7 +162,7 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 			p.bufValue = p.bufValue[:length]
 
 			var c int
-			c, err = io.ReadFull(p.r, p.bufValue) // this will overwrite volatileSpecifier (see above)
+			c, err = io.ReadFull(p.r, p.bufValue) // this will overwrite all of the 'volatile' variables (see above)
 			n += int64(c)
 			if err != nil {
 				if err == io.EOF {

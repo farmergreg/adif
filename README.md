@@ -35,7 +35,11 @@ Both are simple to use and implement standard interfaces that make them easy to 
 | Matir                                   | 408        | 2,921,377    |
 | Eminlin                                 | N/A        | N/A          |
 
-## Future Work
+## Future Work Ideas
+
+Experiments whereby the entire ADI is read into memory increased performance by about 20%.
+I've not yet implemented this cleanly, but the gains are clearly there.
+We'd loose the ability to stream files though...
 
 This library attempts to take advantage of the go stdlib's use of simd.
-However, I think there is an opportunity to use simd directly to further speed up parsing.
+I think there is an opportunity to use simd directly to further speed up parsing.
