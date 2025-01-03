@@ -24,7 +24,12 @@ const (
 
 // adiParser is a high-performance ADIF parser that can parse ADIF *.adi formatted records.
 type adiParser struct {
-	r        *bufio.Reader
+	r *bufio.Reader
+
+	// fieldMap is a map of field names used to reduce allocations via string interning.
+	fieldMap map[adifield.Field]adifield.Field
+
+	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
 
 	// we assume most records will have similar field counts and allocate accordingly.
@@ -32,9 +37,6 @@ type adiParser struct {
 
 	// skipHeader is true if the header record should be skipped.
 	skipHeader bool
-
-	// fieldMap is a map of field names used to reduce allocations via string interning.
-	fieldMap map[adifield.Field]adifield.Field
 }
 
 // NewADIParser returns an ADIFParser that can parse ADIF *.adi formatted records.
@@ -49,13 +51,13 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
-		fieldMap:          make(map[adifield.Field]adifield.Field, len(adifield.FieldMap)+10),
+		fieldMap:          make(map[adifield.Field]adifield.Field, len(adifield.FieldMap)+11),
 	}
 
-	// pre-populate our internal fieldMap
 	for _, v := range adifield.FieldMap {
 		p.fieldMap[v.ID] = v.ID
 	}
+
 	return p
 }
 
