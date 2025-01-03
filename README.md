@@ -8,9 +8,7 @@
 
 This ADI parser is my attempt to create a fast, efficient ADIF parser for ADI formatted data.
 
-This library outperforms other ADI libraries that I've tested to date.
-Additionally, this library is able to convert to and from ADI faster than the go json marshaller can convert the same data to and from JSON.
-This even though JSON is a much more compact format than ADI.
+This library outperforms other ADI libraries that I've tested to date by a wide margin.
 
 ## Usage
 
@@ -19,21 +17,26 @@ Both are simple to use and implement standard interfaces that make them easy to 
 
 ## Benchmarks
 
-- Reading ADI: 300% - 2180% Faster
-- Writing ADI: 180% - 1100% Faster
+- Reading ADI: 300% - 2100% faster
+- Writing ADI: 190% - 1100% faster
 
-| Benchmark  (AMD Ryzen 9 7950X)          | Iterations | Time/op (ns) |
-|-----------------------------------------|-----------:|-------------:|
-| **Read Operations**                     |            |              |
-| This Library                            | 1,626      | 714,559      |
-| JSON                                    | 409        | 2,903,384    |
-| Matir                                   | 416        | 2,873,248    |
-| Eminlin                                 | 70         | 16,312,785   |
-| **Write Operations**                    |            |              |
-| This Library                            | 4,488      | 245,656      |
-| JSON                                    | 1,666      | 694,251      |
-| Matir                                   | 408        | 2,921,377    |
-| Eminlin                                 | N/A        | N/A          |
+I've included JSON Marshaling as a baseline for comparison.
+The benchmarks marshal the same data to and from JSON and ADIF ADI formatted data.
+Note that JSON tends to be significantly smaller than ADI.
+Therefore, the performance gains over JSON are even more significant when considering the size of the data.
+
+| Benchmark  (AMD Ryzen 9 7950X)  | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
+|-----------------------------------------|-----------:|-------------:|------------:|-----------:|
+| **Read Operations**             |            |              |             |            |
+| This Library                    |      1,666 |      710,337 |     455,364 |      8,691 |
+| JSON                            |        423 |    2,805,019 |     406,133 |     16,488 |
+| Matir                           |        434 |    2,761,990 |   2,037,276 |     66,536 |
+| Eminlin                         |         76 |   15,834,453 |  13,143,713 |    193,085 |
+| **Write Operations**            |            |              |             |            |
+| This Library                    |      5,181 |      231,122 |     515,679 |         20 |
+| JSON                            |      1,766 |      675,473 |     669,011 |          5 |
+| Matir                           |        422 |    2,845,072 |   1,490,899 |     28,673 |
+| Eminlin                         |        N/A |          N/A |         N/A |        N/A |
 
 ## Future Work Ideas
 

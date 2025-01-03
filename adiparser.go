@@ -26,8 +26,8 @@ const (
 type adiParser struct {
 	r *bufio.Reader
 
-	// fieldMap is a map of field names used to reduce allocations via string interning.
-	fieldMap map[adifield.Field]adifield.Field
+	// appFieldMap is a map of field names used to reduce allocations via string interning.
+	appFieldMap map[adifield.Field]adifield.Field
 
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
@@ -51,11 +51,7 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
-		fieldMap:          make(map[adifield.Field]adifield.Field, len(adifield.FieldMap)+11),
-	}
-
-	for _, v := range adifield.FieldMap {
-		p.fieldMap[v.ID] = v.ID
+		appFieldMap:       make(map[adifield.Field]adifield.Field, 11),
 	}
 
 	return p
@@ -129,13 +125,17 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 	if len(volatileField) == 0 {
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
+
+	// field name string interning
 	fastToUpper(volatileField)
 	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
-	if def, ok := p.fieldMap[field]; !ok {
-		field = adifield.Field(string(volatileField))
-		p.fieldMap[field] = field
-	} else {
+	if def, ok := p.appFieldMap[field]; ok {
 		field = def
+	} else if def, ok := adifield.FieldMap[field]; ok {
+		field = def.ID
+	} else {
+		field = adifield.Field(string(volatileField))
+		p.appFieldMap[field] = field
 	}
 
 	// Step 3: Parse Field Length
