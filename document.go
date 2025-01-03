@@ -73,7 +73,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 		return n, err
 	}
 
-	if isHeader, _ := firstRecord.IsHeaderRecord(); isHeader {
+	if isHeader, _ := firstRecord.isHeaderRecord(); isHeader {
 		f.Header = firstRecord
 	} else {
 		f.Records = append(f.Records, *firstRecord)

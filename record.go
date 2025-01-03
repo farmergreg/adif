@@ -62,7 +62,7 @@ func (r *Record) Set(field adifield.Field, value string) *Record {
 }
 
 // setNoIntern is a low-level method that does not perform any string interning.
-// It is used internally to avoid interning that has already been performed by the adi parser.
+// It is used internally to avoid duplicating the interning that has already been performed by the adi parser.
 func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
 	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
@@ -86,6 +86,7 @@ func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 
 // ReadFrom reads an ADIF formatted record from the provided io.Reader.
 // It returns the number of bytes read and any error encountered.
+// io.EOF is returned when no more records are available.
 // Existing fields will be updated and add new fields added when necessary.
 // Header records are SKIPPED.
 //
@@ -99,7 +100,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 	n += c
 	if err != nil {
 		if err == io.EOF {
-			return n, err
+			return n, nil
 		}
 		return n, err
 	}
@@ -115,12 +116,11 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	bufPtr := bufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
-	// Ensure we have enough capacity
 	if cap(buf) < adiLength {
 		buf = make([]byte, 0, adiLength)
 		*bufPtr = buf
 	}
-	buf = buf[:0] // Reset length while preserving capacity
+	buf = buf[:0]
 
 	buf = r.appendAsADI(buf, isHeader)
 	n, err := dest.Write(buf)
@@ -170,7 +170,7 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int, isHeader bool) {
 		return 0, false
 	}
 
-	isHeader, _ = r.IsHeaderRecord()
+	isHeader, _ = r.isHeaderRecord()
 	if isHeader {
 		adiLength += len(AdifHeaderPreamble)
 	}
@@ -198,14 +198,14 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int, isHeader bool) {
 	return adiLength + 5, isHeader // +5 for <EOR> / <EOH>
 }
 
-// IsHeaderRecord analyzes the record to determine if it is a Header record.
+// isHeaderRecord analyzes the record to determine if it is a Header record.
 // It returns two booleans:
 //   - isHeader: true if the record is determined to be a Header record
 //   - isConclusive: true if the analysis was conclusive based on field presence in spec.FieldMap
 //
 // If isConclusive is false, the record type could not be definitively determined.
 // In practice, non-conclusive records are typically QSO records.
-func (r *Record) IsHeaderRecord() (isHeader, isConclusive bool) {
+func (r *Record) isHeaderRecord() (isHeader, isConclusive bool) {
 	for i := 0; i < len(r.Fields); i++ {
 		if s, ok := adifield.FieldMap[r.Fields[i].Name]; ok {
 			return bool(s.IsHeaderField), true

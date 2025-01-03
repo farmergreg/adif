@@ -251,7 +251,7 @@ func TestParseSingleRecord(t *testing.T) {
 
 			assert.Equal(t, tt.fieldData, qso.Get(adifield.Field(tt.fieldName)))
 
-			isHeader, _ := qso.IsHeaderRecord()
+			isHeader, _ := qso.isHeaderRecord()
 			assert.Equal(t, tt.isHeaderRecord, isHeader)
 			assert.Equal(t, int64(len(tt.adifSource)), bytesRead)
 		})
