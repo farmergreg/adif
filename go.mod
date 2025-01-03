@@ -3,7 +3,7 @@ module github.com/hamradiolog-net/adif
 go 1.23.4
 
 require (
-	github.com/hamradiolog-net/adif-spec v0.0.3
+	github.com/hamradiolog-net/adif-spec v0.0.5
 	github.com/stretchr/testify v1.10.0
 )
 
