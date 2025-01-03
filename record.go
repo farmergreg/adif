@@ -53,9 +53,22 @@ func (r *Record) Get(field adifield.Field) string {
 
 // Set updates a field value or adds a new field if it does not exist.
 func (r *Record) Set(field adifield.Field, value string) *Record {
+	// ensure the strings are interned if reasonably possible.
+	// This makes future lookups faster and reduces overall memory use.
+	if fieldDef, ok := adifield.FieldMap[field]; ok {
+		field = fieldDef.ID
+	}
+	return r.setNoIntern(field, value)
+}
+
+// setNoIntern is a low-level method that does not perform any string interning.
+// It is used internally to avoid interning that has already been performed by the adi parser.
+func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
 	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
+	// While this (somewhat surprisingly) gives us performance gains event without string interning, it is particularly effective due to the interning that the adi parser performs.
 	// Tested to perform 10% - 30% faster than a map with field counts ranging from 10 - 50.
+
 	for i := 0; i < len(r.Fields); i++ {
 		if r.Fields[i].Name == field {
 			r.Fields[i].Data = value

@@ -115,7 +115,7 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		result.Set(field, value)
+		result.setNoIntern(field, value)
 	}
 }
 

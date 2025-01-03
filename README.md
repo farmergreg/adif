@@ -37,11 +37,41 @@ So, the ADI parsers are actually doing more work than the JSON marshaler to proc
 | Matir                           |        399 |    2,994,459 |   1,490,840 |     28,673 |
 | Eminlin                         |        N/A |          N/A |         N/A |        N/A |
 
+## Technical Implementation
+
+This parser achieves its performance through several optimizations strategies:
+
+### Architecture
+
+- Implements an iterative state machine parser with O(n) time complexity.
+- Processes data in a single pass through the input stream.
+- Uses zero-copy techniques where possible to minimize memory allocations and copies.
+- Employs buffer reuse for memory efficiency.
+
+### Optimizations
+
+- String interning for field names reduces memory allocations and improves comparison speed.
+- Takes advantage of CPU cache locality to increase field lookup performance.
+- Custom ASCII case conversion using bitwise operations.
+- Specialized base-10 integer parsing optimized for ADIF field lengths.
+- Utilizes standard library io operations that are likely to process multiple bytes at a time via sse/simd.
+- Efficient buffer management with pre-allocation strategies to adapt to discovered record sizes.
+
+### Memory Characteristics
+
+- String interning ensures common ADI fields avoid allocations, ensures that keys are stored only once, and ensures lookups require fewer comparisons.
+- Constant memory overhead for streaming operations.
+- Minimal temporary allocations during field parsing.
+- Peak memory usage scales linearly with record size, not file size.
+- Allocate buffers based on learned record field counts.
+
+These design choices result in significantly lower allocation counts and better CPU cache utilization compared to more generic parsing approaches.
+
 ## Future Improvement Thoughts
 
-Experiments whereby the entire ADI is read into memory increased performance by about 20%.
+Experiments whereby the entire ADI is read into memory and io.Reader is replaced with a byte slice increased performance by about 20%.
 I've not yet implemented this cleanly, but the gains are clearly there.
-We'd loose the ability to stream files though...
+We'd lose the ability to stream files though...
 
 This library attempts to take advantage of the go stdlib's use of simd.
 I think there is an opportunity to use simd directly to further speed up parsing.
