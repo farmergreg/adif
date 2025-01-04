@@ -5,6 +5,9 @@ import (
 )
 
 // Document represents a complete ADIF document.
+//
+// Future Work:
+// This type intentionally models the ADX XML format even though it is not currently supported by this library.
 type Document struct {
 	Header  *Record
 	Records []Record
