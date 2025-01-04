@@ -12,8 +12,11 @@ This library outperforms other ADI libraries that I've tested to date by a wide 
 
 ## Usage
 
-This library provides two ways to parse ADI files: using [ADIFParser](https://github.com/hamradiolog-net/adif/blob/main/adiparser.go) ([examples](https://github.com/hamradiolog-net/adif/blob/main/adiparser_test.go)) to stream records, or using the [Document](https://github.com/hamradiolog-net/adif/blob/main/document.go) ([examples](https://github.com/hamradiolog-net/adif/blob/main/document_test.go)) type to load the entire file into memory.
-Both are simple to use and implement standard interfaces that make them easy to use with the go library.
+This library provides three ways to work with ADI files:
+
+1) [ADIFParser](./examples/parser_test.go): Stream records from an io.Reader.
+2) [Document](./examples/document_test.go): Load the an entire ADI via an io.Reader into memory.
+3) [Record](./examples/record_test.go): Read a single record from an io.Reader.
 
 ## Benchmarks
 

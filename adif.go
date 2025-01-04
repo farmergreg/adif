@@ -33,7 +33,6 @@ const (
 //
 // You may set your own custom ADI header preamble by changing this variable.
 // If you provide your own preamble, you are responsible for ensuring it fulfils the ADIF specification.
-// To accomplish this, ensure your preamble is at least one character long and does not begin with '<'.
 var AdifHeaderPreamble = fmt.Sprintf("K9CTS AM✠DG ADIF Library v%d.%d.%d%s / go\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_PRERELEASE)
 
 const (

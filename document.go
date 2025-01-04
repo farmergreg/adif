@@ -13,10 +13,26 @@ var (
 	_ fmt.Stringer  = &Document{}
 )
 
+// NewDocument creates a new Document with default initial capacity.
+func NewDocument() *Document {
+	return NewDocumentWithCapacity(-1)
+}
+
+// NewDocumentWithCapacity creates a new Document with a specific initial capacity for Records.
+// If initialCapacity is negative, it will use a default capacity of 64.
+func NewDocumentWithCapacity(initialCapacity int) *Document {
+	if initialCapacity < 0 {
+		initialCapacity = 32
+	}
+	return &Document{
+		Records: make([]Record, 0, initialCapacity),
+	}
+}
+
 // Reset clears the document and prepares it for reuse.
 func (f *Document) Reset() {
 	f.Header = nil
-	f.Records = make([]Record, 0, 64)
+	f.Records = f.Records[:0]
 }
 
 // WriteTo writes the document in ADI format to the given writer.

@@ -10,7 +10,7 @@ import (
 
 func TestDocumentString(t *testing.T) {
 	// Arrange
-	doc := &Document{}
+	doc := NewDocument()
 	doc.ReadFrom(strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR>"))
 
 	// Act
@@ -63,7 +63,7 @@ func TestParseExportParseVerifyFiles(t *testing.T) {
 }
 func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	// Parse
-	firstDoc := &Document{}
+	firstDoc := NewDocument()
 	firstDoc.ReadFrom(strings.NewReader(adif))
 
 	// Export
@@ -72,7 +72,7 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	firstDoc.WriteTo(buf)
 
 	// Parse
-	secondDoc := &Document{}
+	secondDoc := NewDocument()
 	secondDoc.ReadFrom(strings.NewReader(buf.String()))
 
 	// Verify
