@@ -27,18 +27,19 @@ JSON marshaling is included as a baseline for comparison.
 JSON formatted data tends to be significantly smaller the same data in ADI format.
 So, the ADI parsers are actually doing more work than the JSON marshaler to process the same data.
 
-| Benchmark  (AMD Ryzen 9 7950X)  | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
-|---------------------------------|-----------:|-------------:|------------:|-----------:|
-| **Read Operations**             |            |              |             |            |
-| This Library                    |      1,748 |      690,571 |     455,364 |      8,691 |
-| JSON                            |        396 |    2,963,982 |     406,286 |     16,488 |
-| Matir                           |        417 |    2,895,274 |   2,037,004 |     66,535 |
-| Eminlin                         |         68 |   16,453,839 |  13,127,877 |    193,083 |
-| **Write Operations**            |            |              |             |            |
-| This Library                    |      4,596 |      252,071 |     515,663 |         20 |
-| JSON                            |      1,621 |      718,302 |     679,896 |          5 |
-| Matir                           |        399 |    2,994,459 |   1,490,840 |     28,673 |
-| Eminlin                         |        N/A |          N/A |         N/A |        N/A |
+| Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
+|--------------------------------------------|----------:|-------------:|------------:|-----------:|
+| ▲ Higher is better / ▼ Lower is better     |         ▲ |            ▼ |           ▼ |          ▼ |
+| **Read Operations**                        |           |              |             |            |
+| This Library                               |     1,748 |      690,571 |     455,364 |      8,691 |
+| JSON                                       |       396 |    2,963,982 |     406,286 |     16,488 |
+| Matir                                      |       417 |    2,895,274 |   2,037,004 |     66,535 |
+| Eminlin                                    |        68 |   16,453,839 |  13,127,877 |    193,083 |
+| **Write Operations**                       |           |              |             |            |
+| This Library                               |     4,596 |      252,071 |     515,663 |         20 |
+| JSON                                       |     1,621 |      718,302 |     679,896 |          5 |
+| Matir                                      |       399 |    2,994,459 |   1,490,840 |     28,673 |
+| Eminlin                                    |       N/A |          N/A |         N/A |        N/A |
 
 ## Technical Implementation
 
