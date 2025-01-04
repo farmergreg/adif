@@ -6,7 +6,7 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/go.mod)
 [![License](https://img.shields.io/github/license/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/LICENSE)
 
-This ADI parser is my attempt to create a fast, memory efficient ADIF parser for ADI formatted data.
+This ADI parser is an attempt to create a fast, memory efficient ADIF parser for ADI formatted data.
 
 This library outperforms other ADI libraries that I've tested to date by a wide margin.
 
@@ -23,7 +23,7 @@ This library provides three ways to work with ADI files:
 - Reading ADI: 329% - 2280% faster
 - Writing ADI: 185% - 1088% faster
 
-I've included JSON marshaling as a baseline for comparison.
+JSON marshaling is included as a baseline for comparison.
 JSON formatted data tends to be significantly smaller the same data in ADI format.
 So, the ADI parsers are actually doing more work than the JSON marshaler to process the same data.
 
@@ -73,8 +73,7 @@ These design choices result in significantly lower allocation counts and better 
 ## Future Improvement Thoughts
 
 Experiments whereby the entire ADI is read into memory and io.Reader is replaced with a byte slice increased performance by about 20%.
-I've not yet implemented this cleanly, but the gains are clearly there.
 We'd lose the ability to stream files though...
 
 This library attempts to take advantage of the go stdlib's use of simd.
-I think there is an opportunity to use simd directly to further speed up parsing.
+Using simd directly to further speed up parsing is an opportunity worth exploring.
