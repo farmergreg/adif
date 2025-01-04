@@ -47,9 +47,7 @@ type adiParser struct {
 func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 	br, ok := r.(*bufio.Reader)
 	if !ok {
-		// assumption: most QSOs occupy about 1KB of data
-		// we start sized for approximately 64 QSOs
-		br = bufio.NewReaderSize(r, 1024*64)
+		br = bufio.NewReader(r)
 	}
 
 	p := &adiParser{
