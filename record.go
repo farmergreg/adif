@@ -99,9 +99,6 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 	record, c, err := p.Parse()
 	n += c
 	if err != nil {
-		if err == io.EOF {
-			return n, nil
-		}
 		return n, err
 	}
 
