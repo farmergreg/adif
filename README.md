@@ -15,8 +15,8 @@ This library outperforms other ADI libraries that I've tested to date by a wide 
 This library provides three ways to work with ADI files:
 
 1) [ADIFParser](./examples/parser_test.go): Stream records from an io.Reader.
-2) [Document](./examples/document_test.go): Load the an entire ADI via an io.Reader into memory.
-3) [Record](./examples/record_test.go): Read a single record from an io.Reader.
+2) [Document](./examples/document_test.go): Read all ADI records from an io.Reader into a Document.
+3) [Record](./examples/record_test.go): Read a single ADI record from an io.Reader.
 
 ## Benchmarks
 

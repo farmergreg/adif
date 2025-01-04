@@ -100,7 +100,8 @@ func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 // Header records are SKIPPED.
 //
 // n.b. This method is best used when reading a single record.
-// When reading multiple records, create an ADIFParser using NewADIParser() and use its Parse() method to avoid unnecessary GC pressure.
+// When reading multiple records, create an ADIFParser using NewADIParser().
+// Use its Parse() method to obtain maximum speed and memory efficiency.
 func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 	p := NewADIParser(src, true)
 	var n int64

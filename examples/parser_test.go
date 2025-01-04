@@ -15,9 +15,13 @@ func ExampleADIFParser_Parse() {
 	for {
 		record, _, err := parser.Parse()
 		if err == io.EOF {
+			// all done, io.EOF means there are no more records
 			break
 		}
 		if err != nil {
+			// this means that something went wrong.
+			// see errors.go for errors specific to parsing.
+			// other errors may be returned from the io.Reader in addition to the ones listed in errors.go.
 			panic(err)
 		}
 
