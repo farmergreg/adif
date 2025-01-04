@@ -54,22 +54,22 @@ This parser achieves its performance through several optimizations strategies:
 
 ### Optimizations
 
+- Utilizes standard library io operations that are likely to process multiple bytes at a time via sse/simd.
+- Efficient buffer management with pre-allocation strategies to adapt to discovered record sizes.
 - String interning for field names reduces memory allocations and improves comparison speed.
 - Takes advantage of CPU cache locality to increase field lookup performance.
 - Custom ASCII case conversion using bitwise operations.
 - Specialized base-10 integer parsing optimized for ADIF field lengths.
-- Utilizes standard library io operations that are likely to process multiple bytes at a time via sse/simd.
-- Efficient buffer management with pre-allocation strategies to adapt to discovered record sizes.
 
 ### Memory Characteristics
 
-- String interning ensures common ADI fields avoid allocations, ensures that keys are stored only once, and ensures lookups require fewer comparisons.
+- String interning ensures common ADI fields string keys avoid allocations, ensures keys are stored only once, and ensures lookups require fewer comparisons.
 - Constant memory overhead for streaming operations.
 - Minimal temporary allocations during field parsing.
 - Peak memory usage scales linearly with record size, not file size.
 - Allocate buffers based on learned record field counts.
 
-These design choices result in significantly lower allocation counts and better CPU cache utilization compared to more generic parsing approaches.
+These design choices result in significantly faster runtime and lower allocation counts compared to more generic parsing approaches.
 
 ## Future Improvement Thoughts
 
