@@ -28,7 +28,7 @@ func ExampleRecord_ReadFrom() {
 	_, err := r.ReadFrom(strings.NewReader(adi))
 	if err != nil {
 		// see errors.go for errors specific to parsing.
-		// other errors may be returned from the io.Reader in addition to the ones listed in errors.go.
+		// other errors may be returned in addition to the ones listed in errors.go.
 		panic(err)
 	}
 
