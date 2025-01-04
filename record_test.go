@@ -98,8 +98,8 @@ func TestAppendAsADI(t *testing.T) {
 		t.Errorf("Expected %s to NOT appear in %s", expected, actual)
 	}
 
-	if !strings.HasSuffix(actual, TagEOR) {
-		t.Errorf("Expected %s to end with %s", actual, TagEOR)
+	if !strings.HasSuffix(actual, tagEOR) {
+		t.Errorf("Expected %s to end with %s", actual, tagEOR)
 	}
 }
 

@@ -19,7 +19,7 @@ func NewDocument() *Document {
 }
 
 // NewDocumentWithCapacity creates a new Document with a specific initial capacity for Records.
-// If initialCapacity is negative, it will use a default capacity of 64.
+// If initialCapacity is negative, it will use a default capacity of 32.
 func NewDocumentWithCapacity(initialCapacity int) *Document {
 	if initialCapacity < 0 {
 		initialCapacity = 32

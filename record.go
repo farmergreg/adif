@@ -161,9 +161,9 @@ func (r *Record) appendAsADI(buf []byte, isHeader bool) []byte {
 	}
 
 	if isHeader {
-		buf = append(buf, TagEOH...)
+		buf = append(buf, tagEOH...)
 	} else {
-		buf = append(buf, TagEOR...)
+		buf = append(buf, tagEOR...)
 	}
 
 	return buf

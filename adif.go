@@ -20,10 +20,15 @@ import (
 //
 // Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
 const (
-	VERSION_MAJOR      = 0
-	VERSION_MINOR      = 0
-	VERSION_PATCH      = 1
-	VERSION_PRERELEASE = "-alpha"
+	versionMajor      = 0
+	versionMinor      = 0
+	versionPatch      = 1
+	versionPreRelease = "-alpha"
+)
+
+const (
+	tagEOH = string("<" + adifield.EOH + ">") // TagEOH is the end of header ADIF tag: <EOH>
+	tagEOR = string("<" + adifield.EOR + ">") // TagEOR is the end of record ADIF tag: <EOR>
 )
 
 // AdifHeaderPreamble is always printed immediately before the header record.
@@ -33,17 +38,12 @@ const (
 //
 // You may set your own custom ADI header preamble by changing this variable.
 // If you provide your own preamble, you are responsible for ensuring it fulfils the ADIF specification.
-var AdifHeaderPreamble = fmt.Sprintf("K9CTS AM✠DG ADIF Library v%d.%d.%d%s / go\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_PRERELEASE)
-
-const (
-	TagEOH = string("<" + adifield.EOH + ">") // TagEOH is the end of header ADIF tag: <EOH>
-	TagEOR = string("<" + adifield.EOR + ">") // TagEOR is the end of record ADIF tag: <EOR>
-)
+var AdifHeaderPreamble = fmt.Sprintf("K9CTS AM✠DG ADIF Library v%d.%d.%d%s / go\n", versionMajor, versionMinor, versionPatch, versionPreRelease)
 
 // DocumentMaxSizeInBytes controls the maximum size of data read into an Document struct in bytes.
-// This is to prevent memory exhaustion attacks.
-// You can change this value to suit your needs.
-// The default is 256MB.
+// This variable helps prevent memory exhaustion attacks.
+// You may adjust this value to suit your needs.
 //
 // For large documents, consider using the ADI parser to stream the records.
+// The default limit is 256MB.
 var DocumentMaxSizeInBytes int64 = 1024 * 1024 * 256

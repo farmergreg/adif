@@ -20,12 +20,12 @@ func ExampleNewRecord() {
 }
 
 func ExampleRecord_ReadFrom() {
-	adi := "<CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>"
+	adiStr := "<CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>"
 	r := adif.NewRecord()
 
 	// ReadFrom reads exactly one ADIF record from the given reader.
 	// It skips the header if present.
-	_, err := r.ReadFrom(strings.NewReader(adi))
+	_, err := r.ReadFrom(strings.NewReader(adiStr))
 	if err != nil {
 		// see errors.go for errors specific to parsing.
 		// other errors may be returned in addition to the ones listed in errors.go.

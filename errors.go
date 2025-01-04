@@ -3,7 +3,7 @@ package adif
 import "errors"
 
 var (
-	// ErrUnexpectedEOH is returned when an EOH is encountered when it is not expected.
+	// ErrUnexpectedEOH is returned when an EOH is found when it is not expected.
 	ErrUnexpectedEOH = errors.New("adi parser: unexpected <EOH>")
 
 	// ErrMalformedADI is returned when the ADI formatted data does not conform to the ADIF specification.
