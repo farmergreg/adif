@@ -11,7 +11,7 @@ import (
 )
 
 var qsoWithLou = func() *Record {
-	qso := NewRecord(1)
+	qso := NewRecordWithCapacity(5)
 	qso.Set(adifield.CALL, "W9PVA")
 	qso.Set(adifield.RST_RCVD, "58")
 	qso.Set(adifield.RST_SENT, "59")
@@ -106,7 +106,7 @@ func TestAppendAsADI(t *testing.T) {
 func TestAppendAsADIPreCalculate(t *testing.T) {
 	// Arrange
 	var size = rand.Intn(10000000) + (1024 * 50)
-	var qso = *NewRecord(1)
+	var qso = *NewRecord()
 	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
 	qso.Set(adifield.ADIF_VER, spec.ADIFVersion)
@@ -126,7 +126,7 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 
 func TestQSOClean(t *testing.T) {
 	// Arrange
-	qso := *NewRecord(1)
+	qso := *NewRecord()
 	qso.Set(adifield.CALL, "W9PVA ")
 	qso.Set(adifield.COMMENT, " COMMENT ")
 	qso.Set(adifield.QSO_DATE, "")
@@ -157,25 +157,25 @@ func TestIsHeaderRecord(t *testing.T) {
 	}{
 		{
 			name:           "Header record",
-			qso:            *NewRecord(1).Set(adifield.ADIF_VER, spec.ADIFVersion),
+			qso:            *NewRecord().Set(adifield.ADIF_VER, spec.ADIFVersion),
 			want:           true,
 			wantConclusive: true,
 		},
 		{
 			name:           "QSO record",
-			qso:            *NewRecord(1).Set(adifield.CALL, "W9PVA"),
+			qso:            *NewRecord().Set(adifield.CALL, "W9PVA"),
 			want:           false,
 			wantConclusive: true,
 		},
 		{
 			name:           "User defined record",
-			qso:            *NewRecord(1).Set(adifield.USERDEF1, "Concertina"),
+			qso:            *NewRecord().Set(adifield.USERDEF1, "Concertina"),
 			want:           true,
 			wantConclusive: true,
 		},
 		{
 			name:           "User defined record",
-			qso:            *NewRecord(1).Set("APP_UNKNOWN", "Concertina"),
+			qso:            *NewRecord().Set("APP_UNKNOWN", "Concertina"),
 			want:           false,
 			wantConclusive: false,
 		},
@@ -202,7 +202,7 @@ func TestWriteTo(t *testing.T) {
 	qsoWithLou.WriteTo(&builder)
 
 	// Assert
-	qso := Record{}
+	qso := NewRecord()
 	n, err := qso.ReadFrom(strings.NewReader(builder.String()))
 	assert.Nil(t, err)
 	assert.Equal(t, 4, len(qso.Fields))
@@ -211,7 +211,7 @@ func TestWriteTo(t *testing.T) {
 }
 
 func TestReadFrom(t *testing.T) {
-	qso := Record{}
+	qso := NewRecord()
 	qso.ReadFrom(strings.NewReader(testADIFSingleRecord))
 
 	if len(qso.Fields) != 32 {

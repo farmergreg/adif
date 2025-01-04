@@ -25,8 +25,17 @@ var bufferPool = sync.Pool{
 	},
 }
 
-// NewRecord creates a new RecordData with pre-allocated space for fields.
-func NewRecord(initialCapacity int) *Record {
+// NewRecord creates a new Record with the default initial capacity.
+func NewRecord() *Record {
+	return NewRecordWithCapacity(-1)
+}
+
+// NewRecordWithCapacity creates a new Record with a specific initial capacity.
+// If initialCapacity is negative, it will use a default capacity of 7.
+func NewRecordWithCapacity(initialCapacity int) *Record {
+	if initialCapacity < 0 {
+		initialCapacity = 7
+	}
 	return &Record{
 		Fields: make([]FieldEntry, 0, initialCapacity),
 	}

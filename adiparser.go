@@ -63,7 +63,7 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 // Parse reads and returns the next Record.
 // It returns io.EOF when no more records are available.
 func (p *adiParser) Parse() (*Record, int64, error) {
-	result := NewRecord(p.preAllocateFields)
+	result := NewRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
 		// Find the start of the next field for parsing
