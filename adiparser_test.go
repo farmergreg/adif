@@ -38,7 +38,7 @@ func TestVerifyRecordCount(t *testing.T) {
 
 			count := 0
 			for {
-				qso, _, err := p.Parse()
+				qso, _, _, err := p.Parse()
 				if err == io.EOF {
 					break
 				}
@@ -91,7 +91,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			records := make([]*Record, 0, 10000)
 			for {
-				record, _, err := p.Parse()
+				record, _, _, err := p.Parse()
 				if err == io.EOF {
 					break
 				}
@@ -122,7 +122,7 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	p := NewADIParser(strings.NewReader(raw), false)
 
 	// Act
-	qso, bytesRead, err := p.Parse()
+	qso, _, bytesRead, err := p.Parse()
 
 	// Assert
 	assert.Nil(t, err)
@@ -137,7 +137,7 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	p := NewADIParser(strings.NewReader(raw), false)
 
 	// Act
-	qso, bytesRead, err := p.Parse()
+	qso, _, bytesRead, err := p.Parse()
 
 	// Assert
 	assert.Equal(t, io.EOF, err)
@@ -187,8 +187,6 @@ func TestParseNoRecords(t *testing.T) {
 		{"Empty tag with quad colon", "<::::>fake", true},
 		{"tag open and close", "<>", true},
 		{"tag open and close with colon", "<:>", true},
-		{"EOR after EOH", "<EOR><EOH>", true},
-		{"Duplicate EOH", "<EOH><EOH>", true},
 	}
 
 	for _, tt := range tests {
@@ -197,7 +195,7 @@ func TestParseNoRecords(t *testing.T) {
 			p := NewADIParser(strings.NewReader(tt.data), false)
 
 			// Act
-			qso, _, err := p.Parse()
+			qso, _, _, err := p.Parse()
 			assert.Equal(t, 0, len(qso.Fields))
 
 			// Assert
@@ -220,7 +218,7 @@ func TestParseSingleRecord(t *testing.T) {
 		isHeaderRecord bool
 		isExpectEOF    bool
 	}{
-		{"Header record", "<progRamid:4>MonoLog", "PROGRAMID", "Mono", true, false},
+		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true, false},
 		{"Zero length data", "<APP_MY_APP:0>\r\n", "APP_MY_APP", "", false, true},
 		{"Single char data", "<APP_MY_APP:1>x ", "APP_MY_APP", "x", false, false},
 		{"Basic TIME_ON", "<TIME_ON:6>161819", "TIME_ON", "161819", false, false},
@@ -242,7 +240,7 @@ func TestParseSingleRecord(t *testing.T) {
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
 			p := NewADIParser(br, false)
 
-			qso, bytesRead, err := p.Parse()
+			qso, isHeader, bytesRead, err := p.Parse()
 			if tt.isExpectEOF {
 				assert.Equal(t, io.EOF, err)
 			} else {
@@ -251,7 +249,6 @@ func TestParseSingleRecord(t *testing.T) {
 
 			assert.Equal(t, tt.fieldData, qso.Get(adifield.Field(tt.fieldName)))
 
-			isHeader, _ := qso.isHeaderRecord()
 			assert.Equal(t, tt.isHeaderRecord, isHeader)
 			assert.Equal(t, int64(len(tt.adifSource)), bytesRead)
 		})
@@ -264,12 +261,12 @@ func TestParseSkipHeader(t *testing.T) {
 	p := NewADIParser(strings.NewReader(adif), true)
 
 	// Act & Assert
-	record, _, err := p.Parse()
+	record, _, _, err := p.Parse()
 	assert.Nil(t, err)
 	assert.Equal(t, "", record.Get("PROGRAMID"))
 	assert.Equal(t, "GOOD", record.Get("COMMENT"))
 
-	recordTwo, _, errTwo := p.Parse()
+	recordTwo, _, _, errTwo := p.Parse()
 	assert.Equal(t, io.EOF, errTwo)
 	assert.Equal(t, 0, len(recordTwo.Fields))
 }
@@ -283,8 +280,8 @@ func TestParseLongFieldName(t *testing.T) {
 	p := NewADIParser(strings.NewReader(adif), false)
 
 	// Act
-	record, _, err := p.Parse()
-	_, _, _ = p.Parse()
+	record, _, _, err := p.Parse()
+	_, _, _, _ = p.Parse()
 
 	// Assert
 	assert.Nil(t, err)
@@ -296,8 +293,8 @@ func TestParseLargeData(t *testing.T) {
 	p := NewADIParser(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01"), false)
 
 	// Act
-	record, _, err := p.Parse() // Force the buffer to be resized to accommodate the large value
-	_, _, _ = p.Parse()         // Force the buffer to be resized back to "normal"
+	record, _, _, err := p.Parse() // Force the buffer to be resized to accommodate the large value
+	_, _, _, _ = p.Parse()         // Force the buffer to be resized back to "normal"
 
 	// Assert
 	assert.Nil(t, err)
@@ -311,8 +308,8 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	p := NewADIParser(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
 
 	// Act
-	record, _, err := p.Parse() // Force the buffer to be resized to accommodate the large value
-	_, _, _ = p.Parse()         // Force the buffer to be resized back to "normal"
+	record, _, _, err := p.Parse() // Force the buffer to be resized to accommodate the large value
+	_, _, _, _ = p.Parse()         // Force the buffer to be resized back to "normal"
 
 	// Assert
 	assert.Equal(t, ErrInvalidFieldLength, err)

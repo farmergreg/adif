@@ -108,7 +108,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 	p := NewADIParser(src, true)
 	var n int64
 
-	record, c, err := p.Parse()
+	record, _, c, err := p.Parse()
 	n += c
 	if err != nil {
 		return n, err
@@ -121,7 +121,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 // WriteTo writes ADI formatted record data to the provided io.Writer.
 // It returns the number of bytes written and any error encountered.
 func (r *Record) WriteTo(dest io.Writer) (int64, error) {
-	adiLength, isHeader := r.appendAsADIPreCalculate()
+	adiLength := r.appendAsADIPreCalculate()
 	bufPtr := bufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
@@ -131,7 +131,7 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	}
 	buf = buf[:0]
 
-	buf = r.appendAsADI(buf, isHeader)
+	buf = r.appendAsADI(buf)
 	n, err := dest.Write(buf)
 	bufferPool.Put(bufPtr)
 	return int64(n), err
@@ -139,14 +139,10 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 
 // appendAsADI writes the ADI formatted QSO record to the provided buffer.
 // The buffer should have sufficient capacity to avoid reallocations.
-// You should use appendAsADIPreCalculate() to determine the required capacity, and if the record is a header record.
-func (r *Record) appendAsADI(buf []byte, isHeader bool) []byte {
+// You should use appendAsADIPreCalculate() to determine the required capacity
+func (r *Record) appendAsADI(buf []byte) []byte {
 	if len(r.Fields) == 0 {
 		return buf
-	}
-
-	if isHeader {
-		buf = append(buf, AdifHeaderPreamble...)
 	}
 
 	for i := 0; i < len(r.Fields); i++ {
@@ -162,26 +158,15 @@ func (r *Record) appendAsADI(buf []byte, isHeader bool) []byte {
 		buf = append(buf, []byte(r.Fields[i].Data)...)
 	}
 
-	if isHeader {
-		buf = append(buf, tagEOH...)
-	} else {
-		buf = append(buf, tagEOR...)
-	}
-
 	return buf
 }
 
 // appendAsADIPreCalculate returns:
 // 1) the length of the record in bytes when exported to ADI format by the AppendAsADI method.
 // 2) a boolean indicating if the record is a header record.
-func (r *Record) appendAsADIPreCalculate() (adiLength int, isHeader bool) {
+func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 	if len(r.Fields) == 0 {
-		return 0, false
-	}
-
-	isHeader, _ = r.isHeaderRecord()
-	if isHeader {
-		adiLength += len(AdifHeaderPreamble)
+		return 0
 	}
 
 	for i := 0; i < len(r.Fields); i++ {
@@ -204,27 +189,7 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int, isHeader bool) {
 		}
 	}
 
-	return adiLength + 5, isHeader // +5 for <EOR> / <EOH>
-}
-
-// isHeaderRecord analyzes the record to determine if it is a Header record.
-// It returns two booleans:
-//   - isHeader: true if the record is determined to be a Header record
-//   - isConclusive: true if the analysis was conclusive based on field presence in spec.FieldMap
-//
-// If isConclusive is false, the record type could not be definitively determined.
-// In practice, non-conclusive records are typically QSO records.
-func (r *Record) isHeaderRecord() (isHeader, isConclusive bool) {
-	for i := 0; i < len(r.Fields); i++ {
-		if s, ok := adifield.FieldMap[r.Fields[i].Name]; ok {
-			return bool(s.IsHeaderField), true
-		} else if strings.HasPrefix(string(r.Fields[i].Name), adifield.USERDEF) {
-			return true, true
-		}
-	}
-
-	// We don't know; so we pretend it is a QSO, and indicate that the analysis is inconclusive.
-	return false, false
+	return adiLength
 }
 
 // Clean
@@ -238,7 +203,7 @@ func (r *Record) Clean() {
 
 // String returns the ADIF record as a string
 func (r *Record) String() string {
-	adiLength, isHeader := r.appendAsADIPreCalculate()
+	adiLength := r.appendAsADIPreCalculate()
 	bufPtr := bufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
@@ -248,7 +213,7 @@ func (r *Record) String() string {
 	}
 	buf = buf[:0]
 
-	buf = r.appendAsADI(buf, isHeader)
+	buf = r.appendAsADI(buf)
 	s := string(buf)
 
 	bufferPool.Put(bufPtr)

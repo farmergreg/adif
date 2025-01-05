@@ -10,14 +10,17 @@ import (
 
 func TestDocumentString(t *testing.T) {
 	// Arrange
-	doc := NewDocument()
+	const preamble = "K9CTS AM✠DG ADIF Library\n"
+	doc := NewDocument(preamble)
+	doc.headerPreamble = preamble
+
 	doc.ReadFrom(strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR>"))
 
 	// Act
 	s := doc.String()
 
 	// Assert
-	assert.Equal(t, AdifHeaderPreamble+"<PROGRAMID:7>MonoLog<EOH>\n<CALL:5>W9PVA<EOR>\n", s)
+	assert.Equal(t, preamble+"<PROGRAMID:7>MonoLog<EOH>\n<CALL:5>W9PVA<EOR>\n", s)
 }
 
 func TestParseExportParseVerifySimple(t *testing.T) {
@@ -62,8 +65,10 @@ func TestParseExportParseVerifyFiles(t *testing.T) {
 	}
 }
 func parseExportParseVerifyHelper(t *testing.T, adif string) {
+	t.Helper()
+
 	// Parse
-	firstDoc := NewDocument()
+	firstDoc := NewDocument("")
 	firstDoc.ReadFrom(strings.NewReader(adif))
 
 	// Export
@@ -72,7 +77,7 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	firstDoc.WriteTo(buf)
 
 	// Parse
-	secondDoc := NewDocument()
+	secondDoc := NewDocument("")
 	secondDoc.ReadFrom(strings.NewReader(buf.String()))
 
 	// Verify

@@ -37,9 +37,6 @@ type adiParser struct {
 
 	// skipHeader is true if the header record should be skipped.
 	skipHeader bool
-
-	// true if we expect no more headers after the current record
-	expectEOROnly bool
 }
 
 // NewADIParser returns an ADIFParser that can parse ADIF *.adi formatted records.
@@ -62,7 +59,7 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 
 // Parse reads and returns the next Record.
 // It returns io.EOF when no more records are available.
-func (p *adiParser) Parse() (*Record, int64, error) {
+func (p *adiParser) Parse() (*Record, bool, int64, error) {
 	result := NewRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
@@ -74,27 +71,22 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 			if err == io.EOF && len(result.Fields) > 0 {
 				// We have a valid record, return it without the EOF error
 				// The next call to Parse() will return io.EOF
-				return result, n, nil
+				return result, false, n, nil
 			}
-			return result, n, err
+			return result, false, n, err
 		}
 
 		field, value, c, err := p.parseOneField()
 		n += c
 		if err != nil {
-			return result, n, err
+			return result, false, n, err
 		}
 
 		switch field {
 		case adifield.EOH:
-			if p.expectEOROnly {
-				return result, n, ErrUnexpectedEOH
-			}
-			p.expectEOROnly = true
-
 			if len(result.Fields) > 0 {
 				if !p.skipHeader {
-					return result, n, nil
+					return result, true, n, nil
 				}
 			}
 			// we are skipping returning the EOH record (if any)
@@ -102,13 +94,12 @@ func (p *adiParser) Parse() (*Record, int64, error) {
 			result.Reset()
 			continue
 		case adifield.EOR:
-			p.expectEOROnly = true
 
 			if len(result.Fields) > 0 {
 				if len(result.Fields) > p.preAllocateFields {
 					p.preAllocateFields = len(result.Fields)
 				}
-				return result, n, nil
+				return result, false, n, nil
 			}
 			// we know record is empty... no need to reset it
 			continue

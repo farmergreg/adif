@@ -14,18 +14,11 @@ var (
 )
 
 // NewDocument creates a new Document with default initial capacity.
-func NewDocument() *Document {
-	return NewDocumentWithCapacity(-1)
-}
-
-// NewDocumentWithCapacity creates a new Document with a specific initial capacity for Records.
-// If initialCapacity is negative, it will use a default capacity of 32.
-func NewDocumentWithCapacity(initialCapacity int) *Document {
-	if initialCapacity < 0 {
-		initialCapacity = 32
-	}
+// If preamble is empty, we will use the default header preamble.
+func NewDocument(headerPreamble string) *Document {
 	return &Document{
-		Records: make([]Record, 0, initialCapacity),
+		Records:        make([]Record, 0, 16),
+		headerPreamble: headerPreamble,
 	}
 }
 
@@ -43,13 +36,32 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 	}
 
 	if f.Header != nil {
-		c, err := f.Header.WriteTo(bw)
-		n += c
+		var err error
+
+		if len(f.headerPreamble) == 0 {
+			f.headerPreamble = fmt.Sprintf("K9CTS AM✠DG ADIF Library v%d.%d.%d%s / go\n",
+				versionMajor,
+				versionMinor,
+				versionPatch,
+				versionPreRelease)
+		}
+
+		var ci int
+		ci, err = bw.WriteString(f.headerPreamble)
+		n += int64(ci)
 		if err != nil {
 			return handleFlush(bw, n, err)
 		}
-		cc, err := bw.Write([]byte{'\n'})
-		n += int64(cc)
+
+		var c64 int64
+		c64, err = f.Header.WriteTo(bw)
+		n += c64
+		if err != nil {
+			return handleFlush(bw, n, err)
+		}
+
+		ci, err = bw.WriteString("<EOH>\n")
+		n += int64(ci)
 		if err != nil {
 			return handleFlush(bw, n, err)
 		}
@@ -62,7 +74,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 			return handleFlush(bw, n, err)
 		}
 
-		cc, err := bw.Write([]byte{'\n'})
+		cc, err := bw.WriteString("<EOR>\n")
 		n += int64(cc)
 		if err != nil {
 			return handleFlush(bw, n, err)
@@ -84,19 +96,19 @@ func handleFlush(bw *bufio.Writer, n int64, err error) (int64, error) {
 func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 	p := NewADIParser(r, false)
 
-	firstRecord, n, err := p.Parse()
+	firstRecord, isHeader, n, err := p.Parse()
 	if err != nil {
 		return n, err
 	}
 
-	if isHeader, _ := firstRecord.isHeaderRecord(); isHeader {
+	if isHeader {
 		f.Header = firstRecord
 	} else {
 		f.Records = append(f.Records, *firstRecord)
 	}
 
 	for {
-		record, c, err := p.Parse()
+		record, _, c, err := p.Parse()
 		n += c
 		if err != nil {
 			if err == io.EOF {

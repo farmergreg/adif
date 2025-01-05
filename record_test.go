@@ -59,12 +59,12 @@ var testADIFSingleRecord = `<APP_LoTW_OWNCALL:5>K9CTS
 func TestAppendAsADI(t *testing.T) {
 	// Arrange
 	// the order may be different, but the fields and values must be identical
-	expected := "<CALL:5>W9PVA<RST_RCVD:2>58<RST_SENT:2>59<COMMENT:16>Eyeball QSO 👀<QSO_DATE:0><EOR>"
+	expected := "<CALL:5>W9PVA<RST_RCVD:2>58<RST_SENT:2>59<COMMENT:16>Eyeball QSO 👀<QSO_DATE:0>"
 
 	// Act
-	adiLength, isHeader := qsoWithLou.appendAsADIPreCalculate()
+	adiLength := qsoWithLou.appendAsADIPreCalculate()
 	buf := make([]byte, 0, adiLength)
-	buf = qsoWithLou.appendAsADI(buf, isHeader)
+	buf = qsoWithLou.appendAsADI(buf)
 	actual := string(buf)
 
 	// Assert
@@ -97,10 +97,6 @@ func TestAppendAsADI(t *testing.T) {
 	if strings.Contains(actual, expected) {
 		t.Errorf("Expected %s to NOT appear in %s", expected, actual)
 	}
-
-	if !strings.HasSuffix(actual, tagEOR) {
-		t.Errorf("Expected %s to end with %s", actual, tagEOR)
-	}
 }
 
 func TestAppendAsADIPreCalculate(t *testing.T) {
@@ -111,13 +107,13 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
 	qso.Set(adifield.ADIF_VER, spec.ADIFVersion)
 
-	adiLength, isHeader := qso.appendAsADIPreCalculate()
+	adiLength := qso.appendAsADIPreCalculate()
 	buf := make([]byte, 0, adiLength)
-	buf = qso.appendAsADI(buf, isHeader)
+	buf = qso.appendAsADI(buf)
 	expectedLength := len(buf)
 
 	// Act
-	length, _ := qso.appendAsADIPreCalculate()
+	length := qso.appendAsADIPreCalculate()
 
 	if length != expectedLength {
 		t.Errorf("Expected %d, got %d", expectedLength, length)
@@ -148,52 +144,6 @@ func TestQSOClean(t *testing.T) {
 	}
 }
 
-func TestIsHeaderRecord(t *testing.T) {
-	tests := []struct {
-		name           string
-		qso            Record
-		want           bool
-		wantConclusive bool
-	}{
-		{
-			name:           "Header record",
-			qso:            *NewRecord().Set(adifield.ADIF_VER, spec.ADIFVersion),
-			want:           true,
-			wantConclusive: true,
-		},
-		{
-			name:           "QSO record",
-			qso:            *NewRecord().Set(adifield.CALL, "W9PVA"),
-			want:           false,
-			wantConclusive: true,
-		},
-		{
-			name:           "User defined record",
-			qso:            *NewRecord().Set(adifield.USERDEF1, "Concertina"),
-			want:           true,
-			wantConclusive: true,
-		},
-		{
-			name:           "User defined record",
-			qso:            *NewRecord().Set("APP_UNKNOWN", "Concertina"),
-			want:           false,
-			wantConclusive: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, gotConclusive := tt.qso.isHeaderRecord()
-			if got != tt.want {
-				t.Errorf("QSO.IsHeaderRecord() = %v, want %v", got, tt.want)
-			}
-			if gotConclusive != tt.wantConclusive {
-				t.Errorf("QSO.IsHeaderRecord() = %v, want %v", gotConclusive, tt.wantConclusive)
-			}
-		})
-	}
-}
-
 func TestWriteTo(t *testing.T) {
 	// Arrange
 	var builder strings.Builder
@@ -206,8 +156,8 @@ func TestWriteTo(t *testing.T) {
 	n, err := qso.ReadFrom(strings.NewReader(builder.String()))
 	assert.Nil(t, err)
 	assert.Equal(t, 4, len(qso.Fields))
-	assert.Equal(t, 74, builder.Len())
-	assert.Equal(t, int64(74), n)
+	assert.Equal(t, 69, builder.Len())
+	assert.Equal(t, int64(69), n)
 }
 
 func TestReadFrom(t *testing.T) {
