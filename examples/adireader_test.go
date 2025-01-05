@@ -10,7 +10,7 @@ import (
 
 func ExampleADIFReader_Next() {
 	var r = strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR><CALL:5>K9CTS<EOR>")
-	adiReader := adif.NewADIReader(r, true)
+	adiReader := adif.NewADIReader(r, true) // true means we'll skip the header (if there is one)
 
 	for {
 		qso, isHeader, bytesProcessed, err := adiReader.Next()

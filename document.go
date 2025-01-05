@@ -20,12 +20,6 @@ func NewDocument() *Document {
 	}
 }
 
-// Reset clears the document and prepares it for reuse.
-func (f *Document) Reset() {
-	f.Header = nil
-	f.Records = f.Records[:0]
-}
-
 // WriteTo writes the document in ADI format to the given writer.
 func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 	bw, ok := w.(*bufio.Writer)
@@ -47,7 +41,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 			return handleFlush(bw, n, err)
 		}
 
-		ci, err = bw.WriteString("<EOH>\n")
+		ci, err = bw.WriteString(TagEOH + "\n")
 		n += int64(ci)
 		if err != nil {
 			return handleFlush(bw, n, err)
@@ -61,7 +55,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 			return handleFlush(bw, n, err)
 		}
 
-		cc, err := bw.WriteString("<EOR>\n")
+		cc, err := bw.WriteString(TagEOR + "\n")
 		n += int64(cc)
 		if err != nil {
 			return handleFlush(bw, n, err)

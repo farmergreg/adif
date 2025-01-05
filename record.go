@@ -120,6 +120,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 }
 
 // WriteTo writes ADI formatted record data to the provided io.Writer.
+// It WILL NOT write the <EOR>/<EOH> tag.
 // It returns the number of bytes written and any error encountered.
 func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	adiLength := r.appendAsADIPreCalculate()
