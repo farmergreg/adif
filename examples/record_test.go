@@ -15,6 +15,10 @@ func ExampleNewRecord() {
 	record.Set(adifield.MODE, "SSB")
 	record.Set(adifield.APP_+"K9CTS_TEST", "TEST")
 
+	if record.Get(adifield.CALL) != "W1AW" {
+		panic("Expected W1AW, got " + record.Get(adifield.CALL))
+	}
+
 	fmt.Print(record.String())
 	fmt.Println(adif.TagEOR)
 
