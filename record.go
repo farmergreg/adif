@@ -37,7 +37,7 @@ func NewRecordWithCapacity(initialCapacity int) *Record {
 		initialCapacity = 7
 	}
 	return &Record{
-		Fields: make([]FieldEntry, 0, initialCapacity),
+		Fields: make([]Field, 0, initialCapacity),
 	}
 }
 
@@ -92,7 +92,7 @@ func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	if value == "" {
 		return r
 	}
-	r.Fields = append(r.Fields, FieldEntry{Name: field, Data: value})
+	r.Fields = append(r.Fields, Field{Name: field, Data: value})
 	return r
 }
 

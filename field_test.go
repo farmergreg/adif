@@ -2,13 +2,13 @@ package adif
 
 import "testing"
 
-func TestFieldEntry(t *testing.T) {
-	fe := FieldEntry{
+func TestField(t *testing.T) {
+	fe := Field{
 		Name: "CALL",
 		Data: "KC9RYZ",
 	}
 
 	if fe.String() != "<CALL:6>KC9RYZ" {
-		t.Errorf("FieldEntry.String() = %s", fe.String())
+		t.Errorf("Field.String() = %s", fe.String())
 	}
 }

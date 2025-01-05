@@ -24,13 +24,13 @@ type Document struct {
 // Record represents one ADIF record which may be a Header or a QSO.
 // n.b. Some software, like Log4OM like to incorrectly place header only fields (i.e. PROGRAMID) into QSO records...
 type Record struct {
-	// Fields is a slice of FieldEntry.
-	Fields []FieldEntry
+	// Fields is a slice of Field.
+	Fields []Field
 }
 
-// FieldEntry represents an ADIF field and its data.
+// Field represents an ADIF field and its data.
 // It is designed to ensure cpu cache locality during field lookup and value retrieval.
-type FieldEntry struct {
+type Field struct {
 
 	// Name is the field name.
 	// Unlike the ADIF specification, the field name MUST be in UPPERCASE for use in this library.

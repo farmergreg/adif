@@ -57,7 +57,7 @@ func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
 	return p
 }
 
-// Parse reads and returns the next Record.
+// Next reads and returns the next Record.
 // It returns io.EOF when no more records are available.
 func (p *adiReader) Next() (*Record, bool, int64, error) {
 	result := NewRecordWithCapacity(p.preAllocateFields)
