@@ -1,5 +1,5 @@
 // package adif provides
-// 1) Types, Structs and Methods for managing ADIF QSOs.
+// 1) Types, Structs and Methods for managing ADIF Records.
 // 2) ADIF Reader for ADI formatted data.
 // 3) Export ADI formatted data.
 package adif

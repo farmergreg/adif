@@ -13,7 +13,7 @@ func ExampleADIFReader_Next() {
 	adiReader := adif.NewADIReader(r, true)
 
 	for {
-		record, isHeader, _, err := adiReader.Next()
+		qso, isHeader, bytesProcessed, err := adiReader.Next()
 		if err == io.EOF {
 			// io.EOF means there are no more records
 			break
@@ -25,15 +25,19 @@ func ExampleADIFReader_Next() {
 			panic(err)
 		}
 
-		fmt.Print(record.String())
+		fmt.Print(qso.String())
 		if isHeader {
 			fmt.Println(adif.TagEOH)
 		} else {
 			fmt.Println(adif.TagEOR)
 		}
+		fmt.Printf("Read %d bytes.\n\n", bytesProcessed)
 	}
 
 	// Output:
 	// <CALL:5>W9PVA<EOR>
+	// Read 43 bytes.
+	//
 	// <CALL:5>K9CTS<EOR>
+	// Read 18 bytes.
 }
