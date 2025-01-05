@@ -94,9 +94,9 @@ func handleFlush(bw *bufio.Writer, n int64, err error) (int64, error) {
 // ReadFrom reads an ADI document from the given reader.
 // You should call Reset() if you do not want add/update the existing document.
 func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
-	p := NewADIParser(r, false)
+	p := NewADIReader(r, false)
 
-	firstRecord, isHeader, n, err := p.Parse()
+	firstRecord, isHeader, n, err := p.Next()
 	if err != nil {
 		return n, err
 	}
@@ -108,7 +108,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 
 	for {
-		record, _, c, err := p.Parse()
+		record, _, c, err := p.Next()
 		n += c
 		if err != nil {
 			if err == io.EOF {

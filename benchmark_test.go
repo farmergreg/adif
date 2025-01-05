@@ -24,9 +24,9 @@ func BenchmarkAllTestFiles(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
 				content, _ := io.ReadAll(reader)
-				p := NewADIParser(strings.NewReader(string(content)), true)
+				p := NewADIReader(strings.NewReader(string(content)), true)
 				for {
-					_, _, _, err := p.Parse()
+					_, _, _, err := p.Next()
 					if err == io.EOF {
 						break
 					}
@@ -43,9 +43,9 @@ var benchmarkFile string
 
 func loadTestData() []*Record {
 	var qsoListNative []*Record
-	p := NewADIParser(strings.NewReader(benchmarkFile), false)
+	p := NewADIReader(strings.NewReader(benchmarkFile), false)
 	for {
-		record, _, _, err := p.Parse()
+		record, _, _, err := p.Next()
 		if err == io.EOF {
 			break
 		}
@@ -59,9 +59,9 @@ func BenchmarkReadThisLibrary(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		qsoList = make([]*Record, 0, 10000)
-		p := NewADIParser(strings.NewReader(benchmarkFile), false)
+		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
-			q, _, _, err := p.Parse()
+			q, _, _, err := p.Next()
 			if err == io.EOF {
 				break
 			}

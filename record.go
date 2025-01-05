@@ -72,12 +72,12 @@ func (r *Record) Set(field adifield.Field, value string) *Record {
 }
 
 // setNoIntern is a low-level method that does not perform any string interning.
-// It is used internally to avoid duplicating the interning that is automatically performed by the adi parser.
+// It is used internally to avoid duplicating the interning that is automatically performed by the adi reader.
 // It expects the field name to be in UPPERCASE.
 func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
 	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
-	// While this (somewhat surprisingly) gives us performance gains event without string interning, it is particularly effective due to the interning that the adi parser performs.
+	// While this (somewhat surprisingly) gives us performance gains event without string interning, it is particularly effective due to the interning that the adi reader performs.
 	// Tested to perform 10% - 30% faster than a map with field counts ranging from 10 - 50.
 
 	for i := 0; i < len(r.Fields); i++ {
@@ -102,13 +102,13 @@ func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 // Header records are SKIPPED.
 //
 // n.b. This method is best used when reading a single record.
-// When reading multiple records, create an ADIFParser using NewADIParser().
-// Use its Parse() method to obtain maximum speed and memory efficiency.
+// When reading multiple records, create an ADIFReader using NewadiReader().
+// Use its Next() method to obtain maximum speed and memory efficiency.
 func (r *Record) ReadFrom(src io.Reader) (int64, error) {
-	p := NewADIParser(src, true)
+	p := NewADIReader(src, true)
 	var n int64
 
-	record, _, c, err := p.Parse()
+	record, _, c, err := p.Next()
 	n += c
 	if err != nil {
 		return n, err

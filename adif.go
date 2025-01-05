@@ -1,6 +1,6 @@
 // package adif provides
 // 1) Types, Structs and Methods for managing ADIF QSOs.
-// 2) ADIF parser for ADI formatted data.
+// 2) ADIF Reader for ADI formatted data.
 // 3) Export ADI formatted data.
 package adif
 
@@ -25,14 +25,14 @@ const (
 )
 
 const (
-	tagEOH = string("<" + adifield.EOH + ">") // TagEOH is the end of header ADIF tag: <EOH>
-	tagEOR = string("<" + adifield.EOR + ">") // TagEOR is the end of record ADIF tag: <EOR>
+	TagEOH = string("<" + adifield.EOH + ">") // TagEOH is the end of header ADIF tag: <EOH>
+	TagEOR = string("<" + adifield.EOR + ">") // TagEOR is the end of record ADIF tag: <EOR>
 )
 
 // DocumentMaxSizeInBytes controls the maximum size of data read into an Document struct in bytes.
 // This variable helps prevent memory exhaustion attacks.
 // You may adjust this value to suit your needs.
 //
-// For large documents, consider using the ADI parser to stream the records.
+// For large documents, consider using the ADI Reader to stream the records.
 // The default limit is 256MB.
 var DocumentMaxSizeInBytes int64 = 1024 * 1024 * 256

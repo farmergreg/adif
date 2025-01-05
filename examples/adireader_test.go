@@ -8,12 +8,12 @@ import (
 	"github.com/hamradiolog-net/adif"
 )
 
-func ExampleADIFParser_Parse() {
+func ExampleADIFReader_Next() {
 	var r = strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR><CALL:5>K9CTS<EOR>")
-	parser := adif.NewADIParser(r, true)
+	adiReader := adif.NewADIReader(r, true)
 
 	for {
-		record, _, err := parser.Parse()
+		record, isHeader, _, err := adiReader.Next()
 		if err == io.EOF {
 			// io.EOF means there are no more records
 			break
@@ -25,7 +25,12 @@ func ExampleADIFParser_Parse() {
 			panic(err)
 		}
 
-		fmt.Println(record.String())
+		fmt.Print(record.String())
+		if isHeader {
+			fmt.Println(adif.TagEOH)
+		} else {
+			fmt.Println(adif.TagEOR)
+		}
 	}
 
 	// Output:

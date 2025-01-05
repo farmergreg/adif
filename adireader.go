@@ -9,7 +9,7 @@ import (
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
-var _ ADIFParser = (*adiParser)(nil) // Implements ADIFParser
+var _ ADIFReader = (*adiReader)(nil) // Implements ADIFReader
 
 const (
 	// 1MB - this is the maximum size of a field value that we will accept.
@@ -19,11 +19,11 @@ const (
 	// Per the ADIF spec:
 	//   ADI-exporting applications can place as much data in a Data-Specifier as they choose.
 	//   ADI-importing applications can import as much data from a Data-Specifier as they choose.
-	maxADIParserDataSize = 1024 * 1024 * 1
+	maxadiReaderDataSize = 1024 * 1024 * 1
 )
 
-// adiParser is a high-performance ADIF parser that can parse ADIF *.adi formatted records.
-type adiParser struct {
+// adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
+type adiReader struct {
 	r *bufio.Reader
 
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
@@ -39,15 +39,15 @@ type adiParser struct {
 	skipHeader bool
 }
 
-// NewADIParser returns an ADIFParser that can parse ADIF *.adi formatted records.
-// If skipHeader is true, Parse() will not return the header record if it exists.
-func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
+// NewADIReader returns an ADIFReader that can parse ADIF *.adi formatted records.
+// If skipHeader is true, Next() will not return the header record if it exists.
+func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
 	br, ok := r.(*bufio.Reader)
 	if !ok {
 		br = bufio.NewReader(r)
 	}
 
-	p := &adiParser{
+	p := &adiReader{
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
@@ -59,7 +59,7 @@ func NewADIParser(r io.Reader, skipHeader bool) ADIFParser {
 
 // Parse reads and returns the next Record.
 // It returns io.EOF when no more records are available.
-func (p *adiParser) Parse() (*Record, bool, int64, error) {
+func (p *adiReader) Next() (*Record, bool, int64, error) {
 	result := NewRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
@@ -70,7 +70,7 @@ func (p *adiParser) Parse() (*Record, bool, int64, error) {
 		if err != nil {
 			if err == io.EOF && len(result.Fields) > 0 {
 				// We have a valid record, return it without the EOF error
-				// The next call to Parse() will return io.EOF
+				// The next call to Next() will return io.EOF
 				return result, false, n, nil
 			}
 			return result, false, n, err
@@ -117,7 +117,7 @@ func (p *adiParser) Parse() (*Record, bool, int64, error) {
 //
 // Future Plans: I would like to take a look at using simd directly.
 // However, the current implementation IS attempting to take advantage of the standard library's existing simd capabilities.
-func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64, err error) {
+func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64, err error) {
 	// Step 1: Read in the entire data specifier "<fieldname:length:...>" and remove the trailing '>'
 	volatileSpecifier, n, err := p.readDataSpecifierVolatile()
 	if err != nil {
@@ -197,7 +197,7 @@ func (p *adiParser) parseOneField() (field adifield.Field, value string, n int64
 //	followed by data D of length L:
 //
 //	<F:L:T>
-func (p *adiParser) readDataSpecifierVolatile() (volatileSpecifier []byte, n int64, err error) {
+func (p *adiReader) readDataSpecifierVolatile() (volatileSpecifier []byte, n int64, err error) {
 	// If ReadSlice returns bufio.ErrBufferFull, accumulator will contain ALL of the bytes read.
 	// In most cases, accumulator will be null because we won't hit the bufio.ErrBufferFull condition.
 	var accumulator []byte
@@ -229,7 +229,7 @@ func (p *adiParser) readDataSpecifierVolatile() (volatileSpecifier []byte, n int
 }
 
 // discardUntilLessThan reads until it finds the '<' character, returning the number of bytes read
-func (p *adiParser) discardUntilLessThan() (n int64, err error) {
+func (p *adiReader) discardUntilLessThan() (n int64, err error) {
 	for {
 		var b []byte
 		b, err = p.r.ReadSlice('<')
@@ -270,7 +270,7 @@ func parseDataLength(data []byte) (value int, err error) {
 		newVal := value*10 + int(b-'0')
 
 		// Check for overflow or too big
-		if newVal < value || newVal > maxADIParserDataSize {
+		if newVal < value || newVal > maxadiReaderDataSize {
 			return 0, ErrInvalidFieldLength
 		}
 
