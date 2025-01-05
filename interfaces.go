@@ -1,6 +1,6 @@
 package adif
 
-// ADIFReader parses Amateur Data Interchange Format (ADIF) records sequentially.
+// ADIFReader processes Amateur Data Interchange Format (ADIF) records sequentially.
 type ADIFReader interface {
 
 	// Next reads and returns the next Record in the input.

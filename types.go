@@ -16,7 +16,7 @@ type Document struct {
 	// Records is a slice of Record.
 	Records []Record
 
-	// headerPreamble is the preamble that will be written when the document is written to an io.Writer.
+	// headerPreamble is the preamble that will be written when the document header is written to an io.Writer.
 	// it has NOTHING to do with ADIFReader/ADIReader.
 	headerPreamble string
 }
