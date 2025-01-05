@@ -61,6 +61,7 @@ func (r *Record) Get(field adifield.Field) string {
 }
 
 // Set updates a field value or adds a new field if it does not exist.
+// It expects the field name to be in UPPERCASE.
 func (r *Record) Set(field adifield.Field, value string) *Record {
 	// ensure the strings are interned if reasonably possible.
 	// This makes future lookups faster and reduces overall memory use.
@@ -71,7 +72,8 @@ func (r *Record) Set(field adifield.Field, value string) *Record {
 }
 
 // setNoIntern is a low-level method that does not perform any string interning.
-// It is used internally to avoid duplicating the interning that has already been performed by the adi parser.
+// It is used internally to avoid duplicating the interning that is automatically performed by the adi parser.
+// It expects the field name to be in UPPERCASE.
 func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
 	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
