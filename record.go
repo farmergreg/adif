@@ -77,7 +77,8 @@ func (r *Record) Set(field adifield.Field, value string) *Record {
 func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
 	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
 	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
-	// While this (somewhat surprisingly) gives us performance gains event without string interning, it is particularly effective due to the interning that the adi reader performs.
+	// While this (somewhat surprisingly) gives us performance gains event without string interning,
+	// it is particularly effective due to our use of string interning both in the adi reader and in Set() above.
 	// Tested to perform 10% - 30% faster than a map with field counts ranging from 10 - 50.
 
 	for i := 0; i < len(r.Fields); i++ {
