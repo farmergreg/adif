@@ -88,10 +88,11 @@ func (p *adiReader) Next() (*Record, bool, int64, error) {
 				if !p.skipHeader {
 					return result, true, n, nil
 				}
+
+				// we are skipping returning the EOH record (if any)
+				// reset to prepare to read the next record
+				result.Reset()
 			}
-			// we are skipping returning the EOH record (if any)
-			// reset to prepare to read the next record
-			result.Reset()
 			continue
 		case adifield.EOR:
 
