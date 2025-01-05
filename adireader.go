@@ -32,7 +32,7 @@ type adiReader struct {
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
 
-	// we assume most records will have similar field counts and allocate accordingly.
+	// preAllocateFields is the number of fields to allocate for each record.
 	preAllocateFields int
 
 	// skipHeader is true if the header record should be skipped.

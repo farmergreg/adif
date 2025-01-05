@@ -14,11 +14,9 @@ var (
 )
 
 // NewDocument creates a new Document with default initial capacity.
-// If preamble is empty, we will use the default header preamble.
-func NewDocument(headerPreamble string) *Document {
+func NewDocument() *Document {
 	return &Document{
-		Records:        make([]Record, 0, 16),
-		headerPreamble: headerPreamble,
+		Records: make([]Record, 0, 16),
 	}
 }
 
@@ -36,18 +34,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 	}
 
 	if f.Header != nil {
-		var err error
-
-		if len(f.headerPreamble) == 0 {
-			f.headerPreamble = fmt.Sprintf("K9CTS AM✠DG ADIF Library v%d.%d.%d%s / go\n",
-				versionMajor,
-				versionMinor,
-				versionPatch,
-				versionPreRelease)
-		}
-
-		var ci int
-		ci, err = bw.WriteString(f.headerPreamble)
+		ci, err := bw.WriteString(adiHeaderPreamble)
 		n += int64(ci)
 		if err != nil {
 			return handleFlush(bw, n, err)
@@ -117,11 +104,6 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 			return n, err
 		}
 		f.Records = append(f.Records, *record)
-
-		// prevent memory exhaustion attacks
-		if n > DocumentMaxSizeInBytes {
-			return n, ErrDocumentTooLarge
-		}
 	}
 
 	return n, nil

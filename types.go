@@ -15,14 +15,9 @@ type Document struct {
 
 	// Records is a slice of Record.
 	Records []Record
-
-	// headerPreamble is the preamble that will be written when the document header is written to an io.Writer.
-	// it has NOTHING to do with ADIFReader/ADIReader.
-	headerPreamble string
 }
 
 // Record represents one ADIF record which may be a Header or a QSO.
-// n.b. Some software, like Log4OM like to incorrectly place header only fields (i.e. PROGRAMID) into QSO records...
 type Record struct {
 	// Fields is a slice of Field.
 	Fields []Field
