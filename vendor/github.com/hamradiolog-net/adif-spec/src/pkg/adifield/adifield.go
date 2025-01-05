@@ -1,6 +1,7 @@
 package adifield
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -34,27 +35,46 @@ func init() {
 	}
 	FieldListAll = append(FieldListAll, fieldListExtra...)
 
+	// special case, rename USERDEFn in FieldListAll to USERDEF1
+	var userDefDescription string
+	for _, item := range FieldListAll {
+		if item.ID == USERDEF+"n" {
+			item.ID = USERDEF + "1"
+			userDefDescription = item.Description
+			break
+		}
+	}
+
+	// uppercase the field names just to be safe...
+	for _, f := range FieldListAll {
+		f.ID = Field(strings.ToUpper(string(f.ID)))
+	}
+
+	for i := 2; i < 10; i++ {
+		FieldListAll = append(FieldListAll, &FieldDefinition{
+			ID:            Field(fmt.Sprintf("USERDEF%d", i)),
+			IsHeaderField: true,
+			Description:   userDefDescription,
+			ImportRecordRoot: shared.ImportRecordRoot{
+				IsReleased:   shared.Released(true),
+				IsImportOnly: shared.ImportOnly(false),
+			},
+		})
+	}
+
 	slices.SortStableFunc(FieldListAll, func(a, b *FieldDefinition) int {
 		// Sort headers last
 		if bool(a.IsHeaderField) != bool(b.IsHeaderField) {
 			if bool(a.IsHeaderField) {
-				return 1
+				return -1
 			}
-			return -1
+			return 1
 		}
-		// If both are headers or both are not headers, sort by ID
+
 		return strings.Compare(string(a.ID), string(b.ID))
 	})
-	FieldListAll = slices.Clip(FieldListAll)
 
-	// special case, rename USERDEFn in FieldListAll to USERDEF1
-	// special case, rename USERDEFn in FieldListAll to USERDEF1
-	for _, item := range FieldListAll {
-		if item.ID == USERDEF+"n" {
-			item.ID = USERDEF + "1"
-			break
-		}
-	}
+	FieldListAll = slices.Clip(FieldListAll)
 
 	FieldList = make([]*FieldDefinition, 0, len(FieldListAll))
 	for _, item := range FieldListAll {
@@ -85,6 +105,8 @@ const (
 )
 
 // Field is the ADIF field name in and ADI file.
+// By convention in this package, field name constants are always UPPERCASE.
+// This is a departure from the ADIF specification, which allows field names to include lowercase letters.
 type Field string
 
 // FieldDefinition represents an ADIF field definition
