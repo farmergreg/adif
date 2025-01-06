@@ -31,11 +31,7 @@ func TestVerifyRecordCount(t *testing.T) {
 			assert.Nil(t, err)
 			defer reader.Close()
 
-			content, err := io.ReadAll(reader)
-			assert.Nil(t, err)
-
-			p := NewADIReader(strings.NewReader(string(content)), true)
-
+			p := NewADIReader(reader, true)
 			count := 0
 			for {
 				qso, _, _, err := p.Next()

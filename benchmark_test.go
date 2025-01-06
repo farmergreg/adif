@@ -25,8 +25,7 @@ func BenchmarkAllTestFiles(b *testing.B) {
 		b.Run(f.Name(), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
-				content, _ := io.ReadAll(reader)
-				p := NewADIReader(strings.NewReader(string(content)), true)
+				p := NewADIReader(reader, true)
 				for {
 					_, _, _, err := p.Next()
 					if err == io.EOF {
@@ -211,23 +210,47 @@ func BenchmarkWriteMatir(b *testing.B) {
 func BenchmarkWriteEminlin(b *testing.B) {
 }
 */
-func BenchmarkRandomFieldAccess(b *testing.B) {
-	// Load test data once before the benchmark
-	qsoListNative := loadTestData()
 
-	// Common fields to access randomly
-	fields := []adifield.Field{"CALL", "BAND", "MODE", "QSO_DATE", "TIME_ON", "APP_K9CTS", "STATE"}
+func BenchmarkLoTWOneRecord(b *testing.B) {
+	const oneRecord = `<APP_LoTW_OWNCALL:5>K9CTS
+<STATION_CALLSIGN:5>K9CTS
+<MY_DXCC:3>291
+<MY_COUNTRY:24>UNITED STATES OF AMERICA
+<APP_LoTW_MY_DXCC_ENTITY_STATUS:7>Current
+<MY_GRIDSQUARE:6>EN34QU
+<MY_STATE:2>WI // Wisconsin
+<MY_CNTY:9>WI,PIERCE // Pierce
+<MY_CQ_ZONE:2>04
+<MY_ITU_ZONE:2>07
+<CALL:5>N5ILQ
+<BAND:3>20M
+<FREQ:8>14.06100
+<MODE:2>CW
+<APP_LoTW_MODEGROUP:2>CW
+<QSO_DATE:8>20220602
+<APP_LoTW_RXQSO:19>2022-06-02 18:24:14 // QSO record inserted/modified at LoTW
+<TIME_ON:6>182054
+<APP_LoTW_QSO_TIMESTAMP:20>2022-06-02T18:20:54Z // QSO Date & Time; ISO-8601
+<QSL_RCVD:1>Y
+<QSLRDATE:8>20220602
+<APP_LoTW_RXQSL:19>2022-06-02 23:31:22 // QSL record matched/modified at LoTW
+<DXCC:3>291
+<COUNTRY:24>UNITED STATES OF AMERICA
+<APP_LoTW_DXCC_ENTITY_STATUS:7>Current
+<PFX:2>N5
+<APP_LoTW_2xQSL:1>Y
+<GRIDSQUARE:4>EM15
+<STATE:2>OK // Oklahoma
+<CNTY:11>OK,OKLAHOMA // Oklahoma
+<CQZ:2>04
+<ITUZ:2>07
+<eor>`
+
+	record := NewRecord()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		// Access a random record and field
-		recordIdx := i % len(qsoListNative)
-		fieldIdx := i % len(fields)
-
-		record := qsoListNative[recordIdx]
-		field := fields[fieldIdx]
-
-		// Access the field and do something with it to prevent optimization
-		_ = record[field]
+		record.ReadFrom(strings.NewReader(oneRecord))
+		_ = record[adifield.CALL]
 	}
 }

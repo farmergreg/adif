@@ -77,9 +77,9 @@ An alternative approach using a list of field names and a field struct with a na
 It also improved upon adi write performance by about 30%.
 I think it is faster because it is more L1/2/3 cache friendly.
 I kept the current implementation which uses maps because I think they are a better _user_ interface for this library.
-It also serializes easily to a nice looking json format.
 I am also concerned that there may be cases where the O(n) lookup time becomes a problem with large records.
-Bechmarks showed that the map implementation beats list lookup by 2x for records with ~50 fields when looking up a worst case scenario field.
+Maps also serialize easily to a nice looking json structure.
+Benchmarks showed that the map implementation beats list lookup by 2x for records with ~50 fields when looking up a worst case scenario field.
 With the map, we ensure better average performance of O(1) for large records that contain many fields.
 This is one of those FUN situations where an O(n) algorithm is faster than O(1) for small values of n!
 
