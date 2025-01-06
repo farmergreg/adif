@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hamradiolog-net/adif"
+	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
 func ExampleADIFReader_Next() {
@@ -25,6 +26,9 @@ func ExampleADIFReader_Next() {
 			panic(err)
 		}
 
+		fmt.Println(qso[adifield.CALL])
+		fmt.Println()
+
 		fmt.Print(qso.String())
 		if isHeader {
 			fmt.Println(adif.TagEOH)
@@ -35,8 +39,12 @@ func ExampleADIFReader_Next() {
 	}
 
 	// Output:
+	// W9PVA
+	//
 	// <CALL:5>W9PVA<EOR>
 	// Read 43 bytes.
+	//
+	// K9CTS
 	//
 	// <CALL:5>K9CTS<EOR>
 	// Read 18 bytes.

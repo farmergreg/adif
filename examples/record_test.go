@@ -22,7 +22,7 @@ func ExampleNewRecord() {
 	fmt.Print(record.String())
 	fmt.Println(adif.TagEOR)
 
-	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+	// Output: <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
 }
 
 func ExampleRecord_ReadFrom() {
@@ -38,9 +38,15 @@ func ExampleRecord_ReadFrom() {
 		panic(err)
 	}
 
+	fmt.Println(r[adifield.CALL])
+	fmt.Println()
 	fmt.Print(r.String())
 	fmt.Println(adif.TagEOR)
-	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+
+	// Output:
+	// W1AW
+	//
+	// <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
 }
 
 func ExampleRecord_WriteTo() {
@@ -52,7 +58,9 @@ func ExampleRecord_WriteTo() {
 
 	sb := strings.Builder{}
 	record.WriteTo(&sb)
+
 	fmt.Print(sb.String())
 	fmt.Println(adif.TagEOR)
-	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+
+	// Output: <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
 }

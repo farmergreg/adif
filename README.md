@@ -20,30 +20,30 @@ This library provides three ways to work with ADI files:
 
 ## Benchmarks
 
-- Reading ADI: 329% - 2280% faster
-- Writing ADI: 185% - 1088% faster
+- Reading ADI: 134% - 1907% faster
+- Writing ADI: 107% - 314% faster
 
 JSON marshaling is included as a baseline for comparison.
 JSON formatted data tends to be significantly smaller the same data in ADI format.
-So, the ADI parsers are actually doing more work than the JSON marshaler to process the same data.
+This gives the JSON marshaler an advantage over the ADI parsers.
 
 | Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
 |--------------------------------------------|----------:|-------------:|------------:|-----------:|
 | ▲ Higher is better / ▼ Lower is better     |         ▲ |            ▼ |           ▼ |          ▼ |
 | **Read Operations**                        |           |              |             |            |
-| This Library                               |     1,748 |      690,571 |     455,364 |      8,691 |
-| JSON                                       |       396 |    2,963,982 |     406,286 |     16,488 |
+| This Library                               |     1,461 |      819,922 |     673,421 |      8,757 |
+| JSON                                       |       622 |    1,915,720 |     402,803 |     25,601 |
 | Matir                                      |       417 |    2,895,274 |   2,037,004 |     66,535 |
 | Eminlin                                    |        68 |   16,453,839 |  13,127,877 |    193,083 |
 | **Write Operations**                       |           |              |             |            |
-| This Library                               |     4,596 |      252,071 |     515,663 |         20 |
-| JSON                                       |     1,621 |      718,302 |     679,896 |          5 |
+| This Library                               |     1,671 |      723,542 |     515,507 |         21 |
+| JSON                                       |       800 |    1,495,712 |     973,083 |     17,805 |
 | Matir                                      |       399 |    2,994,459 |   1,490,840 |     28,673 |
 | Eminlin                                    |       N/A |          N/A |         N/A |        N/A |
 
 ## Technical Implementation
 
-This parser achieves its performance through several optimizations strategies:
+This parser achieves high performance through the following optimizations:
 
 ### Architecture
 
@@ -57,24 +57,36 @@ This parser achieves its performance through several optimizations strategies:
 - Utilizes standard library io operations that are likely to process multiple bytes at a time via sse/simd.
 - Efficient buffer management with pre-allocation strategies to adapt to discovered record sizes.
 - String interning for field names reduces memory allocations and improves comparison speed.
-- Takes advantage of CPU cache locality to increase field lookup performance.
 - Custom ASCII case conversion using bitwise operations.
 - Specialized base-10 integer parsing optimized for ADIF field lengths.
 
 ### Memory Characteristics
 
-- String interning ensures common ADI fields string keys avoid allocations, ensures keys are stored only once, and ensures lookups require fewer comparisons.
+- String interning ensures common ADI fields string keys avoids additional allocations, reduces overall memory use.
 - Constant memory overhead for streaming operations.
 - Minimal temporary allocations during field parsing.
 - Peak memory usage scales linearly with record size, not file size.
 - Allocate buffers based on learned record field counts.
 
-These design choices result in significantly faster runtime and lower allocation counts compared to more generic parsing approaches.
+## Going Faster
 
-## Future Improvement Thoughts
+Experiments whereby the entire ADI is read into memory and io.Reader is replaced with a byte slice increased performance by about 20% when compared to the current implementation.
+I thought it important to maintain the ability to stream files and therefore did not include this optimization.
 
-Experiments whereby the entire ADI is read into memory and io.Reader is replaced with a byte slice increased performance by about 20%.
-We'd lose the ability to stream files though...
+An alternative approach using a list of field names and a field struct with a name and value field is about 15% faster than the current parser.
+It also improved upon adi write performance by about 30%.
+I think it is faster because it is more L1/2/3 cache friendly.
+I kept the current implementation which uses maps because I think they are a better _user_ interface for this library.
+It also serializes easily to a nice looking json format.
+I am also concerned that there may be cases where the O(n) lookup time becomes a problem with large records.
+Bechmarks showed that the map implementation beats list lookup by 2x for records with ~50 fields when looking up a worst case scenario field.
+With the map, we ensure better average performance of O(1) for large records that contain many fields.
+This is one of those FUN situations where an O(n) algorithm is faster than O(1) for small values of n!
 
 This library attempts to take advantage of the go stdlib's use of simd.
 Using simd directly to further speed up parsing is an opportunity worth exploring.
+
+Writing performance can be improved by about 50% by removing the field sorting in WriteTo.
+I feel that sorting the fields provides a better debugging / user experience and is worth the trade-off.
+We are still 2x faster than the next fastest benchmarked library.
+If needed, we could implement a WriteToFast method that does not sort the fields.

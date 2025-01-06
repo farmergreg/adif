@@ -43,8 +43,8 @@ func BenchmarkAllTestFiles(b *testing.B) {
 //go:embed testdata/N3FJP-AClogAdif.adi
 var benchmarkFile string
 
-func loadTestData() []*Record {
-	var qsoListNative []*Record
+func loadTestData() []Record {
+	var qsoListNative []Record
 	p := NewADIReader(strings.NewReader(benchmarkFile), false)
 	for {
 		record, _, _, err := p.Next()
@@ -57,10 +57,10 @@ func loadTestData() []*Record {
 }
 
 func BenchmarkReadThisLibrary(b *testing.B) {
-	var qsoList []*Record
+	var qsoList []Record
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		qsoList = make([]*Record, 0, 10000)
+		qsoList = make([]Record, 0, 10000)
 		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
 			q, _, _, err := p.Next()
@@ -217,7 +217,6 @@ func BenchmarkRandomFieldAccess(b *testing.B) {
 
 	// Common fields to access randomly
 	fields := []adifield.Field{"CALL", "BAND", "MODE", "QSO_DATE", "TIME_ON", "APP_K9CTS", "STATE"}
-	// fields := []adifield.Field{"STATE"}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

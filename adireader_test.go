@@ -89,7 +89,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := NewADIReader(strings.NewReader(tt.data), false)
 
-			records := make([]*Record, 0, 10000)
+			records := make([]Record, 0, 10000)
 			for {
 				record, _, _, err := p.Next()
 				if err == io.EOF {
@@ -196,7 +196,7 @@ func TestParseNoRecords(t *testing.T) {
 
 			// Act
 			qso, _, _, err := p.Next()
-			assert.Equal(t, 0, len(qso.Fields))
+			assert.Equal(t, 0, len(qso))
 
 			// Assert
 			if tt.isNonEOFErrExpected {
@@ -268,7 +268,7 @@ func TestParseSkipHeader(t *testing.T) {
 
 	recordTwo, _, _, errTwo := p.Next()
 	assert.Equal(t, io.EOF, errTwo)
-	assert.Equal(t, 0, len(recordTwo.Fields))
+	assert.Equal(t, 0, len(recordTwo))
 }
 
 func TestParseLongFieldName(t *testing.T) {
