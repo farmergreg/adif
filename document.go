@@ -85,7 +85,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 	if isHeader {
 		f.Header = firstRecord
 	} else {
-		f.Records = append(f.Records, *firstRecord)
+		f.Records = append(f.Records, firstRecord)
 	}
 
 	for {
@@ -97,7 +97,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 			}
 			return n, err
 		}
-		f.Records = append(f.Records, *record)
+		f.Records = append(f.Records, record)
 	}
 
 	return n, nil

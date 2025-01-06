@@ -17,7 +17,7 @@ var qsoWithLou = func() *Record {
 	qso.Set(adifield.RST_SENT, "59")
 	qso.Set(adifield.COMMENT, "Eyeball QSO 👀")
 	qso.Set(adifield.QSO_DATE, "") // empty on purpose to test zero length field
-	return qso
+	return &qso
 }()
 
 // This QSO has exactly 32 fields.
@@ -102,7 +102,7 @@ func TestAppendAsADI(t *testing.T) {
 func TestAppendAsADIPreCalculate(t *testing.T) {
 	// Arrange
 	var size = rand.Intn(10000000) + (1024 * 50)
-	var qso = *NewRecord()
+	var qso = NewRecord()
 	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
 	qso.Set(adifield.ADIF_VER, spec.ADIFVersion)
@@ -122,7 +122,7 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 
 func TestQSOClean(t *testing.T) {
 	// Arrange
-	qso := *NewRecord()
+	qso := NewRecord()
 	qso.Set(adifield.CALL, "W9PVA ")
 	qso.Set(adifield.COMMENT, " COMMENT ")
 	qso.Set(adifield.QSO_DATE, "")
@@ -131,8 +131,8 @@ func TestQSOClean(t *testing.T) {
 	qso.Clean()
 
 	// Assert
-	if len(qso.Fields) != 2 {
-		t.Errorf("Expected 2 fields, got %d", len(qso.Fields))
+	if len(qso) != 2 {
+		t.Errorf("Expected 2 fields, got %d", len(qso))
 	}
 
 	if qso.Get(adifield.COMMENT) != "COMMENT" {
@@ -155,7 +155,7 @@ func TestWriteTo(t *testing.T) {
 	qso := NewRecord()
 	n, err := qso.ReadFrom(strings.NewReader(builder.String()))
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(qso.Fields))
+	assert.Equal(t, 4, len(qso))
 	assert.Equal(t, 69, builder.Len())
 	assert.Equal(t, int64(69), n)
 }
@@ -164,7 +164,7 @@ func TestReadFrom(t *testing.T) {
 	qso := NewRecord()
 	qso.ReadFrom(strings.NewReader(testADIFSingleRecord))
 
-	if len(qso.Fields) != 32 {
-		t.Errorf("Expected 32 fields, got %d", len(qso.Fields))
+	if len(qso) != 32 {
+		t.Errorf("Expected 32 fields, got %d", len(qso))
 	}
 }

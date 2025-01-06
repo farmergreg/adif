@@ -26,73 +26,40 @@ var bufferPool = sync.Pool{
 }
 
 // NewRecord creates a new Record with the default initial capacity.
-func NewRecord() *Record {
-	return NewRecordWithCapacity(-1)
+func NewRecord() Record {
+	return make(Record)
 }
 
 // NewRecordWithCapacity creates a new Record with a specific initial capacity.
-// If initialCapacity is negative, it will use a default capacity of 7.
-func NewRecordWithCapacity(initialCapacity int) *Record {
+func NewRecordWithCapacity(initialCapacity int) Record {
 	if initialCapacity < 0 {
 		initialCapacity = 7
 	}
-	return &Record{
-		Fields: make([]Field, 0, initialCapacity),
-	}
+	return make(Record, initialCapacity)
 }
 
 // Reset clears the record of all fields.
-func (r *Record) Reset() {
-	r.Fields = r.Fields[:0]
+func (r Record) Reset() {
+	for k := range r {
+		delete(r, k)
+	}
 }
 
 // Get returns the value for a given field.
-// If the field is empty, or does not exist, an empty string is returned.
-func (r *Record) Get(field adifield.Field) string {
-	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
-	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
-	// Tested to perform 10% - 30% faster than a map with field counts ranging from 10 - 50.
-	for i := 0; i < len(r.Fields); i++ {
-		if r.Fields[i].Name == field {
-			return r.Fields[i].Data
-		}
-	}
-	return ""
+func (r Record) Get(field adifield.Field) string {
+	return r[field]
 }
 
 // Set updates a field value or adds a new field if it does not exist.
-// It expects the field name to be in UPPERCASE.
-func (r *Record) Set(field adifield.Field, value string) *Record {
-	// ensure the strings are interned if reasonably possible.
-	// This makes future lookups faster and reduces overall memory use.
+func (r Record) Set(field adifield.Field, value string) Record {
 	if fieldDef, ok := adifield.FieldMap[field]; ok {
 		field = fieldDef.ID
 	}
-	return r.setNoIntern(field, value)
-}
-
-// setNoIntern is a low-level method that does not perform any string interning.
-// It is used internally to avoid duplicating the interning that is automatically performed by the adi reader.
-// It expects the field name to be in UPPERCASE.
-func (r *Record) setNoIntern(field adifield.Field, value string) *Record {
-	// O(n) Linear search leverages CPU cache line prefetching and predictable memory access patterns.
-	// The contiguous array layout ensures minimal cache misses compared to pointer chasing in map structures.
-	// While this (somewhat surprisingly) gives us performance gains event without string interning,
-	// it is particularly effective due to our use of string interning both in the adi reader and in Set() above.
-	// Tested to perform 10% - 30% faster than a map with field counts ranging from 10 - 50.
-
-	for i := 0; i < len(r.Fields); i++ {
-		if r.Fields[i].Name == field {
-			r.Fields[i].Data = value
-			return r
-		}
-	}
-
-	// If the value is empty, we don't need to add the field
 	if value == "" {
-		return r
+		delete(r, field)
+	} else {
+		r[field] = value
 	}
-	r.Fields = append(r.Fields, Field{Name: field, Data: value})
 	return r
 }
 
@@ -115,7 +82,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 		return n, err
 	}
 
-	r.Fields = record.Fields
+	*r = record
 	return n, nil
 }
 
@@ -143,21 +110,21 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 // The buffer should have sufficient capacity to avoid reallocations.
 // You should use appendAsADIPreCalculate() to determine the required capacity
 func (r *Record) appendAsADI(buf []byte) []byte {
-	if len(r.Fields) == 0 {
+	if len(*r) == 0 {
 		return buf
 	}
 
-	for i := 0; i < len(r.Fields); i++ {
-		if len(r.Fields[i].Data) == 0 {
+	for field, value := range *r {
+		if value == "" {
 			continue
 		}
 
 		buf = append(buf, '<')
-		buf = append(buf, r.Fields[i].Name...)
+		buf = append(buf, field...)
 		buf = append(buf, ':')
-		buf = strconv.AppendInt(buf, int64(len(r.Fields[i].Data)), 10)
+		buf = strconv.AppendInt(buf, int64(len(value)), 10)
 		buf = append(buf, '>')
-		buf = append(buf, []byte(r.Fields[i].Data)...)
+		buf = append(buf, value...)
 	}
 
 	return buf
@@ -167,16 +134,16 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 // 1) the length of the record in bytes when exported to ADI format by the AppendAsADI method.
 // 2) a boolean indicating if the record is a header record.
 func (r *Record) appendAsADIPreCalculate() (adiLength int) {
-	if len(r.Fields) == 0 {
+	if len(*r) == 0 {
 		return 0
 	}
 
-	for i := 0; i < len(r.Fields); i++ {
-		valueLength := len(r.Fields[i].Data)
+	for field, value := range *r {
+		valueLength := len(value)
 		if valueLength == 0 {
 			continue
 		}
-		adiLength += 3 + valueLength + len(r.Fields[i].Name) // 3 for '<', ':', '>'
+		adiLength += 3 + valueLength + len(field) // 3 for '<', ':', '>'
 
 		// Avoid strconv.Itoa string allocation by calculating number of base 10 digits mathematically
 		switch {
@@ -197,9 +164,8 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 // Clean
 // 1) trims whitespace in the field values
 func (r *Record) Clean() {
-	for i := 0; i < len(r.Fields); i++ {
-		trimmed := strings.TrimSpace(r.Fields[i].Data)
-		r.Fields[i].Data = trimmed
+	for field, value := range *r {
+		(*r)[field] = strings.TrimSpace(value)
 	}
 }
 

@@ -80,16 +80,16 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 
 	// Verify
 	if firstDoc.Header != nil {
-		assert.Equal(t, len(firstDoc.Header.Fields), len(secondDoc.Header.Fields))
-		for i := 0; i < len(firstDoc.Header.Fields); i++ {
-			assert.Equal(t, firstDoc.Header.Fields[i], secondDoc.Header.Fields[i])
+		assert.Equal(t, len(firstDoc.Header), len(secondDoc.Header))
+		for field := range firstDoc.Header {
+			assert.Equal(t, (firstDoc.Header)[field], (secondDoc.Header)[field])
 		}
 	}
 	assert.Equal(t, len(firstDoc.Records), len(secondDoc.Records))
 	for r := range firstDoc.Records {
-		assert.Equal(t, len(firstDoc.Records[r].Fields), len(secondDoc.Records[r].Fields))
-		for i := 0; i < len(firstDoc.Records[r].Fields); i++ {
-			assert.Equal(t, firstDoc.Records[r].Fields[i], secondDoc.Records[r].Fields[i])
+		assert.Equal(t, len(firstDoc.Records[r]), len(secondDoc.Records[r]))
+		for field := range firstDoc.Records[r] {
+			assert.Equal(t, firstDoc.Records[r][field], secondDoc.Records[r][field])
 		}
 	}
 }

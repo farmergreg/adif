@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	_ "embed"
+
+	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 	/*
 		eminlin "github.com/Eminlin/GoADIFLog"
 		eminlinformat "github.com/Eminlin/GoADIFLog/format"
@@ -41,8 +43,8 @@ func BenchmarkAllTestFiles(b *testing.B) {
 //go:embed testdata/N3FJP-AClogAdif.adi
 var benchmarkFile string
 
-func loadTestData() []*Record {
-	var qsoListNative []*Record
+func loadTestData() []Record {
+	var qsoListNative []Record
 	p := NewADIReader(strings.NewReader(benchmarkFile), false)
 	for {
 		record, _, _, err := p.Next()
@@ -55,10 +57,10 @@ func loadTestData() []*Record {
 }
 
 func BenchmarkReadThisLibrary(b *testing.B) {
-	var qsoList []*Record
+	var qsoList []Record
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		qsoList = make([]*Record, 0, 10000)
+		qsoList = make([]Record, 0, 10000)
 		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
 			q, _, _, err := p.Next()
@@ -209,3 +211,23 @@ func BenchmarkWriteMatir(b *testing.B) {
 func BenchmarkWriteEminlin(b *testing.B) {
 }
 */
+func BenchmarkRandomFieldAccess(b *testing.B) {
+	// Load test data once before the benchmark
+	qsoListNative := loadTestData()
+
+	// Common fields to access randomly
+	fields := []adifield.Field{"CALL", "BAND", "MODE", "QSO_DATE", "TIME_ON", "APP_K9CTS", "STATE"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// Access a random record and field
+		recordIdx := i % len(qsoListNative)
+		fieldIdx := i % len(fields)
+
+		record := qsoListNative[recordIdx]
+		field := fields[fieldIdx]
+
+		// Access the field and do something with it to prevent optimization
+		_ = record.Get(field)
+	}
+}
