@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	_ "embed"
+
+	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 	/*
 		eminlin "github.com/Eminlin/GoADIFLog"
 		eminlinformat "github.com/Eminlin/GoADIFLog/format"
@@ -209,3 +211,24 @@ func BenchmarkWriteMatir(b *testing.B) {
 func BenchmarkWriteEminlin(b *testing.B) {
 }
 */
+func BenchmarkRandomFieldAccess(b *testing.B) {
+	// Load test data once before the benchmark
+	qsoListNative := loadTestData()
+
+	// Common fields to access randomly
+	fields := []adifield.Field{"CALL", "BAND", "MODE", "QSO_DATE", "TIME_ON", "APP_K9CTS", "STATE"}
+	// fields := []adifield.Field{"STATE"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// Access a random record and field
+		recordIdx := i % len(qsoListNative)
+		fieldIdx := i % len(fields)
+
+		record := qsoListNative[recordIdx]
+		field := fields[fieldIdx]
+
+		// Access the field and do something with it to prevent optimization
+		_ = record.Get(field)
+	}
+}
