@@ -228,6 +228,6 @@ func BenchmarkRandomFieldAccess(b *testing.B) {
 		field := fields[fieldIdx]
 
 		// Access the field and do something with it to prevent optimization
-		_ = record.Get(field)
+		_ = record[field]
 	}
 }

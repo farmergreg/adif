@@ -20,8 +20,8 @@ This library provides three ways to work with ADI files:
 
 ## Benchmarks
 
-- Reading ADI: 134% - 1907% faster
-- Writing ADI: 107% - 314% faster
+- Reading ADI: 134% - 1907% faster, significantly fewer allocations
+- Writing ADI: 107% -  314% faster, significantly fewer allocations
 
 JSON marshaling is included as a baseline for comparison.
 JSON formatted data tends to be significantly smaller the same data in ADI format.

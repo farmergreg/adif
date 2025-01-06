@@ -48,27 +48,7 @@ func NewRecordWithCapacity(initialCapacity int) Record {
 
 // Reset clears the record of all fields.
 func (r Record) Reset() {
-	for k := range r {
-		delete(r, k)
-	}
-}
-
-// Get returns the value for a given field.
-func (r Record) Get(field adifield.Field) string {
-	return r[field]
-}
-
-// Set updates a field value or adds a new field if it does not exist.
-func (r Record) Set(field adifield.Field, value string) Record {
-	if fieldDef, ok := adifield.FieldMap[field]; ok {
-		field = fieldDef.ID
-	}
-	if value == "" {
-		delete(r, field)
-	} else {
-		r[field] = value
-	}
-	return r
+	clear(r)
 }
 
 // ReadFrom reads an ADIF formatted record from the provided io.Reader.
@@ -182,9 +162,15 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 
 // Clean
 // 1) trims whitespace in the field values
+// 2) deletes fields with empty values
 func (r *Record) Clean() {
 	for field, value := range *r {
-		(*r)[field] = strings.TrimSpace(value)
+		trimmed := strings.TrimSpace(value)
+		if trimmed == "" {
+			delete(*r, field)
+		} else {
+			(*r)[field] = trimmed
+		}
 	}
 }
 

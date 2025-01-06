@@ -12,11 +12,11 @@ import (
 
 var qsoWithLou = func() *Record {
 	qso := NewRecordWithCapacity(5)
-	qso.Set(adifield.CALL, "W9PVA")
-	qso.Set(adifield.RST_RCVD, "58")
-	qso.Set(adifield.RST_SENT, "59")
-	qso.Set(adifield.COMMENT, "Eyeball QSO 👀")
-	qso.Set(adifield.QSO_DATE, "") // empty on purpose to test zero length field
+	qso[adifield.CALL] = "W9PVA"
+	qso[adifield.RST_RCVD] = "58"
+	qso[adifield.RST_SENT] = "59"
+	qso[adifield.COMMENT] = "Eyeball QSO 👀"
+	qso[adifield.QSO_DATE] = "" // empty on purpose to test zero length field
 	return &qso
 }()
 
@@ -103,9 +103,9 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	// Arrange
 	var size = rand.Intn(10000000) + (1024 * 50)
 	var qso = NewRecord()
-	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
-	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
-	qso.Set(adifield.ADIF_VER, spec.ADIFVersion)
+	qso[adifield.PROGRAMID] = "HamRadioLog.Net"
+	qso[adifield.PROGRAMVERSION] = strings.Repeat("1", size)
+	qso[adifield.ADIF_VER] = spec.ADIFVersion
 
 	adiLength := qso.appendAsADIPreCalculate()
 	buf := make([]byte, 0, adiLength)
@@ -123,9 +123,9 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 func TestQSOClean(t *testing.T) {
 	// Arrange
 	qso := NewRecord()
-	qso.Set(adifield.CALL, "W9PVA ")
-	qso.Set(adifield.COMMENT, " COMMENT ")
-	qso.Set(adifield.QSO_DATE, "")
+	qso[adifield.CALL] = "W9PVA "
+	qso[adifield.COMMENT] = " COMMENT "
+	qso[adifield.QSO_DATE] = ""
 
 	// Act
 	qso.Clean()
@@ -135,12 +135,12 @@ func TestQSOClean(t *testing.T) {
 		t.Errorf("Expected 2 fields, got %d", len(qso))
 	}
 
-	if qso.Get(adifield.COMMENT) != "COMMENT" {
-		t.Errorf("Expected \"COMMENT\", got \"%s\"", qso.Get(adifield.COMMENT))
+	if qso[adifield.COMMENT] != "COMMENT" {
+		t.Errorf("Expected \"COMMENT\", got \"%s\"", qso[adifield.COMMENT])
 	}
 
-	if qso.Get(adifield.CALL) != "W9PVA" {
-		t.Errorf("Expected \"W9PVA\", got \"%s\"", qso.Get(adifield.CALL))
+	if qso[adifield.CALL] != "W9PVA" {
+		t.Errorf("Expected \"W9PVA\", got \"%s\"", qso[adifield.CALL])
 	}
 }
 

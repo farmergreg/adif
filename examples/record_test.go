@@ -10,13 +10,13 @@ import (
 
 func ExampleNewRecord() {
 	record := adif.NewRecord()
-	record.Set(adifield.CALL, "W1AW")
-	record.Set(adifield.BAND, "10m")
-	record.Set(adifield.MODE, "SSB")
-	record.Set(adifield.APP_+"K9CTS_TEST", "TEST")
+	record[adifield.CALL] = "W1AW"
+	record[adifield.BAND] = "10m"
+	record[adifield.MODE] = "SSB"
+	record[adifield.APP_+"K9CTS_TEST"] = "TEST"
 
-	if record.Get(adifield.CALL) != "W1AW" {
-		panic("Expected W1AW, got " + record.Get(adifield.CALL))
+	if record[adifield.CALL] != "W1AW" {
+		panic("Expected W1AW, got " + record[adifield.CALL])
 	}
 
 	fmt.Print(record.String())
@@ -51,10 +51,10 @@ func ExampleRecord_ReadFrom() {
 
 func ExampleRecord_WriteTo() {
 	record := adif.NewRecord()
-	record.Set(adifield.CALL, "W1AW")
-	record.Set(adifield.BAND, "10m")
-	record.Set(adifield.MODE, "SSB")
-	record.Set(adifield.APP_+"K9CTS_TEST", "TEST")
+	record[adifield.CALL] = "W1AW"
+	record[adifield.BAND] = "10m"
+	record[adifield.MODE] = "SSB"
+	record[adifield.APP_+"K9CTS_TEST"] = "TEST"
 
 	sb := strings.Builder{}
 	record.WriteTo(&sb)
