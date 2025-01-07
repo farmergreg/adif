@@ -8,7 +8,8 @@
 
 This ADI parser is an attempt to create a fast, memory efficient [ADIF](https://adif.org/) parser for ADI formatted Ham Radio logs.
 
-This library outperforms other ADI libraries that I've tested to date by a wide margin.
+Would you like to process ADI files 3x to 20x faster?
+If so, this may be the library for you!
 
 ## Usage
 
@@ -20,12 +21,13 @@ This library provides three ways to work with ADI files:
 
 ## Benchmarks
 
-- Reading ADI: 134% - 1907% faster, significantly fewer allocations
-- Writing ADI: 107% -  314% faster, significantly fewer allocations
+- Reading ADI: 2.3x - 20x faster, with up to 22x fewer allocations
+- Writing ADI: 2.9x -  6x faster, with up to 1,433x fewer allocations
 
 JSON marshaling is included as a baseline for comparison.
 JSON formatted data tends to be significantly smaller the same data in ADI format.
 This gives the JSON marshaler an advantage over the ADI parsers.
+As you can see, we're still 2x faster than json
 
 | Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
 |--------------------------------------------|----------:|-------------:|------------:|-----------:|
@@ -36,7 +38,7 @@ This gives the JSON marshaler an advantage over the ADI parsers.
 | Matir                                      |       417 |    2,895,274 |   2,037,004 |     66,535 |
 | Eminlin                                    |        68 |   16,453,839 |  13,127,877 |    193,083 |
 | **Write Operations**                       |           |              |             |            |
-| This Library                               |     1,671 |      723,542 |     515,507 |         21 |
+| This Library                               |     2,304 |      519,218 |     514,436 |         20 |
 | JSON                                       |       800 |    1,495,712 |     973,083 |     17,805 |
 | Matir                                      |       399 |    2,994,459 |   1,490,840 |     28,673 |
 | Eminlin                                    |       N/A |          N/A |         N/A |        N/A |

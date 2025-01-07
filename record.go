@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -96,36 +95,57 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 
 // appendAsADI writes the ADI formatted QSO record to the provided buffer.
 // The buffer should have sufficient capacity to avoid reallocations.
-// You should use appendAsADIPreCalculate() to determine the required capacity
+// You should use appendAsADIPreCalculate() to determine the required buffer capacity.
+// Field order is NOT guaranteed to be stable.
 func (r *Record) appendAsADI(buf []byte) []byte {
 	if len(*r) == 0 {
 		return buf
 	}
 
-	fieldsPtr := fieldPool.Get().(*[]adifield.Field)
-	fields := (*fieldsPtr)[:0]
+	// Priority fields first.
+	// This may change.
+	// These fields and the order are NOT guaranteed to be the same in future versions of this library.
+	buf = appendField(buf, adifield.CALL, (*r)[adifield.CALL])
+	buf = appendField(buf, adifield.BAND, (*r)[adifield.BAND])
+	buf = appendField(buf, adifield.MODE, (*r)[adifield.MODE])
+	buf = appendField(buf, adifield.QSO_DATE, (*r)[adifield.QSO_DATE])
+	buf = appendField(buf, adifield.TIME_ON, (*r)[adifield.TIME_ON])
+	buf = appendField(buf, adifield.QSO_DATE_OFF, (*r)[adifield.QSO_DATE_OFF])
+	buf = appendField(buf, adifield.TIME_OFF, (*r)[adifield.TIME_OFF])
+	buf = appendField(buf, adifield.PROP_MODE, (*r)[adifield.PROP_MODE])
+	buf = appendField(buf, adifield.SAT_NAME, (*r)[adifield.SAT_NAME])
+	buf = appendField(buf, adifield.OPERATOR, (*r)[adifield.OPERATOR])
 
-	for field := range *r {
-		fields = append(fields, field)
-	}
-	slices.Sort(fields)
+	// Remaining fields
+	for field, value := range *r {
 
-	for _, field := range fields {
-		value := (*r)[field]
-		if value == "" {
+		// Skip fields we've already handled
+		switch field {
+		case adifield.CALL, adifield.BAND, adifield.MODE,
+			adifield.QSO_DATE, adifield.TIME_ON,
+			adifield.QSO_DATE_OFF, adifield.TIME_OFF,
+			adifield.PROP_MODE, adifield.SAT_NAME:
 			continue
 		}
-
-		buf = append(buf, '<')
-		buf = append(buf, field...)
-		buf = append(buf, ':')
-		buf = strconv.AppendInt(buf, int64(len(value)), 10)
-		buf = append(buf, '>')
-		buf = append(buf, value...)
+		buf = appendField(buf, field, value)
 	}
 
-	// Return slice to pool
-	fieldPool.Put(fieldsPtr)
+	return buf
+}
+
+// appendField adds a single ADIF field to the buffer
+func appendField(buf []byte, field adifield.Field, value string) []byte {
+	if value == "" {
+		return buf
+	}
+
+	buf = append(buf, '<')
+	buf = append(buf, field...)
+	buf = append(buf, ':')
+	buf = strconv.AppendInt(buf, int64(len(value)), 10)
+	buf = append(buf, '>')
+	buf = append(buf, value...)
+
 	return buf
 }
 
@@ -175,6 +195,7 @@ func (r *Record) Clean() {
 }
 
 // String returns the ADIF record as a string
+// The field order is NOT guaranteed to be stable.
 func (r *Record) String() string {
 	adiLength := r.appendAsADIPreCalculate()
 	bufPtr := bufferPool.Get().(*[]byte)

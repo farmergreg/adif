@@ -22,7 +22,7 @@ func ExampleNewRecord() {
 	fmt.Print(record.String())
 	fmt.Println(adif.TagEOR)
 
-	// Output: <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
+	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
 }
 
 func ExampleRecord_ReadFrom() {
@@ -47,7 +47,7 @@ func ExampleRecord_ReadFrom() {
 	// Output:
 	// W1AW
 	//
-	// <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
+	// <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
 }
 
 func ExampleRecord_WriteTo() {
@@ -63,5 +63,5 @@ func ExampleRecord_WriteTo() {
 	fmt.Print(sb.String())
 	fmt.Println(adif.TagEOR)
 
-	// Output: <APP_K9CTS_TEST:4>TEST<BAND:3>10m<CALL:4>W1AW<MODE:3>SSB<EOR>
+	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
 }
