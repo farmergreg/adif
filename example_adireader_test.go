@@ -8,7 +8,7 @@ import (
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
-func ExampleADIFReader_Next() {
+func ExampleADIFReader_NewADIReader() {
 	var r = strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR><CALL:5>K9CTS<EOR>")
 	adiReader := NewADIReader(r, true) // true means we'll skip the header (if there is one)
 
