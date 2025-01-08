@@ -1,7 +1,6 @@
 // package adif provides
-// 1) Types, Structs and Methods for managing ADIF Records.
-// 2) ADIF Reader for ADI formatted data.
-// 3) Export ADI formatted data.
+// Types, Structs and Methods for managing ADIF Records.
+// Interfaces that accept io.Reader and io.Writer for reading and writing ADI formatted data.
 package adif
 
 import (

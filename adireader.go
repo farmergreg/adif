@@ -19,7 +19,7 @@ const (
 	// Per the ADIF spec:
 	//   ADI-exporting applications can place as much data in a Data-Specifier as they choose.
 	//   ADI-importing applications can import as much data from a Data-Specifier as they choose.
-	maxadiReaderDataSize = 1024 * 1024 * 1
+	maxADIReaderDataSize = 1024 * 1024 * 1
 )
 
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
@@ -273,7 +273,7 @@ func parseDataLength(data []byte) (value int, err error) {
 		newVal := value*10 + int(b-'0')
 
 		// Check for overflow or too big
-		if newVal < value || newVal > maxadiReaderDataSize {
+		if newVal < value || newVal > maxADIReaderDataSize {
 			return 0, ErrInvalidFieldLength
 		}
 

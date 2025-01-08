@@ -131,8 +131,8 @@ func TestQSOClean(t *testing.T) {
 	qso.Clean()
 
 	// Assert
-	if len(qso) != 2 {
-		t.Errorf("Expected 2 fields, got %d", len(qso))
+	if len(qso) != 3 {
+		t.Errorf("Expected 3 fields, got %d", len(qso))
 	}
 
 	if qso[adifield.COMMENT] != "COMMENT" {

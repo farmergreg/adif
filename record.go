@@ -34,12 +34,12 @@ var bufferPool = sync.Pool{
 
 // NewRecord creates a new Record with the default initial capacity.
 func NewRecord() Record {
-	return make(Record)
+	return NewRecordWithCapacity(-1)
 }
 
 // NewRecordWithCapacity creates a new Record with a specific initial capacity.
 func NewRecordWithCapacity(initialCapacity int) Record {
-	if initialCapacity < 0 {
+	if initialCapacity < 1 {
 		initialCapacity = 7
 	}
 	return make(Record, initialCapacity)
@@ -56,9 +56,9 @@ func (r Record) Reset() {
 // Existing fields will be updated and add new fields added when necessary.
 // Header records are SKIPPED.
 //
-// n.b. This method is best used when reading a single record.
-// When reading multiple records, create an ADIFReader using NewadiReader().
-// Use its Next() method to obtain maximum speed and memory efficiency.
+// n.b. This method is best used to read a single record.
+// When reading multiple records, create an ADIFReader using NewADIReader().
+// Use its Next() method to obtain maximum speed and memory efficiency while iterating over records.
 func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 	p := NewADIReader(src, true)
 	var n int64
@@ -74,7 +74,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 }
 
 // WriteTo writes ADI formatted record data to the provided io.Writer.
-// It WILL NOT write the <EOR>/<EOH> tag.
+// It WILL NOT write the <EOR> / <EOH> tag.
 // It returns the number of bytes written and any error encountered.
 func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	adiLength := r.appendAsADIPreCalculate()
@@ -89,6 +89,7 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 
 	buf = r.appendAsADI(buf)
 	n, err := dest.Write(buf)
+
 	bufferPool.Put(bufPtr)
 	return int64(n), err
 }
@@ -104,7 +105,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 
 	// Priority fields first.
 	// This may change.
-	// These fields and the order are NOT guaranteed to be the same in future versions of this library.
+	// These fields and their specific order are NOT guaranteed to be in the same position in future versions of this library.
 	buf = appendField(buf, adifield.CALL, (*r)[adifield.CALL])
 	buf = appendField(buf, adifield.BAND, (*r)[adifield.BAND])
 	buf = appendField(buf, adifield.MODE, (*r)[adifield.MODE])
@@ -152,9 +153,7 @@ func appendField(buf []byte, field adifield.Field, value string) []byte {
 	return buf
 }
 
-// appendAsADIPreCalculate returns:
-// 1) the length of the record in bytes when exported to ADI format by the AppendAsADI method.
-// 2) a boolean indicating if the record is a header record.
+// appendAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the AppendAsADI method.
 func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 	if len(*r) == 0 {
 		return 0
@@ -184,16 +183,11 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 }
 
 // Clean
-// 1) trims whitespace in the field values
-// 2) deletes fields with empty values
+// trims whitespace in the field values
 func (r *Record) Clean() {
 	for field, value := range *r {
 		trimmed := strings.TrimSpace(value)
-		if trimmed == "" {
-			delete(*r, field)
-		} else {
-			(*r)[field] = trimmed
-		}
+		(*r)[field] = trimmed
 	}
 }
 
