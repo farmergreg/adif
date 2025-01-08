@@ -15,7 +15,7 @@ type Document struct {
 
 	// Records is a slice of Record.
 	// It contains the QSO records.
-	Records []Record `json:"records"`
+	Records []Record
 }
 
 // Record is a map of ADIF fields to their values, representing either a header or QSO record.
