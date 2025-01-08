@@ -39,7 +39,7 @@ func ExampleDocument_WriteTo() {
 	fmt.Println(doc.Records[0][adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
 
-	fmt.Println(sb.String())
+	fmt.Println(sb.String()) // n.b. the fields do not always appear in the same order
 
 	// Output:
 	// W9PVA

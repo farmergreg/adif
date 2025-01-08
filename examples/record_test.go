@@ -41,7 +41,7 @@ func ExampleRecord_ReadFrom() {
 	fmt.Println(r[adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
 
-	fmt.Print(r.String())
+	fmt.Print(r.String()) // n.b. the fields do not always appear in the same order
 	fmt.Println(adif.TagEOR)
 
 	// Output:

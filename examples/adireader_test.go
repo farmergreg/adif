@@ -29,7 +29,7 @@ func ExampleADIFReader_Next() {
 		fmt.Println(qso[adifield.CALL]) // n.b. the field keys must be UPPERCASE
 		fmt.Println()
 
-		fmt.Print(qso.String())
+		fmt.Print(qso.String()) // n.b. the fields do not always appear in the same order
 		if isHeader {
 			fmt.Println(adif.TagEOH)
 		} else {
