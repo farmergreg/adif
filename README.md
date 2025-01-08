@@ -1,6 +1,8 @@
-# World's Fastest ADIF / ADI Parser?
+# High Performance ADIF / ADI Ham Radio Logging Library
 
-A high-performance Go library for parsing [ADIF](https://adif.org/) (Amateur Data Interchange Format) files used in Ham Radio logging. This implementation focuses on speed and memory efficiency while providing idiomatic Go interfaces.
+A high-performance Go library for parsing [ADIF](https://adif.org/) (Amateur Data Interchange Format) files used in ham radio logging.
+This implementation focuses on speed and memory efficiency.
+It provides a simple to use API that is idiomatic and works well with common Go standard library interfaces.
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -10,9 +12,9 @@ A high-performance Go library for parsing [ADIF](https://adif.org/) (Amateur Dat
 
 Performance testing shows this library is:
 
-- 3x to 20x faster than comparable ADI libraries
-- 2x faster than standard Go JSON marshaling
-- More memory efficient than other tested ADI libraries
+- 3x to 20x faster than comparable ADI libraries.
+- 7x - 1400x fewer memory allocations than other tested ADI libraries.
+- 2x faster than Go standard library JSON marshaling.
 
 ## Usage
 
@@ -31,22 +33,22 @@ go get github.com/hamradiolog-net/adif@latest
 ## Benchmarks
 
 JSON marshaling is included as a baseline for comparison.
-Note: JSON formatted data is significantly _smaller_ the same data in ADI format.
-This gives the JSON marshaler a significant advantage over the ADI parsers because it has less work to perform.
+Note: JSON formatted data is significantly _smaller_ than the same data in ADI format.
+This gives the JSON marshaler an advantage over the ADI parsers because it has less work to perform.
 
-| Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op |
-|--------------------------------------------|----------:|-------------:|------------:|-----------:|
-| ▲ Higher is better / ▼ Lower is better     |         ▲ |            ▼ |           ▼ |          ▼ |
-| **Read Operations**                        |           |              |             |            |
-| This Library                               |     1,461 |      819,922 |     673,421 |      8,757 |
-| JSON                                       |       622 |    1,915,720 |     402,803 |     25,601 |
-| Matir                                      |       417 |    2,895,274 |   2,037,004 |     66,535 |
-| Eminlin                                    |        68 |   16,453,839 |  13,127,877 |    193,083 |
-| **Write Operations**                       |           |              |             |            |
-| This Library                               |     2,304 |      519,218 |     514,436 |         20 |
-| JSON                                       |       800 |    1,495,712 |     973,083 |     17,805 |
-| Matir                                      |       399 |    2,994,459 |   1,490,840 |     28,673 |
-| Eminlin                                    |       N/A |          N/A |         N/A |        N/A |
+| Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op   |
+|--------------------------------------------|----------:|---------------:|------------:|-----------:|
+| ▲ Higher is better / ▼ Lower is better     |         ▲ |              ▼ |           ▼ |          ▼ |
+| **Read Operations**                        |           |                |             |            |
+| This Library                               | **1,461** |    **819,922** |   673,421   | **8,757**  |
+| JSON                                       |     622   |    1,915,720   | **402,803** |   25,601   |
+| Matir                                      |     417   |    2,895,274   | 2,037,004   |   66,535   |
+| Eminlin                                    |      68   |   16,453,839   |13,127,877   |  193,083   |
+| **Write Operations**                       |           |                |             |            |
+| This Library                               | **2,304** |    **519,218** | **514,436** |     **20** |
+| JSON                                       |     800   |    1,495,712   |   973,083   |   17,805   |
+| Matir                                      |     399   |    2,994,459   | 1,490,840   |   28,673   |
+| Eminlin                                    |     N/A   |          N/A   |       N/A   |      N/A   |
 
 ## Technical Implementation
 
@@ -63,30 +65,32 @@ This parser achieves high performance through the following optimizations:
 
 - Leverages stdlib I/O operations with potential SSE/SIMD acceleration depending upon your CPU architecture
 - Smart buffer pre-allocation based on discovered record sizes
-- String interning for field names to reduce memory allocation and improve comparison speed
 - Optimized ASCII case conversion using bitwise operations
 - Custom base-10 integer parsing for ADIF field lengths
 
 ### Memory Management
 
-- String interning for common ADI field keys to reduce allocations
-- Constant memory overhead during streaming operations
 - Minimal temporary allocations during field parsing
-- Linear memory scaling based on record size (not file size)
+- String interning for common ADI field names to reduce string allocations
+- Constant memory overhead during streaming operations
 - Dynamic buffer allocation based on learned field counts
 
 ## Performance Considerations
 
-Alternative implementations were explored:
+Alternative implementations explored:
 
-1. Full-memory reading approach:
+1. Non-Streaming / Read ADI File into Memory:
    - 20% performance improvement over current streaming implementation
    - Rejected to maintain streaming capability for large files
 
-2. Field list-based approach:
-   - 15% faster parsing than current map-based implementation
-   - 30% faster writing performance
-   - More cache-friendly design
+2. Field list instead of map:
+   - L1/2/3 cache-friendly design
+   - O(n) lookup time instead of map O(1) lookup time.
+   - For small values of n where n is less than ~40, this is faster than the map based implementation.
+   - 15% faster parsing than current map-based implementation on test files.
+   - 30% faster writing performance (it is much faster to iterate over a list than a map)
    - Rejected in favor of better API ergonomics
+   - Still considering switching to this implementation because it is common to see ADI records with less than 40 fields.
+   - Downside is that above ~50 fields, the O(n) map lookup is faster than the O(n) list lookup.
 
 Future optimization opportunities include direct SIMD implementation for parsing operations.
