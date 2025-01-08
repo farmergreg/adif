@@ -1,17 +1,16 @@
-package examples
+package adif
 
 import (
 	"fmt"
 	"io"
 	"strings"
 
-	"github.com/hamradiolog-net/adif"
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
 func ExampleADIFReader_Next() {
 	var r = strings.NewReader("<PROGRAMID:7>MonoLog<EOH><CALL:5>W9PVA<EOR><CALL:5>K9CTS<EOR>")
-	adiReader := adif.NewADIReader(r, true) // true means we'll skip the header (if there is one)
+	adiReader := NewADIReader(r, true) // true means we'll skip the header (if there is one)
 
 	for {
 		qso, isHeader, bytesProcessed, err := adiReader.Next()
@@ -31,9 +30,9 @@ func ExampleADIFReader_Next() {
 
 		fmt.Print(qso.String()) // n.b. the fields do not always appear in the same order
 		if isHeader {
-			fmt.Println(adif.TagEOH)
+			fmt.Println(TagEOH)
 		} else {
-			fmt.Println(adif.TagEOR)
+			fmt.Println(TagEOR)
 		}
 		fmt.Printf("Read %d bytes.\n\n", bytesProcessed)
 	}

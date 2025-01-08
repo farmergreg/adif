@@ -1,15 +1,14 @@
-package examples
+package adif
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/hamradiolog-net/adif"
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
 func ExampleNewRecord() {
-	record := adif.NewRecord()
+	record := NewRecord()
 	record[adifield.CALL] = "W1AW"
 	record[adifield.BAND] = "10m"
 	record[adifield.MODE] = "SSB"
@@ -20,14 +19,14 @@ func ExampleNewRecord() {
 	}
 
 	fmt.Print(record.String())
-	fmt.Println(adif.TagEOR)
+	fmt.Println(TagEOR)
 
 	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
 }
 
 func ExampleRecord_ReadFrom() {
 	adiStr := "<CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>"
-	r := adif.NewRecord()
+	r := NewRecord()
 
 	// ReadFrom reads exactly one ADIF record from the given reader.
 	// It skips the header if present.
@@ -42,7 +41,7 @@ func ExampleRecord_ReadFrom() {
 	fmt.Println()
 
 	fmt.Print(r.String()) // n.b. the fields do not always appear in the same order
-	fmt.Println(adif.TagEOR)
+	fmt.Println(TagEOR)
 
 	// Output:
 	// W1AW
@@ -51,7 +50,7 @@ func ExampleRecord_ReadFrom() {
 }
 
 func ExampleRecord_WriteTo() {
-	record := adif.NewRecord()
+	record := NewRecord()
 	record[adifield.CALL] = "W1AW"
 	record[adifield.BAND] = "10m"
 	record[adifield.MODE] = "SSB"
@@ -61,7 +60,7 @@ func ExampleRecord_WriteTo() {
 	record.WriteTo(&sb)
 
 	fmt.Print(sb.String())
-	fmt.Println(adif.TagEOR)
+	fmt.Println(TagEOR)
 
 	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
 }

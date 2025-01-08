@@ -18,9 +18,9 @@ Performance testing shows this library is:
 
 This library provides three ways to work with ADI files:
 
-1) [ADIFReader](./examples/adireader_test.go): Stream-based parsing of ADI records using `io.Reader`
-2) [Record](./examples/record_test.go): Single record operations using `io.Reader`/`io.Writer`
-3) [Document](./examples/document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
+1) [ADIFReader](./example_adireader_test.go): Stream-based parsing of ADI records using `io.Reader`
+2) [Record](./example_record_test.go): Single record operations using `io.Reader`/`io.Writer`
+3) [Document](./example_document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
 
 ## Installation
 
