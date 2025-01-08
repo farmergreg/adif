@@ -53,7 +53,7 @@ func (r Record) Reset() {
 // ReadFrom reads an ADIF formatted record from the provided io.Reader.
 // It returns the number of bytes read and any error encountered.
 // io.EOF is returned when no more records are available.
-// Existing fields will be updated and add new fields added when necessary.
+// Existing fields will be updated and new fields added as necessary.
 // Header records are SKIPPED.
 //
 // n.b. This method is best used to read a single record.
@@ -191,7 +191,7 @@ func (r *Record) Clean() {
 	}
 }
 
-// String returns the ADIF record as a string
+// String returns the ADIF record as a string.
 // The field order is NOT guaranteed to be stable.
 func (r *Record) String() string {
 	adiLength := r.appendAsADIPreCalculate()
