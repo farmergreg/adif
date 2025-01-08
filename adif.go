@@ -4,13 +4,9 @@
 // make integration with other Go libraries simple.
 package adif
 
-import (
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
-)
-
 const (
-	TagEOH = string("<" + adifield.EOH + ">") // TagEOH is the end of header ADIF tag: <EOH>
-	TagEOR = string("<" + adifield.EOR + ">") // TagEOR is the end of record ADIF tag: <EOR>
+	TagEOH = string("<EOH>") // TagEOH is the end of header ADIF tag: <EOH>
+	TagEOR = string("<EOR>") // TagEOR is the end of record ADIF tag: <EOR>
 )
 
 const adiHeaderPreamble = "K9CTS AM✠DG ADIF Library\n"
