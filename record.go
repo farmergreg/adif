@@ -115,6 +115,9 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 	buf = appendField(buf, adifield.PROP_MODE, (*r)[adifield.PROP_MODE])
 	buf = appendField(buf, adifield.SAT_NAME, (*r)[adifield.SAT_NAME])
 	buf = appendField(buf, adifield.OPERATOR, (*r)[adifield.OPERATOR])
+	buf = appendField(buf, adifield.STATION_CALLSIGN, (*r)[adifield.STATION_CALLSIGN])
+	buf = appendField(buf, adifield.QTH, (*r)[adifield.QTH])
+	buf = appendField(buf, adifield.GRIDSQUARE, (*r)[adifield.GRIDSQUARE])
 
 	// Remaining fields
 	for field, value := range *r {
