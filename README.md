@@ -87,8 +87,3 @@ This is one of those FUN situations where an O(n) algorithm is faster than O(1) 
 
 This library attempts to take advantage of the go stdlib's use of simd.
 Using simd directly to further speed up parsing is an opportunity worth exploring.
-
-Writing performance can be improved by about 50% by removing the field sorting in WriteTo.
-I feel that sorting the fields provides a better debugging / user experience and is worth the trade-off.
-We are still 2x faster than the next fastest benchmarked library.
-If needed, we could implement a WriteToFast method that does not sort the fields.
