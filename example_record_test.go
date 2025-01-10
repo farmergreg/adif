@@ -21,7 +21,7 @@ func ExampleNewRecord() {
 	fmt.Print(record.String())
 	fmt.Println(TagEOR)
 
-	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+	// Output: <BAND:3>10m<MODE:3>SSB<CALL:4>W1AW<APP_K9CTS_TEST:4>TEST<EOR>
 }
 
 func ExampleRecord_ReadFrom() {
@@ -46,7 +46,7 @@ func ExampleRecord_ReadFrom() {
 	// Output:
 	// W1AW
 	//
-	// <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+	// <BAND:3>10m<MODE:3>SSB<CALL:4>W1AW<APP_K9CTS_TEST:4>TEST<EOR>
 }
 
 func ExampleRecord_WriteTo() {
@@ -62,5 +62,5 @@ func ExampleRecord_WriteTo() {
 	fmt.Print(sb.String())
 	fmt.Println(TagEOR)
 
-	// Output: <CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>
+	// Output: <BAND:3>10m<MODE:3>SSB<CALL:4>W1AW<APP_K9CTS_TEST:4>TEST<EOR>
 }
