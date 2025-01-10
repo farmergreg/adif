@@ -18,11 +18,37 @@ var (
 	_ fmt.Stringer  = &Record{}
 )
 
-var bufferPool = sync.Pool{
+var recordBufferPool = sync.Pool{
 	New: func() interface{} {
 		b := make([]byte, 0, 1024)
 		return &b
 	},
+}
+
+// recordPriorityFieldOrder defines the order of priority fields when writing ADIF records
+var recordPriorityFieldOrder = [...]adifield.Field{
+	adifield.CALL,
+	adifield.BAND,
+	adifield.MODE,
+	adifield.QSO_DATE,
+	adifield.TIME_ON,
+	adifield.QSO_DATE_OFF,
+	adifield.TIME_OFF,
+	adifield.PROP_MODE,
+	adifield.SAT_NAME,
+	adifield.OPERATOR,
+	adifield.STATION_CALLSIGN,
+	adifield.QTH,
+	adifield.GRIDSQUARE,
+}
+
+// recordPriorityFields is used for quick lookups to determine if a field is a priority field
+var recordPriorityFields = make(map[adifield.Field]struct{}, len(recordPriorityFieldOrder))
+
+func init() {
+	for _, field := range recordPriorityFieldOrder {
+		recordPriorityFields[field] = struct{}{}
+	}
 }
 
 // NewRecord creates a new Record with the default initial capacity.
@@ -71,7 +97,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 // It returns the number of bytes written and any error encountered.
 func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	adiLength := r.appendAsADIPreCalculate()
-	bufPtr := bufferPool.Get().(*[]byte)
+	bufPtr := recordBufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
 	if cap(buf) < adiLength {
@@ -83,7 +109,7 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 	buf = r.appendAsADI(buf)
 	n, err := dest.Write(buf)
 
-	bufferPool.Put(bufPtr)
+	recordBufferPool.Put(bufPtr)
 	return int64(n), err
 }
 
@@ -96,43 +122,26 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 		return buf
 	}
 
-	// Priority fields first.
-	// This may change.
-	// These fields and their specific order are NOT guaranteed to be in the same position in future versions of this library.
-	buf = appendField(buf, adifield.CALL, (*r)[adifield.CALL])
-	buf = appendField(buf, adifield.BAND, (*r)[adifield.BAND])
-	buf = appendField(buf, adifield.MODE, (*r)[adifield.MODE])
-	buf = appendField(buf, adifield.QSO_DATE, (*r)[adifield.QSO_DATE])
-	buf = appendField(buf, adifield.TIME_ON, (*r)[adifield.TIME_ON])
-	buf = appendField(buf, adifield.QSO_DATE_OFF, (*r)[adifield.QSO_DATE_OFF])
-	buf = appendField(buf, adifield.TIME_OFF, (*r)[adifield.TIME_OFF])
-	buf = appendField(buf, adifield.PROP_MODE, (*r)[adifield.PROP_MODE])
-	buf = appendField(buf, adifield.SAT_NAME, (*r)[adifield.SAT_NAME])
-	buf = appendField(buf, adifield.OPERATOR, (*r)[adifield.OPERATOR])
-	buf = appendField(buf, adifield.STATION_CALLSIGN, (*r)[adifield.STATION_CALLSIGN])
-	buf = appendField(buf, adifield.QTH, (*r)[adifield.QTH])
-	buf = appendField(buf, adifield.GRIDSQUARE, (*r)[adifield.GRIDSQUARE])
+	// Priority fields first (in order, but nothing about this is guaranteed to be stable between versions of this library)
+	for _, field := range recordPriorityFieldOrder {
+		buf = r.appendField(buf, field)
+	}
 
 	// Remaining fields
-	for field, value := range *r {
-
-		// Skip fields we've already handled
-		switch field {
-		case adifield.CALL, adifield.BAND, adifield.MODE,
-			adifield.QSO_DATE, adifield.TIME_ON,
-			adifield.QSO_DATE_OFF, adifield.TIME_OFF,
-			adifield.PROP_MODE, adifield.SAT_NAME:
+	for field := range *r {
+		if _, isPriority := recordPriorityFields[field]; isPriority {
 			continue
 		}
-		buf = appendField(buf, field, value)
+		buf = r.appendField(buf, field)
 	}
 
 	return buf
 }
 
 // appendField adds a single ADIF field to the buffer
-func appendField(buf []byte, field adifield.Field, value string) []byte {
-	if value == "" {
+func (r *Record) appendField(buf []byte, field adifield.Field) []byte {
+	value, ok := (*r)[field]
+	if !ok || len(value) == 0 {
 		return buf
 	}
 
@@ -188,7 +197,7 @@ func (r *Record) Clean() {
 // The field order is NOT guaranteed to be stable.
 func (r *Record) String() string {
 	adiLength := r.appendAsADIPreCalculate()
-	bufPtr := bufferPool.Get().(*[]byte)
+	bufPtr := recordBufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
 	if cap(buf) < adiLength {
@@ -200,6 +209,6 @@ func (r *Record) String() string {
 	buf = r.appendAsADI(buf)
 	s := string(buf)
 
-	bufferPool.Put(bufPtr)
+	recordBufferPool.Put(bufPtr)
 	return s
 }

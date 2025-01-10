@@ -44,8 +44,8 @@ This gives the JSON marshaler an advantage over the ADI parsers because it has l
 | Matir                                      |     417   |    2,895,274   | 2,037,004   |   66,535   |
 | Eminlin                                    |      68   |   16,453,839   |13,127,877   |  193,083   |
 | **Write Operations**                       |           |                |             |            |
-| This Library                               | **2,304** |    **519,218** | **514,436** |     **20** |
-| JSON                                       |     800   |    1,495,712   |   973,083   |   17,805   |
+| This Library                               | **1,800** |    **666,157** | **514,418** |     **20** |
+| JSON                                       |     796   |    1,488,265   |   966,487   |   17,805   |
 | Matir                                      |     399   |    2,994,459   | 1,490,840   |   28,673   |
 | Eminlin                                    |     N/A   |          N/A   |       N/A   |      N/A   |
 
