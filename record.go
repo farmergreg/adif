@@ -27,13 +27,13 @@ var recordBufferPool = sync.Pool{
 
 // recordPriorityFieldOrder defines the order of priority fields when writing ADIF records
 var recordPriorityFieldOrder = [...]adifield.Field{
-	adifield.CALL,
-	adifield.BAND,
-	adifield.MODE,
 	adifield.QSO_DATE,
 	adifield.TIME_ON,
 	adifield.QSO_DATE_OFF,
 	adifield.TIME_OFF,
+	adifield.BAND,
+	adifield.MODE,
+	adifield.CALL,
 	adifield.PROP_MODE,
 	adifield.SAT_NAME,
 	adifield.OPERATOR,
