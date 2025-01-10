@@ -94,5 +94,5 @@ Alternative implementations explored:
 
 Future optimization possibilities:
 
-- Future optimization opportunities include direct SIMD implementation for parsing operations.
-- A perfect hash function could be used to implement the map lookup.
+- A perfect hash function with a custom map implementation.
+- Direct SIMD implementation for parsing operations.
