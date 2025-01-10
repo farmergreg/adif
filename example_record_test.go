@@ -15,7 +15,7 @@ func ExampleNewRecord() {
 	record.Set(adifield.APP_+"K9CTS_TEST", "TEST")
 
 	if record.Get(adifield.CALL) != "W1AW" {
-		panic("Expected W1AW, got " + record.Get(adifield.CALL))
+		panic("Expected W1AW, got " + record.Get(adifield.CALL)) // n.b. the field keys must be UPPERCASE
 	}
 
 	fmt.Print(record.String())
@@ -37,7 +37,7 @@ func ExampleRecord_ReadFrom() {
 		panic(err)
 	}
 
-	fmt.Println(r.Get(adifield.CALL))
+	fmt.Println(r.Get(adifield.CALL)) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
 
 	fmt.Print(r.String()) // n.b. the fields do not always appear in the same order
