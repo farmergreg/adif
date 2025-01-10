@@ -1,6 +1,6 @@
 # High Performance ADIF / ADI Ham Radio Logging Library
 
-This is a high-performance library for working with [ADIF](https://adif.org/) (Amateur Data Interchange Format) files used in ham radio logging.
+This is a high-performance library for working with [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used in ham radio logging.
 It provides an idiomatic, developer-friendly API that seamlessly integrates with Go's standard library interfaces and your codebase.
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
