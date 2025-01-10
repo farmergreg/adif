@@ -50,7 +50,7 @@ func loadTestData() []Record {
 		if err == io.EOF {
 			break
 		}
-		qsoListNative = append(qsoListNative, record)
+		qsoListNative = append(qsoListNative, *record)
 	}
 	return qsoListNative
 }
@@ -66,7 +66,7 @@ func BenchmarkReadThisLibrary(b *testing.B) {
 			if err == io.EOF {
 				break
 			}
-			qsoList = append(qsoList, q)
+			qsoList = append(qsoList, *q)
 		}
 	}
 
@@ -251,6 +251,6 @@ func BenchmarkLoTWOneRecord(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		record.ReadFrom(strings.NewReader(oneRecord))
-		_ = record[adifield.CALL]
+		_ = record.fields[adifield.CALL]
 	}
 }

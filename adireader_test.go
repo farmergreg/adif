@@ -92,7 +92,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 					break
 				}
 				assert.Nil(t, err)
-				records = append(records, record)
+				records = append(records, *record)
 			}
 
 			assert.Equal(t, tt.recordCount, len(records))
@@ -103,11 +103,11 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			var index = 0
 			if tt.hasHeader {
-				assert.Equal(t, "TEST", records[0][adifield.PROGRAMID])
+				assert.Equal(t, "TEST", records[0].fields[adifield.PROGRAMID])
 				index++
 			}
 
-			assert.Equal(t, "W9PVA", records[index][adifield.CALL])
+			assert.Equal(t, "W9PVA", records[index].fields[adifield.CALL])
 		})
 	}
 }
@@ -122,7 +122,7 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 
 	// Assert
 	assert.Nil(t, err)
-	val := qso["APP_LOTW_2XQSL"]
+	val := qso.fields["APP_LOTW_2XQSL"]
 	assert.Equal(t, "Y", val)
 	assert.Equal(t, int64(len(raw)), bytesRead)
 }
@@ -137,7 +137,7 @@ func TestParseWithMissingLengthField(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, io.EOF, err)
-	val := qso["APP_LOTW_EOF"]
+	val := qso.fields["APP_LOTW_EOF"]
 	assert.Equal(t, "", val)
 	assert.Equal(t, int64(len(raw)), bytesRead)
 }
@@ -192,7 +192,7 @@ func TestParseNoRecords(t *testing.T) {
 
 			// Act
 			qso, _, _, err := p.Next()
-			assert.Equal(t, 0, len(qso))
+			assert.Equal(t, 0, len(qso.fields))
 
 			// Assert
 			if tt.isNonEOFErrExpected {
@@ -243,7 +243,7 @@ func TestParseSingleRecord(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			assert.Equal(t, tt.fieldData, qso[adifield.Field(tt.fieldName)])
+			assert.Equal(t, tt.fieldData, qso.fields[adifield.Field(tt.fieldName)])
 
 			assert.Equal(t, tt.isHeaderRecord, isHeader)
 			assert.Equal(t, int64(len(tt.adifSource)), bytesRead)
@@ -259,12 +259,12 @@ func TestParseSkipHeader(t *testing.T) {
 	// Act & Assert
 	record, _, _, err := p.Next()
 	assert.Nil(t, err)
-	assert.Equal(t, "", record[adifield.PROGRAMID])
-	assert.Equal(t, "GOOD", record[adifield.COMMENT])
+	assert.Equal(t, "", record.fields[adifield.PROGRAMID])
+	assert.Equal(t, "GOOD", record.fields[adifield.COMMENT])
 
 	recordTwo, _, _, errTwo := p.Next()
 	assert.Equal(t, io.EOF, errTwo)
-	assert.Equal(t, 0, len(recordTwo))
+	assert.Equal(t, 0, len(recordTwo.fields))
 }
 
 func TestParseLongFieldName(t *testing.T) {
@@ -281,7 +281,7 @@ func TestParseLongFieldName(t *testing.T) {
 
 	// Assert
 	assert.Nil(t, err)
-	assert.Equal(t, "TEST", record[adifield.Field(fieldName)])
+	assert.Equal(t, "TEST", record.fields[adifield.Field(fieldName)])
 }
 
 func TestParseLargeData(t *testing.T) {
@@ -294,8 +294,8 @@ func TestParseLargeData(t *testing.T) {
 
 	// Assert
 	assert.Nil(t, err)
-	if record[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
-		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record[adifield.COMMENT])
+	if record.fields[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
+		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record.fields[adifield.COMMENT])
 	}
 }
 
@@ -309,5 +309,5 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, ErrInvalidFieldLength, err)
-	assert.Empty(t, record[adifield.COMMENT])
+	assert.Empty(t, record.fields[adifield.COMMENT])
 }

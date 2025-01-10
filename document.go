@@ -16,7 +16,7 @@ var (
 // NewDocument creates a new Document with default initial capacity.
 func NewDocument() *Document {
 	return &Document{
-		Records: make([]Record, 0, 16),
+		Records: make([]*Record, 0, 16),
 	}
 }
 
@@ -27,7 +27,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		bw = bufio.NewWriter(w)
 	}
 
-	if f.Header != nil {
+	if f.Header != nil && len(f.Header.fields) > 0 {
 		ci, err := bw.WriteString(adiHeaderPreamble)
 		n += int64(ci)
 		if err != nil {
@@ -106,7 +106,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 // String returns the document as an ADI string.
 // Returns an empty string if the receiver is nil.
 func (f *Document) String() string {
-	if f == nil || (len(f.Records) == 0 && f.Header == nil) {
+	if f == nil || (len(f.Records) == 0 && f.Header.fields == nil) {
 		return ""
 	}
 

@@ -59,7 +59,7 @@ func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
 
 // Next reads and returns the next Record.
 // It returns io.EOF when no more records are available.
-func (p *adiReader) Next() (Record, bool, int64, error) {
+func (p *adiReader) Next() (*Record, bool, int64, error) {
 	result := NewRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
@@ -68,7 +68,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		n += c
 
 		if err != nil {
-			if err == io.EOF && len(result) > 0 {
+			if err == io.EOF && len(result.fields) > 0 {
 				// We have a valid record, return it without the EOF error
 				// The next call to Next() will return io.EOF
 				return result, false, n, nil
@@ -84,7 +84,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 
 		switch field {
 		case adifield.EOH:
-			if len(result) > 0 {
+			if len(result.fields) > 0 {
 				if !p.skipHeader {
 					return result, true, n, nil
 				}
@@ -96,9 +96,9 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 			continue
 		case adifield.EOR:
 
-			if len(result) > 0 {
-				if len(result) > p.preAllocateFields {
-					p.preAllocateFields = len(result)
+			if len(result.fields) > 0 {
+				if len(result.fields) > p.preAllocateFields {
+					p.preAllocateFields = len(result.fields)
 				}
 				return result, false, n, nil
 			}
@@ -107,9 +107,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		if len(value) > 0 {
-			result[field] = value
-		}
+		result.Set(field, value)
 	}
 }
 

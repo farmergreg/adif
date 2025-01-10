@@ -1,6 +1,7 @@
 package adif
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"math"
@@ -13,9 +14,11 @@ import (
 
 // Interface implementations
 var (
-	_ io.WriterTo   = &Record{}
-	_ io.ReaderFrom = &Record{}
-	_ fmt.Stringer  = &Record{}
+	_ io.WriterTo      = &Record{}
+	_ io.ReaderFrom    = &Record{}
+	_ fmt.Stringer     = &Record{}
+	_ json.Marshaler   = &Record{}
+	_ json.Unmarshaler = &Record{}
 )
 
 var recordBufferPool = sync.Pool{
@@ -52,21 +55,23 @@ func init() {
 }
 
 // NewRecord creates a new Record with the default initial capacity.
-func NewRecord() Record {
+func NewRecord() *Record {
 	return NewRecordWithCapacity(-1)
 }
 
 // NewRecordWithCapacity creates a new Record with a specific initial capacity.
-func NewRecordWithCapacity(initialCapacity int) Record {
+func NewRecordWithCapacity(initialCapacity int) *Record {
 	if initialCapacity < 1 {
 		initialCapacity = 7
 	}
-	return make(Record, initialCapacity)
+	return &Record{
+		fields: make(map[adifield.Field]string, initialCapacity),
+	}
 }
 
 // Reset clears the record of all fields.
-func (r Record) Reset() {
-	clear(r)
+func (r *Record) Reset() {
+	clear(r.fields)
 }
 
 // ReadFrom reads an ADIF formatted record from the provided io.Reader.
@@ -88,7 +93,7 @@ func (r *Record) ReadFrom(src io.Reader) (int64, error) {
 		return n, err
 	}
 
-	*r = record
+	*r = *record
 	return n, nil
 }
 
@@ -118,7 +123,7 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
 func (r *Record) appendAsADI(buf []byte) []byte {
-	if len(*r) == 0 {
+	if len(r.fields) == 0 {
 		return buf
 	}
 
@@ -128,7 +133,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 	}
 
 	// Remaining fields
-	for field := range *r {
+	for field := range r.fields {
 		if _, isPriority := recordPriorityFields[field]; isPriority {
 			continue
 		}
@@ -140,7 +145,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 
 // appendField adds a single ADIF field to the buffer
 func (r *Record) appendField(buf []byte, field adifield.Field) []byte {
-	value, ok := (*r)[field]
+	value, ok := r.fields[field]
 	if !ok || len(value) == 0 {
 		return buf
 	}
@@ -157,11 +162,11 @@ func (r *Record) appendField(buf []byte, field adifield.Field) []byte {
 
 // appendAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the AppendAsADI method.
 func (r *Record) appendAsADIPreCalculate() (adiLength int) {
-	if len(*r) == 0 {
+	if len(r.fields) == 0 {
 		return 0
 	}
 
-	for field, value := range *r {
+	for field, value := range r.fields {
 		valueLength := len(value)
 		if valueLength == 0 {
 			continue
@@ -187,9 +192,9 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 // Clean
 // trims whitespace in the field values
 func (r *Record) Clean() {
-	for field, value := range *r {
+	for field, value := range r.fields {
 		trimmed := strings.TrimSpace(value)
-		(*r)[field] = trimmed
+		r.fields[field] = trimmed
 	}
 }
 
@@ -211,4 +216,41 @@ func (r *Record) String() string {
 
 	recordBufferPool.Put(bufPtr)
 	return s
+}
+
+// Get returns the value for a given field.
+// Returns empty string if field does not exist.
+// The field name must be in UPPERCASE.
+func (r *Record) Get(field adifield.Field) string {
+	return r.fields[field]
+}
+
+// Set sets the value for a given field.
+// If the value is an empty string, the field is deleted.
+// The field name must be in UPPERCASE.
+func (r *Record) Set(field adifield.Field, value string) {
+	if value == "" {
+		r.Delete(field)
+	} else {
+		r.fields[field] = value
+	}
+}
+
+// Delete removes a field from the record.
+// The field name must be in UPPERCASE.
+func (r *Record) Delete(field adifield.Field) {
+	delete(r.fields, field)
+}
+
+// MarshalJSON implements json.Marshaler
+func (r *Record) MarshalJSON() ([]byte, error) {
+	return json.Marshal(r.fields)
+}
+
+// UnmarshalJSON implements json.Unmarshaler
+func (r *Record) UnmarshalJSON(data []byte) error {
+	if r.fields == nil {
+		r.fields = make(map[adifield.Field]string)
+	}
+	return json.Unmarshal(data, &r.fields)
 }
