@@ -18,13 +18,6 @@ var (
 	_ fmt.Stringer  = &Record{}
 )
 
-var fieldPool = sync.Pool{
-	New: func() interface{} {
-		s := make([]adifield.Field, 0, 64)
-		return &s
-	},
-}
-
 var bufferPool = sync.Pool{
 	New: func() interface{} {
 		b := make([]byte, 0, 1024)
