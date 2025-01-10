@@ -1,8 +1,7 @@
 # High Performance ADIF / ADI Ham Radio Logging Library
 
-A high-performance Go library for parsing [ADIF](https://adif.org/) (Amateur Data Interchange Format) files used in ham radio logging.
-This implementation focuses on speed and memory efficiency.
-It provides a simple to use API that is idiomatic and works well with common Go standard library interfaces.
+This is a high-performance library for working with [ADIF](https://adif.org/) (Amateur Data Interchange Format) files used in ham radio logging.
+It provides an idiomatic, developer-friendly API that seamlessly integrates with Go's standard library interfaces and your codebase.
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -13,7 +12,7 @@ It provides a simple to use API that is idiomatic and works well with common Go 
 Performance testing shows this library is:
 
 - 3x to 20x faster than comparable ADI libraries.
-- 7x - 1400x fewer memory allocations than other tested ADI libraries.
+- 7x - 1400x fewer memory allocations than tested ADI libraries.
 - 2x faster than Go standard library JSON marshaling.
 
 ## Usage
@@ -21,8 +20,8 @@ Performance testing shows this library is:
 This library provides three ways to work with ADI files:
 
 1) [ADIFReader](./example_adireader_test.go): Stream-based parsing of ADI records using `io.Reader`
-2) [Record](./example_record_test.go): Single record operations using `io.Reader`/`io.Writer`
-3) [Document](./example_document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
+2) [Document](./example_document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
+3) [Record](./example_record_test.go): Single record operations using `io.Reader`/`io.Writer`
 
 ## Installation
 
@@ -71,7 +70,7 @@ This parser achieves high performance through the following optimizations:
 ### Memory Management
 
 - Minimal temporary allocations during field parsing
-- String interning for common ADI field names to reduce string allocations
+- String interning for common ADI field names to reduce string allocations and memory use
 - Constant memory overhead during streaming operations
 - Dynamic buffer allocation based on learned field counts
 
@@ -81,9 +80,9 @@ Alternative implementations explored:
 
 1. Non-Streaming / Read ADI File into Memory:
    - 20% performance improvement over current streaming implementation
-   - Rejected to maintain streaming capability for large files
+   - Rejected to maintain streaming capability for large data sets
 
-2. Field list instead of map:
+2. slice of fields instead of map:
    - L1/2/3 cache-friendly design
    - O(n) lookup time instead of map O(1) lookup time.
    - For small values of n where n is less than ~40, this is faster than the map based implementation.
@@ -93,4 +92,7 @@ Alternative implementations explored:
    - Still considering switching to this implementation because it is common to see ADI records with less than 40 fields.
    - Downside is that above ~50 fields, the O(n) map lookup is faster than the O(n) list lookup.
 
-Future optimization opportunities include direct SIMD implementation for parsing operations.
+Future optimization possibilities:
+
+- Future optimization opportunities include direct SIMD implementation for parsing operations.
+- A perfect hash function could be used to implement the map lookup.
