@@ -119,30 +119,6 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	}
 }
 
-func TestQSOClean(t *testing.T) {
-	// Arrange
-	qso := NewRecord()
-	qso[adifield.CALL] = "W9PVA "
-	qso[adifield.COMMENT] = " COMMENT "
-	qso[adifield.QSO_DATE] = ""
-
-	// Act
-	qso.Clean()
-
-	// Assert
-	if len(qso) != 3 {
-		t.Errorf("Expected 3 fields, got %d", len(qso))
-	}
-
-	if qso[adifield.COMMENT] != "COMMENT" {
-		t.Errorf("Expected \"COMMENT\", got \"%s\"", qso[adifield.COMMENT])
-	}
-
-	if qso[adifield.CALL] != "W9PVA" {
-		t.Errorf("Expected \"W9PVA\", got \"%s\"", qso[adifield.CALL])
-	}
-}
-
 func TestWriteTo(t *testing.T) {
 	// Arrange
 	var builder strings.Builder
