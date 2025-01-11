@@ -4,8 +4,6 @@ import (
 	"io"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDocumentString(t *testing.T) {
@@ -18,7 +16,10 @@ func TestDocumentString(t *testing.T) {
 	s := doc.String()
 
 	// Assert
-	assert.Equal(t, adiHeaderPreamble+"<PROGRAMID:7>MonoLog<EOH>\n<CALL:5>W9PVA<EOR>\n", s)
+	want := adiHeaderPreamble + "<PROGRAMID:7>MonoLog<EOH>\n<CALL:5>W9PVA<EOR>\n"
+	if s != want {
+		t.Errorf("got %q, want %q", s, want)
+	}
 }
 
 func TestParseExportParseVerifySimple(t *testing.T) {
@@ -43,7 +44,9 @@ func TestParseExportParseVerifyFiles(t *testing.T) {
 
 	// Arrange
 	files, err := testFileFS.ReadDir("testdata")
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for _, file := range files {
 		file := file
@@ -52,16 +55,21 @@ func TestParseExportParseVerifyFiles(t *testing.T) {
 
 			// Act
 			reader, err := testFileFS.Open("testdata/" + file.Name())
-			assert.Nil(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
 			defer reader.Close()
 
 			content, err := io.ReadAll(reader)
-			assert.Nil(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			parseExportParseVerifyHelper(t, string(content))
 		})
 	}
 }
+
 func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	t.Helper()
 
@@ -70,7 +78,6 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	firstDoc.ReadFrom(strings.NewReader(adif))
 
 	// Export
-
 	buf := &strings.Builder{}
 	firstDoc.WriteTo(buf)
 
@@ -80,16 +87,27 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 
 	// Verify
 	if firstDoc.Header != nil {
-		assert.Equal(t, len(firstDoc.Header.fields), len(secondDoc.Header.fields))
+		if len(firstDoc.Header.fields) != len(secondDoc.Header.fields) {
+			t.Errorf("header length mismatch: got %d, want %d", len(secondDoc.Header.fields), len(firstDoc.Header.fields))
+		}
 		for field := range firstDoc.Header.fields {
-			assert.Equal(t, firstDoc.Header.fields[field], secondDoc.Header.fields[field])
+			if firstDoc.Header.fields[field] != secondDoc.Header.fields[field] {
+				t.Errorf("header field %q mismatch: got %v, want %v", field, secondDoc.Header.fields[field], firstDoc.Header.fields[field])
+			}
 		}
 	}
-	assert.Equal(t, len(firstDoc.Records), len(secondDoc.Records))
+
+	if len(firstDoc.Records) != len(secondDoc.Records) {
+		t.Errorf("records length mismatch: got %d, want %d", len(secondDoc.Records), len(firstDoc.Records))
+	}
 	for r := range firstDoc.Records {
-		assert.Equal(t, len(firstDoc.Records[r].fields), len(secondDoc.Records[r].fields))
+		if len(firstDoc.Records[r].fields) != len(secondDoc.Records[r].fields) {
+			t.Errorf("record %d fields length mismatch: got %d, want %d", r, len(secondDoc.Records[r].fields), len(firstDoc.Records[r].fields))
+		}
 		for field := range firstDoc.Records[r].fields {
-			assert.Equal(t, firstDoc.Records[r].fields[field], secondDoc.Records[r].fields[field])
+			if firstDoc.Records[r].fields[field] != secondDoc.Records[r].fields[field] {
+				t.Errorf("record %d field %q mismatch: got %v, want %v", r, field, secondDoc.Records[r].fields[field], firstDoc.Records[r].fields[field])
+			}
 		}
 	}
 }
@@ -102,5 +120,7 @@ func TestDocumentStringNilReceiver(t *testing.T) {
 	s := doc.String()
 
 	// Assert
-	assert.Equal(t, "", s)
+	if s != "" {
+		t.Errorf("got %q, want empty string", s)
+	}
 }

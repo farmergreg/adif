@@ -7,7 +7,6 @@ import (
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 	"github.com/hamradiolog-net/adif-spec/src/pkg/spec"
-	"github.com/stretchr/testify/assert"
 )
 
 var qsoWithLou = func() *Record {
@@ -120,30 +119,6 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	}
 }
 
-func TestQSOClean(t *testing.T) {
-	// Arrange
-	qso := NewRecord()
-	qso.fields[adifield.CALL] = "W9PVA "
-	qso.fields[adifield.COMMENT] = " COMMENT "
-	qso.fields[adifield.QSO_DATE] = ""
-
-	// Act
-	qso.Clean()
-
-	// Assert
-	if len(qso.fields) != 3 {
-		t.Errorf("Expected 3 fields, got %d", len(qso.fields))
-	}
-
-	if qso.fields[adifield.COMMENT] != "COMMENT" {
-		t.Errorf("Expected \"COMMENT\", got \"%s\"", qso.fields[adifield.COMMENT])
-	}
-
-	if qso.fields[adifield.CALL] != "W9PVA" {
-		t.Errorf("Expected \"W9PVA\", got \"%s\"", qso.fields[adifield.CALL])
-	}
-}
-
 func TestWriteTo(t *testing.T) {
 	// Arrange
 	var builder strings.Builder
@@ -154,10 +129,18 @@ func TestWriteTo(t *testing.T) {
 	// Assert
 	qso := NewRecord()
 	n, err := qso.ReadFrom(strings.NewReader(builder.String()))
-	assert.Nil(t, err)
-	assert.Equal(t, 4, len(qso.fields))
-	assert.Equal(t, 69, builder.Len())
-	assert.Equal(t, int64(69), n)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if len(qso.fields) != 4 {
+		t.Errorf("Expected 4 fields, got %d", len(qso.fields))
+	}
+	if builder.Len() != 69 {
+		t.Errorf("Expected length 69, got %d", builder.Len())
+	}
+	if n != 69 {
+		t.Errorf("Expected 69 bytes read, got %d", n)
+	}
 }
 
 func TestReadFrom(t *testing.T) {

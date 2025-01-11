@@ -6,7 +6,6 @@ import (
 	"io"
 	"math"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
@@ -202,15 +201,6 @@ func (r *Record) appendAsADIPreCalculate() (adiLength int) {
 	}
 
 	return adiLength
-}
-
-// Clean
-// trims whitespace in the field values
-func (r *Record) Clean() {
-	for field, value := range r.fields {
-		trimmed := strings.TrimSpace(value)
-		r.fields[field] = trimmed
-	}
 }
 
 // String returns the ADIF record as a string.
