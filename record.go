@@ -28,21 +28,36 @@ var recordBufferPool = sync.Pool{
 	},
 }
 
-// recordPriorityFieldOrder defines the order of priority fields when writing ADIF records
+// recordPriorityFieldOrder defines the order of priority fields when writing ADIF records.
+// These fields are written first, in this order.
 var recordPriorityFieldOrder = [...]adifield.Field{
+
+	// Minimum "required" fields:
+	// https://www.adif.org/315/ADIF_315_Resources.htm#ADIFImplementationNotesMinimumFields
 	adifield.QSO_DATE,
 	adifield.TIME_ON,
-	adifield.QSO_DATE_OFF,
-	adifield.TIME_OFF,
 	adifield.BAND,
 	adifield.MODE,
-	adifield.CALL,
+	adifield.SUBMODE, // not technically part of the "required" fields, but it logically belongs here.
+	adifield.CALL,    // placing CALL last so that similar records are vertically aligned and easy to read in ADI format.
+
+	// Additional Fields.
+	// Currently, we match LoTW's list:
+	// https://lotw.arrl.org/lotw-help/developer-submit-qsos/
+	adifield.FREQ,
+	adifield.FREQ_RX,
+	adifield.BAND_RX,
 	adifield.PROP_MODE,
 	adifield.SAT_NAME,
-	adifield.OPERATOR,
 	adifield.STATION_CALLSIGN,
-	adifield.QTH,
+	adifield.OPERATOR,
+	adifield.MY_DXCC,
+	adifield.MY_STATE,
+	adifield.MY_CNTY,
 	adifield.GRIDSQUARE,
+	adifield.VUCC_GRIDS,
+	adifield.MY_CQ_ZONE,
+	adifield.MY_ITU_ZONE,
 }
 
 // recordPriorityFields is used for quick lookups to determine if a field is a priority field
