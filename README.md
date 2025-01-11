@@ -13,7 +13,7 @@ Performance testing shows this library is:
 
 - 3x to 20x faster than comparable ADI libraries.
 - 7x - 1400x fewer memory allocations than tested ADI libraries.
-- 2x faster than Go standard library JSON marshaling.
+- More than 2x faster than Go standard library JSON marshaling.
 
 ## Usage
 

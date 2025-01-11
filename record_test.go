@@ -7,7 +7,6 @@ import (
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 	"github.com/hamradiolog-net/adif-spec/src/pkg/spec"
-	"github.com/stretchr/testify/assert"
 )
 
 var qsoWithLou = func() *Record {
@@ -154,10 +153,18 @@ func TestWriteTo(t *testing.T) {
 	// Assert
 	qso := NewRecord()
 	n, err := qso.ReadFrom(strings.NewReader(builder.String()))
-	assert.Nil(t, err)
-	assert.Equal(t, 4, len(qso))
-	assert.Equal(t, 69, builder.Len())
-	assert.Equal(t, int64(69), n)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if len(qso) != 4 {
+		t.Errorf("Expected 4 fields, got %d", len(qso))
+	}
+	if builder.Len() != 69 {
+		t.Errorf("Expected length 69, got %d", builder.Len())
+	}
+	if n != 69 {
+		t.Errorf("Expected 69 bytes read, got %d", n)
+	}
 }
 
 func TestReadFrom(t *testing.T) {

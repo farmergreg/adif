@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
-	"github.com/stretchr/testify/assert"
 )
 
 //go:embed testdata/*.adi
@@ -28,7 +27,9 @@ func TestVerifyRecordCount(t *testing.T) {
 	for filename, expectedCount := range tests {
 		t.Run(filename, func(t *testing.T) {
 			reader, err := testFileFS.Open("testdata/" + filename)
-			assert.Nil(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
 			defer reader.Close()
 
 			p := NewADIReader(reader, true)
@@ -38,12 +39,18 @@ func TestVerifyRecordCount(t *testing.T) {
 				if err == io.EOF {
 					break
 				}
-				assert.NotNil(t, qso)
-				assert.Nil(t, err)
+				if qso == nil {
+					t.Fatal("Expected non-nil QSO")
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
 				count++
 			}
 
-			assert.Equal(t, expectedCount, count, "Record count mismatch")
+			if count != expectedCount {
+				t.Errorf("Record count mismatch: got %d, want %d", count, expectedCount)
+			}
 		})
 	}
 }
@@ -91,11 +98,15 @@ func TestParseBasicFunctionality(t *testing.T) {
 				if err == io.EOF {
 					break
 				}
-				assert.Nil(t, err)
+				if err != nil {
+					t.Fatal(err)
+				}
 				records = append(records, record)
 			}
 
-			assert.Equal(t, tt.recordCount, len(records))
+			if len(records) != tt.recordCount {
+				t.Errorf("Record count mismatch: got %d, want %d", len(records), tt.recordCount)
+			}
 
 			if tt.recordCount == 0 {
 				return
@@ -103,28 +114,35 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			var index = 0
 			if tt.hasHeader {
-				assert.Equal(t, "TEST", records[0][adifield.PROGRAMID])
+				if records[0][adifield.PROGRAMID] != "TEST" {
+					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0][adifield.PROGRAMID])
+				}
 				index++
 			}
 
-			assert.Equal(t, "W9PVA", records[index][adifield.CALL])
+			if records[index][adifield.CALL] != "W9PVA" {
+				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index][adifield.CALL])
+			}
 		})
 	}
 }
 
 func TestParseWithNumbersInFieldName(t *testing.T) {
-	// Arrange
 	raw := "<APP_LoTW_2xQSL:1>Y"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	// Act
 	qso, _, bytesRead, err := p.Next()
 
-	// Assert
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	val := qso["APP_LOTW_2XQSL"]
-	assert.Equal(t, "Y", val)
-	assert.Equal(t, int64(len(raw)), bytesRead)
+	if val != "Y" {
+		t.Errorf("got %q, want %q", val, "Y")
+	}
+	if bytesRead != int64(len(raw)) {
+		t.Errorf("got %d bytes read, want %d", bytesRead, len(raw))
+	}
 }
 
 func TestParseWithMissingLengthField(t *testing.T) {
@@ -136,10 +154,16 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	qso, _, bytesRead, err := p.Next()
 
 	// Assert
-	assert.Equal(t, io.EOF, err)
+	if err != io.EOF {
+		t.Errorf("Expected EOF error, got %v", err)
+	}
 	val := qso["APP_LOTW_EOF"]
-	assert.Equal(t, "", val)
-	assert.Equal(t, int64(len(raw)), bytesRead)
+	if val != "" {
+		t.Errorf("Expected empty string, got %s", val)
+	}
+	if bytesRead != int64(len(raw)) {
+		t.Errorf("got %d bytes read, want %d", bytesRead, len(raw))
+	}
 }
 
 func TestParseNoRecords(t *testing.T) {
@@ -192,14 +216,24 @@ func TestParseNoRecords(t *testing.T) {
 
 			// Act
 			qso, _, _, err := p.Next()
-			assert.Equal(t, 0, len(qso))
+
+			// Assert
+			if len(qso) != 0 {
+				t.Errorf("Expected empty QSO, got %v", qso)
+			}
 
 			// Assert
 			if tt.isNonEOFErrExpected {
-				assert.NotNil(t, err)
-				assert.NotEqual(t, io.EOF, err)
+				if err == nil {
+					t.Error("Expected non-EOF error, got nil")
+				}
+				if err == io.EOF {
+					t.Error("Expected non-EOF error, got EOF")
+				}
 			} else {
-				assert.Equal(t, io.EOF, err)
+				if err != io.EOF {
+					t.Errorf("Expected EOF error, got %v", err)
+				}
 			}
 		})
 	}
@@ -238,15 +272,25 @@ func TestParseSingleRecord(t *testing.T) {
 
 			qso, isHeader, bytesRead, err := p.Next()
 			if tt.isExpectEOF {
-				assert.Equal(t, io.EOF, err)
+				if err != io.EOF {
+					t.Errorf("Expected EOF error, got %v", err)
+				}
 			} else {
-				assert.Nil(t, err)
+				if err != nil {
+					t.Fatal(err)
+				}
 			}
 
-			assert.Equal(t, tt.fieldData, qso[adifield.Field(tt.fieldName)])
+			if qso[adifield.Field(tt.fieldName)] != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso[adifield.Field(tt.fieldName)])
+			}
 
-			assert.Equal(t, tt.isHeaderRecord, isHeader)
-			assert.Equal(t, int64(len(tt.adifSource)), bytesRead)
+			if isHeader != tt.isHeaderRecord {
+				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, isHeader)
+			}
+			if bytesRead != int64(len(tt.adifSource)) {
+				t.Errorf("Expected %d bytes read, got %d", len(tt.adifSource), bytesRead)
+			}
 		})
 	}
 }
@@ -258,13 +302,23 @@ func TestParseSkipHeader(t *testing.T) {
 
 	// Act & Assert
 	record, _, _, err := p.Next()
-	assert.Nil(t, err)
-	assert.Equal(t, "", record[adifield.PROGRAMID])
-	assert.Equal(t, "GOOD", record[adifield.COMMENT])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if record[adifield.PROGRAMID] != "" {
+		t.Errorf("Expected empty PROGRAMID, got %s", record[adifield.PROGRAMID])
+	}
+	if record[adifield.COMMENT] != "GOOD" {
+		t.Errorf("Expected COMMENT 'GOOD', got %s", record[adifield.COMMENT])
+	}
 
 	recordTwo, _, _, errTwo := p.Next()
-	assert.Equal(t, io.EOF, errTwo)
-	assert.Equal(t, 0, len(recordTwo))
+	if errTwo != io.EOF {
+		t.Errorf("Expected EOF error, got %v", errTwo)
+	}
+	if len(recordTwo) != 0 {
+		t.Errorf("Expected empty record, got %v", recordTwo)
+	}
 }
 
 func TestParseLongFieldName(t *testing.T) {
@@ -280,8 +334,12 @@ func TestParseLongFieldName(t *testing.T) {
 	_, _, _, _ = p.Next()
 
 	// Assert
-	assert.Nil(t, err)
-	assert.Equal(t, "TEST", record[adifield.Field(fieldName)])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if record[adifield.Field(fieldName)] != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record[adifield.Field(fieldName)])
+	}
 }
 
 func TestParseLargeData(t *testing.T) {
@@ -293,7 +351,9 @@ func TestParseLargeData(t *testing.T) {
 	_, _, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if record[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
 		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record[adifield.COMMENT])
 	}
@@ -308,6 +368,10 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	_, _, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
-	assert.Equal(t, ErrInvalidFieldLength, err)
-	assert.Empty(t, record[adifield.COMMENT])
+	if err != ErrInvalidFieldLength {
+		t.Errorf("Expected ErrInvalidFieldLength error, got %v", err)
+	}
+	if record[adifield.COMMENT] != "" {
+		t.Errorf("Expected empty string, got %s", record[adifield.COMMENT])
+	}
 }
