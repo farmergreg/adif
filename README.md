@@ -102,3 +102,5 @@ Future optimization possibilities:
 If you found this library useful, you may also be interested in the following projects:
 
 - [hamradiolog-net/adif-spec](https://github.com/hamradiolog-net/adif-spec): ADIF Specification For Go
+- [g3zod/CreateADIFTestFiles](https://github.com/g3zod/CreateADIFTestFiles) ADI Test Files
+- [g3zod/CreateADIFExportFiles](https://github.com/g3zod/CreateADIFExportFiles) ADIF Workgroup Specification Export Tool
