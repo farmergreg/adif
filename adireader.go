@@ -95,7 +95,6 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 			}
 			continue
 		case adifield.EOR:
-
 			if len(result) > 0 {
 				if len(result) > p.preAllocateFields {
 					p.preAllocateFields = len(result)
@@ -103,6 +102,9 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 				return result, false, n, nil
 			}
 			// we know record is empty... no need to reset it
+			continue
+		case adifield.APP_LOTW_EOF:
+			// ARRL LoTW emits this invalid ADIF field at the end of a file; ignore it.
 			continue
 		}
 
