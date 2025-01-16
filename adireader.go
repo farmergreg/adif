@@ -63,7 +63,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 	result := NewRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
-		// Find the start of the next field for parsing
+		// Find the start of the next adi field
 		c, err := p.discardUntilLessThan()
 		n += c
 
@@ -107,9 +107,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		if len(value) > 0 {
-			result[field] = value
-		}
+		result[field] = value
 	}
 }
 
