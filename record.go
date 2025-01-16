@@ -155,7 +155,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 // appendField adds a single ADIF field to the buffer
 func (r *Record) appendField(buf []byte, field adifield.Field) []byte {
 	value, ok := (*r)[field]
-	if !ok || len(value) == 0 {
+	if !ok {
 		return buf
 	}
 

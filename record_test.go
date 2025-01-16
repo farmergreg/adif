@@ -67,7 +67,7 @@ func TestAppendAsADI(t *testing.T) {
 	actual := string(buf)
 
 	// Assert
-	var expectedLength = len(expected) - len("<QSO_DATE:0>")
+	var expectedLength = len(expected)
 	if len(actual) != expectedLength {
 		t.Errorf("Expected length %d, got length %d", expectedLength, len(actual))
 	}
@@ -93,8 +93,8 @@ func TestAppendAsADI(t *testing.T) {
 	}
 
 	expected = "<QSO_DATE:0>"
-	if strings.Contains(actual, expected) {
-		t.Errorf("Expected %s to NOT appear in %s", expected, actual)
+	if !strings.Contains(actual, expected) {
+		t.Errorf("Expected %s to appear in %s", expected, actual)
 	}
 }
 
@@ -132,13 +132,13 @@ func TestWriteTo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	if len(qso) != 4 {
+	if len(qso) != 5 {
 		t.Errorf("Expected 4 fields, got %d", len(qso))
 	}
-	if builder.Len() != 69 {
+	if builder.Len() != 81 {
 		t.Errorf("Expected length 69, got %d", builder.Len())
 	}
-	if n != 69 {
+	if n != 81 {
 		t.Errorf("Expected 69 bytes read, got %d", n)
 	}
 }

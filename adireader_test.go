@@ -154,8 +154,8 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	qso, _, bytesRead, err := p.Next()
 
 	// Assert
-	if err != io.EOF {
-		t.Errorf("Expected EOF error, got %v", err)
+	if err != nil {
+		t.Errorf("Expected nil error, got %v", err)
 	}
 	val := qso["APP_LOTW_EOF"]
 	if val != "" {
@@ -249,7 +249,7 @@ func TestParseSingleRecord(t *testing.T) {
 		isExpectEOF    bool
 	}{
 		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true, false},
-		{"Zero length data", "<APP_MY_APP:0>\r\n", "APP_MY_APP", "", false, true},
+		{"Zero length data", "<APP_MY_APP:0>\r\n", "APP_MY_APP", "", false, false},
 		{"Single char data", "<APP_MY_APP:1>x ", "APP_MY_APP", "x", false, false},
 		{"Basic TIME_ON", "<TIME_ON:6>161819", "TIME_ON", "161819", false, false},
 		{"TIME_ON with type", "<TIME_ON:6:Time>161819", "TIME_ON", "161819", false, false},
