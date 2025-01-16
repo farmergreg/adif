@@ -130,9 +130,9 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64
 	if len(volatileField) == 0 {
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
+	fastToUpper(volatileField)
 
 	// Step 2.1: field name string interning - reduce memory allocations
-	fastToUpper(volatileField)
 	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
 	if fieldDef, ok := adifield.FieldMap[field]; ok {
 		field = fieldDef.ID
