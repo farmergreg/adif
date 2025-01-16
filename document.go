@@ -41,10 +41,12 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 			return handleFlush(bw, n, err)
 		}
 
-		ci, err = bw.WriteString(TagEOH + "\n")
-		n += int64(ci)
-		if err != nil {
-			return handleFlush(bw, n, err)
+		if c64 > 0 { // prevent writing an empty record
+			ci, err = bw.WriteString(TagEOH + "\n")
+			n += int64(ci)
+			if err != nil {
+				return handleFlush(bw, n, err)
+			}
 		}
 	}
 
@@ -55,10 +57,12 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 			return handleFlush(bw, n, err)
 		}
 
-		cc, err := bw.WriteString(TagEOR + "\n")
-		n += int64(cc)
-		if err != nil {
-			return handleFlush(bw, n, err)
+		if c > 0 { // prevent writing an empty record
+			cc, err := bw.WriteString(TagEOR + "\n")
+			n += int64(cc)
+			if err != nil {
+				return handleFlush(bw, n, err)
+			}
 		}
 	}
 

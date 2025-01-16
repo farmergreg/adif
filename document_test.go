@@ -4,6 +4,8 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
 )
 
 func TestDocumentString(t *testing.T) {
@@ -122,5 +124,39 @@ func TestDocumentStringNilReceiver(t *testing.T) {
 	// Assert
 	if s != "" {
 		t.Errorf("got %q, want empty string", s)
+	}
+}
+
+func TestDocumentWriteEmptyHeader(t *testing.T) {
+	// Arrange
+	sb := &strings.Builder{}
+	doc := NewDocument()
+	doc.Header = Record{
+		adifield.PROGRAMID: "",
+	}
+
+	// Act
+	doc.WriteTo(sb)
+
+	// Assert
+	if sb.String() != adiHeaderPreamble {
+		t.Errorf("got %q, want empty string", sb.String())
+	}
+}
+
+func TestDocumentWriteEmptyRecord(t *testing.T) {
+	// Arrange
+	sb := &strings.Builder{}
+	doc := NewDocument()
+	doc.Records = []Record{{
+		adifield.CALL: "",
+	}}
+
+	// Act
+	doc.WriteTo(sb)
+
+	// Assert
+	if sb.String() != "" {
+		t.Errorf("got %q, want empty string", sb.String())
 	}
 }
