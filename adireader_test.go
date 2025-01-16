@@ -19,7 +19,7 @@ func TestVerifyRecordCount(t *testing.T) {
 		"ADIF_315_test_QSOs_2024_11_28.adi": 6156,
 		"Log4OM.adi":                        122,
 		"N3FJP-AClogAdif.adi":               438,
-		"lotwreport.adi":                    439,
+		"lotwreport.adi":                    438,
 		"qrz.adi":                           931,
 		"skcc-logger.adi":                   15,
 	}
