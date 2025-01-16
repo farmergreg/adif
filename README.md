@@ -55,10 +55,11 @@ This parser achieves high performance through the following optimizations:
 
 ### Architecture
 
-- Implements an O(n) time complexity iterative state machine parser
+- Implements an O(n) time complexity parser
 - Single-pass input stream processing
 - Zero-copy techniques to minimize memory operations
 - Efficient buffer reuse patterns
+- Simple API
 
 ### Performance Optimizations
 
@@ -70,7 +71,7 @@ This parser achieves high performance through the following optimizations:
 ### Memory Management
 
 - Minimal temporary allocations during field parsing
-- String interning for common ADI field names to reduce string allocations and memory use
+- String interning for common ADI field names to reduce allocations and memory use
 - Constant memory overhead during streaming operations
 - Dynamic buffer allocation based on learned field counts
 
