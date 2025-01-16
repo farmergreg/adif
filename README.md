@@ -32,8 +32,8 @@ go get github.com/hamradiolog-net/adif@latest
 ## Benchmarks
 
 JSON marshaling is included as a baseline for comparison.
-Note: JSON formatted data is significantly _smaller_ than the same data in ADI format.
-This gives the JSON marshaler an advantage over the ADI parsers because it has less work to perform.
+Note: JSON formatted data is _smaller_ than the same data in ADI format.
+This gives the JSON marshaler an advantage over the ADI parsers because it has about 4.4% fewer bytes to process in the benchmarked file.
 
 | Benchmark  (AMD Ryzen 9 7950X)             | Iterations | Time/op (ns) | Bytes/op    | Allocs/op   |
 |--------------------------------------------|----------:|---------------:|------------:|-----------:|
