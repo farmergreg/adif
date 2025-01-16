@@ -55,15 +55,14 @@ This parser achieves high performance through the following optimizations:
 
 ### Architecture
 
-- Implements an O(n) time complexity parser
-- Single-pass input stream processing
+- Implements an O(n) time complexity streaming parser
 - Zero-copy techniques to minimize memory operations
 - Efficient buffer reuse patterns
 - Simple API
 
 ### Performance Optimizations
 
-- Leverages stdlib I/O operations with potential SSE/SIMD acceleration depending upon your CPU architecture
+- Leverages stdlib I/O operations with SSE/SIMD acceleration depending upon your CPU architecture
 - Smart buffer pre-allocation based on discovered record sizes
 - Optimized ASCII case conversion using bitwise operations
 - Custom base-10 integer parsing for ADIF field lengths
