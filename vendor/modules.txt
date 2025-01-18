@@ -2,7 +2,7 @@
 ## explicit; go 1.13
 github.com/gocarina/gocsv
 # github.com/hamradiolog-net/adif-spec v1.0.9
-## explicit; go 1.23.4
+## explicit; go 1.23.5
 github.com/hamradiolog-net/adif-spec/src/pkg/adifield
 github.com/hamradiolog-net/adif-spec/src/pkg/shared
 github.com/hamradiolog-net/adif-spec/src/pkg/spec
