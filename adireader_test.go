@@ -77,7 +77,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 		{false, 0, "EOH with brackets", "><EOh>>"},
 		{false, 0, "EOR with brackets", "><EOr>>"},
 
-		{false, 1, "Record Missing EOR", "<CaLL:5>W9PVA"},
+		{false, 0, "Record Missing EOR", "<CaLL:5>W9PVA"},
 		{false, 1, "Complete Record with EOR", "<CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Leading space", " <CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Extra character", "<Call:5>W9PVAn<EOR>"},
@@ -128,7 +128,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 }
 
 func TestParseWithNumbersInFieldName(t *testing.T) {
-	raw := "<APP_LoTW_2xQSL:1>Y"
+	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
 	p := NewADIReader(strings.NewReader(raw), false)
 
 	qso, _, bytesRead, err := p.Next()
@@ -249,19 +249,19 @@ func TestParseSingleRecord(t *testing.T) {
 		isExpectEOF    bool
 	}{
 		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true, false},
-		{"Zero length data", "<APP_MY_APP:0>\r\n", "APP_MY_APP", "", false, false},
-		{"Single char data", "<APP_MY_APP:1>x ", "APP_MY_APP", "x", false, false},
-		{"Basic TIME_ON", "<TIME_ON:6>161819", "TIME_ON", "161819", false, false},
-		{"TIME_ON with type", "<TIME_ON:6:Time>161819", "TIME_ON", "161819", false, false},
-		{"Mixed case TIME_ON", "<TiMe_ON:6>161819", "TIME_ON", "161819", false, false},
-		{"TIME_ON with type and space", "<TIME_ON:6:Time>161819 ", "TIME_ON", "161819", false, false},
-		{"Mixed case with space", "<TiMe_ON:6>161819 ", "TIME_ON", "161819", false, false},
-		{"Leading space with type", " <TIME_ON:6:Time>161819 ", "TIME_ON", "161819", false, false},
-		{"Leading space mixed case", " <TiMe_ON:6>161819 ", "TIME_ON", "161819", false, false},
-		{"Leading space with type no end space", " <TIME_ON:6:Time>161819", "TIME_ON", "161819", false, false},
-		{"Leading space mixed case no end space", " <TiME_ON:6>161819", "TIME_ON", "161819", false, false},
-		{"Extra brackets", "><TiME_ON:6>161819>", "TIME_ON", "161819", false, false},
-		{"Long Field Name", "<App_K9CTS_012345678901234567890:5>W9PVA", "APP_K9CTS_012345678901234567890", "W9PVA", false, false},
+		{"Zero length data", "<APP_MY_APP:0>\r\n<EOR>", "APP_MY_APP", "", false, false},
+		{"Single char data", "<APP_MY_APP:1>x <EOR>", "APP_MY_APP", "x", false, false},
+		{"Basic TIME_ON", "<TIME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"TIME_ON with type", "<TIME_ON:6:Time>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"Mixed case TIME_ON", "<TiMe_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"TIME_ON with type and space", "<TIME_ON:6:Time>161819 <EOR>", "TIME_ON", "161819", false, false},
+		{"Mixed case with space", "<TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false, false},
+		{"Leading space with type", " <TIME_ON:6:Time>161819 <EOR>", "TIME_ON", "161819", false, false},
+		{"Leading space mixed case", " <TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false, false},
+		{"Leading space with type no end space", " <TIME_ON:6:Time>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"Leading space mixed case no end space", " <TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"Extra brackets", "><TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
+		{"Long Field Name", "<App_K9CTS_012345678901234567890:5>W9PVA<EOR>", "APP_K9CTS_012345678901234567890", "W9PVA", false, false},
 	}
 
 	for _, tt := range tests {
@@ -326,7 +326,7 @@ func TestParseLongFieldName(t *testing.T) {
 	fieldName := "APP_K9CTS_" + strings.Repeat("X", len)
 
 	// Arrange
-	adif := fmt.Sprintf("<%s:4>TEST", fieldName)
+	adif := fmt.Sprintf("<%s:4>TEST<EOR>", fieldName)
 	p := NewADIReader(strings.NewReader(adif), false)
 
 	// Act
@@ -344,7 +344,7 @@ func TestParseLongFieldName(t *testing.T) {
 
 func TestParseLargeData(t *testing.T) {
 	// Arrange
-	p := NewADIReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01"), false)
+	p := NewADIReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
 
 	// Act
 	record, _, _, err := p.Next() // Force the buffer to be resized to accommodate the large value

@@ -68,11 +68,6 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		n += c
 
 		if err != nil {
-			if err == io.EOF && len(result) > 0 {
-				// We have a valid record, return it without the EOF error
-				// The next call to Next() will return io.EOF
-				return result, false, n, nil
-			}
 			return result, false, n, err
 		}
 

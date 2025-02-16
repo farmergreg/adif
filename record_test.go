@@ -96,6 +96,14 @@ func TestAppendAsADI(t *testing.T) {
 	if !strings.Contains(actual, expected) {
 		t.Errorf("Expected %s to appear in %s", expected, actual)
 	}
+
+	if strings.Contains(actual, TagEOR) {
+		t.Errorf("Expected %s to not appear in %s", TagEOR, actual)
+	}
+
+	if strings.Contains(actual, TagEOH) {
+		t.Errorf("Expected %s to not appear in %s", TagEOH, actual)
+	}
 }
 
 func TestAppendAsADIPreCalculate(t *testing.T) {
@@ -125,6 +133,7 @@ func TestWriteTo(t *testing.T) {
 
 	// Act
 	qsoWithLou.WriteTo(&builder)
+	builder.WriteString(TagEOR)
 
 	// Assert
 	qso := NewRecord()
@@ -135,11 +144,11 @@ func TestWriteTo(t *testing.T) {
 	if len(qso) != 5 {
 		t.Errorf("Expected 4 fields, got %d", len(qso))
 	}
-	if builder.Len() != 81 {
-		t.Errorf("Expected length 69, got %d", builder.Len())
+	if builder.Len() != 86 {
+		t.Errorf("Expected length 86, got %d", builder.Len())
 	}
-	if n != 81 {
-		t.Errorf("Expected 69 bytes read, got %d", n)
+	if n != 86 {
+		t.Errorf("Expected 86 bytes read, got %d", n)
 	}
 }
 
