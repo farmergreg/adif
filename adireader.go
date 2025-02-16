@@ -66,7 +66,6 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		// Find the start of the next adi field
 		c, err := p.discardUntilLessThan()
 		n += c
-
 		if err != nil {
 			return result, false, n, err
 		}
