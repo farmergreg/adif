@@ -77,8 +77,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 		{false, 0, "EOH with brackets", "><EOh>>"},
 		{false, 0, "EOR with brackets", "><EOr>>"},
 
-		{false, 0, "Record Missing EOR", "<CaLL:5>W9PVA"},
-		{false, 1, "Complete Record with EOR", "<CaLL:5>W9PVA<EOR>"},
+		{false, 1, "Valid Record", "<CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Leading space", " <CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Extra character", "<Call:5>W9PVAn<EOR>"},
 		{false, 1, "Extra characters around EOR", "<Call:5>W9PVAa<EOR>b"},
@@ -124,6 +123,40 @@ func TestParseBasicFunctionality(t *testing.T) {
 				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index][adifield.CALL])
 			}
 		})
+	}
+}
+
+func TestParseWithMissingEOR(t *testing.T) {
+	raw := "<CaLL:5>W9PVA"
+	p := NewADIReader(strings.NewReader(raw), false)
+
+	qso, _, _, err := p.Next()
+
+	if err != io.EOF {
+		t.Errorf("Expected EOF error, got %v", err)
+	}
+	if len(qso) != 1 {
+		t.Errorf("Expected 1 field, got %d", len(qso))
+	}
+	if qso[adifield.CALL] != "W9PVA" {
+		t.Errorf("Expected CALL 'W9PVA', got %s", qso[adifield.CALL])
+	}
+}
+
+func TestParseWithMissingEOH(t *testing.T) {
+	raw := "<ADIF_VER:5>3.1.5"
+	p := NewADIReader(strings.NewReader(raw), false)
+
+	qso, _, _, err := p.Next()
+
+	if err != io.EOF {
+		t.Errorf("Expected EOF error, got %v", err)
+	}
+	if len(qso) != 1 {
+		t.Errorf("Expected 1 field, got %d", len(qso))
+	}
+	if qso[adifield.ADIF_VER] != "3.1.5" {
+		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso[adifield.ADIF_VER])
 	}
 }
 
