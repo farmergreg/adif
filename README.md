@@ -1,7 +1,7 @@
 # ⚡ World's Fastest ADI Parser for Go
 
-This is an ultra high-performance library for working with [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used in ham radio logging.
-It provides an idiomatic, developer-friendly API that seamlessly integrates with Go's standard library interfaces and your codebase.
+High-performance processing of [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used in ham radio logging.
+Provides an idiomatic, developer-friendly API that seamlessly integrates with your codebase and the go standard library.
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -23,8 +23,8 @@ It provides an idiomatic, developer-friendly API that seamlessly integrates with
 go get github.com/hamradiolog-net/adif@latest
 ```
 
-1) [ADIFReader](./example_adireader_test.go): Stream-based parsing of ADI records using `io.Reader`
-2) [Document](./example_document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
+1) [Document](./example_document_test.go): Complete ADI file operations using `io.Reader`/`io.Writer`
+2) [ADIFReader](./example_adireader_test.go): Stream-based parsing of ADI records using `io.Reader`
 3) [Record](./example_record_test.go): Single record operations using `io.Reader`/`io.Writer`
 
 ## Benchmarks
