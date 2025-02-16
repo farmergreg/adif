@@ -263,10 +263,8 @@ func TestParseNoRecords(t *testing.T) {
 				if err == io.EOF {
 					t.Error("Expected non-EOF error, got EOF")
 				}
-			} else {
-				if err != io.EOF {
-					t.Errorf("Expected EOF error, got %v", err)
-				}
+			} else if err != io.EOF {
+				t.Errorf("Expected EOF error, got %v", err)
 			}
 		})
 	}
