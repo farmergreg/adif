@@ -135,8 +135,10 @@ func TestParseWithMissingEOR(t *testing.T) {
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
-	if len(qso) != 1 {
-		t.Errorf("Expected 1 field, got %d", len(qso))
+
+	expectedFields := 1
+	if len(qso) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
 	}
 	if qso[adifield.CALL] != "W9PVA" {
 		t.Errorf("Expected CALL 'W9PVA', got %s", qso[adifield.CALL])
@@ -152,8 +154,9 @@ func TestParseWithMissingEOH(t *testing.T) {
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
-	if len(qso) != 1 {
-		t.Errorf("Expected 1 field, got %d", len(qso))
+	expectedFields := 1
+	if len(qso) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
 	}
 	if qso[adifield.ADIF_VER] != "3.1.5" {
 		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso[adifield.ADIF_VER])
@@ -173,8 +176,9 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
 	}
-	if bytesRead != int64(len(raw)) {
-		t.Errorf("got %d bytes read, want %d", bytesRead, len(raw))
+	expectedBytesRead := int64(len(raw))
+	if bytesRead != expectedBytesRead {
+		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -194,8 +198,9 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	if val != "" {
 		t.Errorf("Expected empty string, got %s", val)
 	}
-	if bytesRead != int64(len(raw)) {
-		t.Errorf("got %d bytes read, want %d", bytesRead, len(raw))
+	expectedBytesRead := int64(len(raw))
+	if bytesRead != expectedBytesRead {
+		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -319,8 +324,9 @@ func TestParseSingleRecord(t *testing.T) {
 			if isHeader != tt.isHeaderRecord {
 				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, isHeader)
 			}
-			if bytesRead != int64(len(tt.adifSource)) {
-				t.Errorf("Expected %d bytes read, got %d", len(tt.adifSource), bytesRead)
+			expectedBytesRead := int64(len(tt.adifSource))
+			if bytesRead != expectedBytesRead {
+				t.Errorf("Expected %d bytes read, got %d", expectedBytesRead, bytesRead)
 			}
 		})
 	}

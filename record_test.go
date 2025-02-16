@@ -141,14 +141,17 @@ func TestWriteTo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	if len(qso) != 5 {
-		t.Errorf("Expected 4 fields, got %d", len(qso))
+	expectedFields := 5
+	if len(qso) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
 	}
-	if builder.Len() != 86 {
-		t.Errorf("Expected length 86, got %d", builder.Len())
+
+	expectedLength := 86
+	if builder.Len() != expectedLength {
+		t.Errorf("Expected length %d, got %d", expectedLength, builder.Len())
 	}
-	if n != 86 {
-		t.Errorf("Expected 86 bytes read, got %d", n)
+	if n != int64(expectedLength) {
+		t.Errorf("Expected %d bytes read, got %d", expectedLength, n)
 	}
 }
 
@@ -156,7 +159,8 @@ func TestReadFrom(t *testing.T) {
 	qso := NewRecord()
 	qso.ReadFrom(strings.NewReader(testADIFSingleRecord))
 
-	if len(qso) != 32 {
-		t.Errorf("Expected 32 fields, got %d", len(qso))
+	expected := 32
+	if len(qso) != expected {
+		t.Errorf("Expected %d fields, got %d", expected, len(qso))
 	}
 }
