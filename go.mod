@@ -1,6 +1,6 @@
 module github.com/hamradiolog-net/adif
 
-go 1.23.5
+go 1.24.0
 
 require github.com/hamradiolog-net/adif-spec v1.0.10
 
