@@ -57,7 +57,10 @@ func ExampleRecord_WriteTo() {
 	record[adifield.APP_+"K9CTS_TEST"] = "TEST"
 
 	sb := strings.Builder{}
-	record.WriteTo(&sb)
+	_, err := record.WriteTo(&sb)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Print(sb.String())
 	fmt.Println(TagEOR)
