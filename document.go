@@ -15,8 +15,24 @@ var (
 
 // NewDocument creates a new Document with default initial capacity.
 func NewDocument() *Document {
+	return NewDocumentWithOptions(0, "")
+}
+
+// NewDocumentWithOptions creates a new Document with the specified capacity and header preamble.
+// If capacity is less than 1, it defaults to 32.
+// If headerPreamble is empty, it defaults to the standard ADIF header preamble.
+func NewDocumentWithOptions(capacity int, headerPreamble string) *Document {
+	if capacity < 1 {
+		capacity = 32
+	}
+
+	if headerPreamble == "" {
+		headerPreamble = adiHeaderPreamble
+	}
+
 	return &Document{
-		Records: make([]Record, 0, 16),
+		Records:        make([]Record, 0, capacity),
+		headerPreamble: headerPreamble,
 	}
 }
 
