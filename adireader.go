@@ -97,9 +97,6 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 			}
 			// we know record is empty... no need to reset it
 			continue
-		case adifield.APP_LOTW_EOF:
-			// ARRL LoTW emits this invalid ADIF field at the end of a file; ignore it.
-			continue
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
