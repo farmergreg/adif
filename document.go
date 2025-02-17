@@ -44,7 +44,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 	}
 
 	if f.Header != nil {
-		ci, err := bw.WriteString(adiHeaderPreamble)
+		ci, err := bw.WriteString(f.headerPreamble)
 		n += int64(ci)
 		if err != nil {
 			return handleFlush(bw, n, err)

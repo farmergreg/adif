@@ -28,7 +28,7 @@ func ExampleDocument_ReadFrom() {
 
 func ExampleDocument_WriteTo() {
 	adi := "<ADIF_VER:5>3.1.5<EOH><CALL:5>W9PVA<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR><CALL:4>W1AW<BAND:3>10m<MODE:3>SSB<APP_K9CTS_TEST:4>TEST<EOR>"
-	doc := NewDocument()
+	doc := NewDocumentWithOptions(2, "Example ADI Header Preamble\n")
 
 	doc.ReadFrom(strings.NewReader(adi))
 
@@ -43,7 +43,7 @@ func ExampleDocument_WriteTo() {
 	// Output:
 	// W9PVA
 	//
-	// K9CTS AM✠DG ADIF Library
+	// Example ADI Header Preamble
 	// <ADIF_VER:5>3.1.5<EOH>
 	// <BAND:3>10m<MODE:3>SSB<CALL:5>W9PVA<APP_K9CTS_TEST:4>TEST<EOR>
 	// <BAND:3>10m<MODE:3>SSB<CALL:4>W1AW<APP_K9CTS_TEST:4>TEST<EOR>
