@@ -1,7 +1,7 @@
 # ⚡ World's Fastest ADI Parser for Go
 
-High-performance processing of [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used in ham radio logging.
-Provides an idiomatic, developer-friendly API that seamlessly integrates with your codebase and the go standard library.
+This library provides high-performance processing of [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used for ham radio logs.
+It's idiomatic, developer-friendly API seamlessly integrates with your codebase and the go standard library.
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -11,11 +11,10 @@ Provides an idiomatic, developer-friendly API that seamlessly integrates with yo
 
 ## ✨ Key Features
 
-- 🚀 **Blazing Fast**: 3-20x faster than other ADI libraries, beating even Go's native JSON marshaling
-- 💡 **Memory Efficient**: Up to 1400x fewer allocations than alternatives
-- 🔧 **Developer Friendly**: Clean, idiomatic Go interfaces that just work
+- 🚀 **Blazing Fast**: 3-20x faster than other ADI libraries; more than 2x faster than Go's native JSON marshaling!
+- 💡 **Memory Efficient**: Up to 1400x fewer memory allocations than alternatives
+- 🔧 **Developer Friendly**: Clean, idiomatic Go interfaces
 - 🔬 **Battle Tested**: Comprehensive test coverage ensures reliability
-- 📦 **Zero Dependencies**: Only uses Go standard library
 
 ## 🚀 Quick Start
 
