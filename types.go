@@ -23,3 +23,5 @@ type Document struct {
 // Record is a map of ADIF fields to their values, representing either a header or QSO record.
 // The field keys must be UPPERCASE strings of type adifield.Field.
 type Record map[adifield.Field]string
+
+// DataDocument is a document that contains ADIF data in a data-oriented format.

@@ -39,6 +39,27 @@ func BenchmarkAllTestFiles(b *testing.B) {
 	}
 }
 
+func BenchmarkAllTestFilesDataDocument(b *testing.B) {
+	fs, err := testFileFS.ReadDir("testdata")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	for _, f := range fs {
+		b.Run(f.Name(), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				reader, _ := testFileFS.Open("testdata/" + f.Name())
+				p := NewAdiParser()
+				p.ReadFrom(reader)
+				_ = len(p.GetDocument().records)
+				reader.Close()
+			}
+		})
+
+	}
+}
+
+//xxxxgo:embed testdata/ADIF_315_test_QSOs_2024_11_28.adi
 //go:embed testdata/N3FJP-AClogAdif.adi
 var benchmarkFile string
 
@@ -57,8 +78,8 @@ func loadTestData() []Record {
 
 func BenchmarkReadThisLibrary(b *testing.B) {
 	var qsoList []Record
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		qsoList = make([]Record, 0, 10000)
 		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
@@ -73,6 +94,14 @@ func BenchmarkReadThisLibrary(b *testing.B) {
 	_ = len(qsoList)
 }
 
+func BenchmarkReadThisLibraryDataDocument(b *testing.B) {
+	for b.Loop() {
+		p := NewAdiParser()
+		p.ReadFrom(strings.NewReader(benchmarkFile))
+		_ = len(p.GetDocument().records)
+	}
+}
+
 func BenchmarkReadJSON(b *testing.B) {
 	qsoListNative := loadTestData()
 	jsonData, err := json.Marshal(qsoListNative)
@@ -83,8 +112,8 @@ func BenchmarkReadJSON(b *testing.B) {
 
 	var records []Record
 	var readCountJSON int
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		records = records[:0]
 		// convoluted, but this is to match the other benchmarks which also work with string input...
 		// in reality, this does not affect the speed of this benchmark...
@@ -151,8 +180,7 @@ func BenchmarkWriteThisLibrary(b *testing.B) {
 	qsoListNative := loadTestData()
 	var writeCountADI int
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		var sb strings.Builder
 		writeCountADI = 0
 		for _, qso := range qsoListNative {
@@ -170,8 +198,7 @@ func BenchmarkWriteThisLibrary(b *testing.B) {
 func BenchmarkWriteJSON(b *testing.B) {
 	qsoListNative := loadTestData()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		data, err := json.Marshal(qsoListNative)
 		if err != nil {
 			b.Fatal(err)
@@ -248,8 +275,7 @@ func BenchmarkLoTWOneRecord(b *testing.B) {
 
 	record := NewRecord()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		record.ReadFrom(strings.NewReader(oneRecord))
 		_ = record[adifield.CALL]
 	}
