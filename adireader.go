@@ -51,7 +51,6 @@ func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
 		r:                 br,
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
-		appFieldMap:       make(map[adifield.Field]adifield.Field, 7),
 	}
 
 	return p
@@ -133,6 +132,10 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64
 		field = id
 	} else {
 		field = adifield.Field(string(volatileField))
+
+		if p.appFieldMap == nil {
+			p.appFieldMap = make(map[adifield.Field]adifield.Field, 16)
+		}
 		p.appFieldMap[field] = field
 	}
 
