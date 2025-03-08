@@ -165,13 +165,11 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64
 			var c int
 			c, err = io.ReadFull(p.r, p.bufValue) // this will overwrite all of the 'volatile' variables (see above)
 			n += int64(c)
-			if err != nil {
-				if err == io.EOF {
-					return field, string(p.bufValue[:c]), n, ErrMalformedADI
-				}
-				return field, string(p.bufValue[:c]), n, err
+			value = string(p.bufValue[:c])
+			if err == io.EOF {
+				return field, value, n, ErrMalformedADI
 			}
-			return field, string(p.bufValue), n, nil
+			return field, value, n, err
 		}
 	}
 
