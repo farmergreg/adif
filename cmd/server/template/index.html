@@ -12,17 +12,6 @@
 <body>
     <main class="container">
         <article>
-            <header>
-                <h1>API Documentation</h1>
-            </header>
-            <ul>
-                <li>POST JSON to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeJSON}}</code> to
-                    convert to ADI.</li>
-                <li>POST an ADI document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADI}}</code>
-                    to convert to JSON.</li>
-            </ul>
-        </article>
-        <article>
             <h1>Convert ADIF to JSON</h1>
             <form id="conversion-form">
                 <fieldset>
@@ -43,6 +32,82 @@
                 </div>
                 <button type="submit">Convert</button>
             </form>
+        </article>
+        <article>
+            <header>
+                <h1>API Documentation</h1>
+            </header>
+            <ul>
+                <li>POST JSON to <code>http://{{.ServerAddr}}/api/v1/</code> with Content-Type
+                    <code>{{.ContentTypeJSON}}</code> to
+                    convert to ADI.
+                </li>
+                <li>POST an ADI document to <code>http://{{.ServerAddr}}/api/v1/</code> with Content-Type
+                    <code>{{.ContentTypeADI}}</code>
+                    to convert to JSON.
+                </li>
+            </ul>
+        </article>
+        <article>
+            <header>
+                <h1>ADIF as JSON (ADIJ) Proposal</h1>
+            </header>
+            <p>
+                I'm proposing a new format for ADIF called ADIF as JSON (ADIJ). It is a simple format that is easy to
+                parse and use in your applications.
+            </p>
+            <p>
+            <ul>
+                <li>Proposal:
+                    <ul>
+                        <li>The HEADER is optional</li>
+                        <li>An ADIJ document MUST contain at least one record in the RECORDS array.</li>
+                        <li>Strict JSON rules apply (no trailing commas, comments, etc).</li>
+                        <li>All keys are UPPERCASE only because JSON is case sensitive.</li>
+                        <li>The use of UTF-8 for field values is encouraged:
+                            <ul>
+                                <li>When converting to ADI, the field length is the number of bytes (not runes)</li>
+                                <li>N.B. JSON is UTF-8 by default</li>
+                            </ul>
+                        </li>
+                        <li>The use of _INTL fields is discouraged.</li>
+                        <li>Field names (keys) should be limited to ASCII and follow the ADIF standard naming
+                            conventions.</li>
+                    </ul>
+                </li>
+                <li>Suggested HTTP Content-Type Headers:
+                    <ul>
+                        <li><code>x-adif-adij</code> - ADIJ format (ADIF as JSON)</li>
+                        <li><code>x-adif-adi</code> - ADI format (traditional ADIF)</li>
+                        <li><code>x-adif-adix</code> - ADIX format (ADIF XML)</li>
+                    </ul>
+                </li>
+            </ul>
+            Here is an example ADIJ document:
+            <pre>
+{
+  "HEADER": {
+    "ADIF_VER": "3.1.4",
+    "PROGRAMID": "K9CTS ADIF as JSON (ADIJ) DEMO"
+  },
+  "RECORDS": [
+    {
+      "BAND": "10M",
+      "CALL": "W9PVA",
+      "MODE": "SSB"
+    },
+    {
+      "BAND": "10M",
+      "CALL": "K9CTS",
+      "MODE": "SSB"
+    }
+  ]
+}
+                </pre>
+
+
+            </p>
+
         </article>
     </main>
 

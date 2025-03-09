@@ -26,9 +26,9 @@ const (
 )
 
 var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
+var addr = flag.String("addr", "localhost:8080", "server address to listen on")
 
 func main() {
-	addr := flag.String("addr", "localhost:8080", "server address to listen on")
 	flag.Parse()
 
 	mux := http.NewServeMux()
@@ -49,9 +49,14 @@ func main() {
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	indexTemplate.Execute(w, map[string]string{
-		"ContentTypeADI":  contentTypeADI,
-		"ContentTypeJSON": contentTypeJSON,
+	indexTemplate.Execute(w, struct {
+		ContentTypeJSON string
+		ContentTypeADI  string
+		ServerAddr      string
+	}{
+		ContentTypeJSON: contentTypeJSON,
+		ContentTypeADI:  contentTypeADI,
+		ServerAddr:      *addr,
 	})
 }
 
