@@ -13,18 +13,14 @@
     <main class="container">
         <article>
             <header>
-                <h1>Convert ADIF &lt;==&gt; JSON</h1>
+                <h1>API Documentation</h1>
             </header>
-
-            <section>
-                <h3>API Endpoints</h3>
-                <ul>
-                    <li>POST JSON to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeJSON}}</code> to
-                        convert to ADI.</li>
-                    <li>POST an ADI document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADI}}</code>
-                        to convert to JSON.</li>
-                </ul>
-            </section>
+            <ul>
+                <li>POST JSON to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeJSON}}</code> to
+                    convert to ADI.</li>
+                <li>POST an ADI document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADI}}</code>
+                    to convert to JSON.</li>
+            </ul>
         </article>
         <article>
             <header>
@@ -39,7 +35,7 @@
                     <label for="content" class="form-label">Content (or drop a .adi/.json file)</label>
                     <textarea class="form-control" id="content" name="content" rows="4" required
                         style="min-height: 200px; border: 2px dashed #ccc;"></textarea>
-                    <small id="conversion-result" style="display: none;"></small>
+                    <small id="result" style="display: none;"></small>
                 </div>
                 <button type="submit">Convert</button>
             </form>
@@ -48,19 +44,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('conversion-form');
-            const select = document.getElementById('conversion-type');
-            const textarea = document.getElementById('content');
-            const conversionResult = document.getElementById('conversion-result');
-            const button = form.querySelector('button[type="submit"]');
+            const ctrlForm = document.getElementById('conversion-form');
+            const ctrlSelectType = document.getElementById('conversion-type');
+            const ctrlText = document.getElementById('content');
+            const ctrlResult = document.getElementById('result');
+            const ctrlDoConvert = ctrlForm.querySelector('button[type="submit"]');
 
-            form.addEventListener('submit', function (e) {
+            ctrlForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                const input = textarea.value;
-                const contentType = select.value;
+                const input = ctrlText.value;
+                const contentType = ctrlSelectType.value;
 
-                button.setAttribute('aria-busy', 'true');
+                ctrlDoConvert.setAttribute('aria-busy', 'true');
 
                 fetch('/api/v1/', {
                     method: 'POST',
@@ -76,41 +72,41 @@
                         return response.text();
                     })
                     .then(data => {
-                        textarea.value = data;
-                        textarea.setAttribute('aria-invalid', 'false');
-                        conversionResult.textContent = 'Conversion successful!';
-                        conversionResult.className = 'text-success';
-                        conversionResult.style.display = 'block';
+                        ctrlText.value = data;
+                        ctrlText.setAttribute('aria-invalid', 'false');
+                        ctrlResult.textContent = 'Conversion successful!';
+                        ctrlResult.className = 'text-success';
+                        ctrlResult.style.display = 'block';
 
-                        if (select.value === '{{.ContentTypeADI}}') {
-                            select.value = '{{.ContentTypeJSON}}';
+                        if (ctrlSelectType.value === '{{.ContentTypeADI}}') {
+                            ctrlSelectType.value = '{{.ContentTypeJSON}}';
                         } else {
-                            select.value = '{{.ContentTypeADI}}';
+                            ctrlSelectType.value = '{{.ContentTypeADI}}';
                         }
                     })
                     .catch(error => {
-                        textarea.setAttribute('aria-invalid', 'true');
+                        ctrlText.setAttribute('aria-invalid', 'true');
                         if (error.message.includes('HTTP error 400')) {
-                            conversionResult.textContent = 'Conversion failed please check your input.';
+                            ctrlResult.textContent = 'Conversion failed please check your input.';
                         } else {
-                            conversionResult.textContent = `Server Error: ${error.message}`;
+                            ctrlResult.textContent = `Server Error: ${error.message}`;
                         }
-                        conversionResult.className = 'text-error';
-                        conversionResult.style.display = 'block';
+                        ctrlResult.className = 'text-error';
+                        ctrlResult.style.display = 'block';
                     })
                     .finally(() => {
-                        button.setAttribute('aria-busy', 'false');
+                        ctrlDoConvert.setAttribute('aria-busy', 'false');
                     });
             });
 
-            textarea.addEventListener('input', function () {
-                textarea.removeAttribute('aria-invalid');
-                conversionResult.style.display = 'none';
+            ctrlText.addEventListener('input', function () {
+                ctrlText.removeAttribute('aria-invalid');
+                ctrlResult.style.display = 'none';
             });
 
             // File drop handling
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                textarea.addEventListener(eventName, preventDefaults, false);
+                ctrlText.addEventListener(eventName, preventDefaults, false);
             });
 
             function preventDefaults(e) {
@@ -119,24 +115,24 @@
             }
 
             ['dragenter', 'dragover'].forEach(eventName => {
-                textarea.addEventListener(eventName, highlight, false);
+                ctrlText.addEventListener(eventName, highlight, false);
             });
 
             ['dragleave', 'drop'].forEach(eventName => {
-                textarea.addEventListener(eventName, unhighlight, false);
+                ctrlText.addEventListener(eventName, unhighlight, false);
             });
 
             function highlight(e) {
-                textarea.style.border = '2px dashed #4a9eff';
-                textarea.style.backgroundColor = '#f8f9fa';
+                ctrlText.style.border = '2px dashed #4a9eff';
+                ctrlText.style.backgroundColor = '#f8f9fa';
             }
 
             function unhighlight(e) {
-                textarea.style.border = '2px dashed #ccc';
-                textarea.style.backgroundColor = '';
+                ctrlText.style.border = '2px dashed #ccc';
+                ctrlText.style.backgroundColor = '';
             }
 
-            textarea.addEventListener('drop', handleDrop, false);
+            ctrlText.addEventListener('drop', handleDrop, false);
 
             function handleDrop(e) {
                 const dt = e.dataTransfer;
@@ -153,14 +149,11 @@
 
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    textarea.value = event.target.result;
-
-                    // If it's a JSON file, try to auto-select JSON content type
-                    if (extension === 'json') {
-                        const contentTypeSelect = document.getElementById('conversion-type');
-                        if (contentTypeSelect) {
-                            contentTypeSelect.value = 'json';
-                        }
+                    ctrlText.value = event.target.result;
+                    if (extension === 'adi') {
+                        ctrlSelectType.value = '{{.ContentTypeADI}}';
+                    } else {
+                        ctrlSelectType.value = '{{.ContentTypeJSON}}';
                     }
                 };
                 reader.onerror = function (error) {
