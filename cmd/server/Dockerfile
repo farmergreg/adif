@@ -1,14 +1,14 @@
-# Build stage
+# Stage: Build
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod init server
+RUN go get github.com/hamradiolog-net/adif@latest
+
 COPY . .
+RUN go build -o server
 
-RUN go build -o server ./cmd/server
-
-# Final stage
+# Stage: Build Production Container
 FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /app/server .

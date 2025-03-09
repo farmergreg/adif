@@ -69,10 +69,13 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set(contentType, contentTypeJSON)
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(doc); err != nil {
-			http.Error(w, "Failed to write JSON output.", http.StatusInternalServerError)
+
+		jsonData, err := json.MarshalIndent(doc, "", "  ")
+		if err != nil {
+			http.Error(w, "Failed to create JSON.", http.StatusInternalServerError)
 			return
 		}
+		w.Write(jsonData)
 
 	default:
 		http.Error(w, fmt.Sprintf("Unsupported %s. Use %s or %s", contentType, contentTypeADI, contentTypeJSON), http.StatusUnsupportedMediaType)
