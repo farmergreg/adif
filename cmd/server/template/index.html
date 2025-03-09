@@ -44,124 +44,154 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const ctrlForm = document.getElementById('conversion-form');
-            const ctrlSelectType = document.getElementById('conversion-type');
-            const ctrlText = document.getElementById('content');
-            const ctrlResult = document.getElementById('result');
-            const ctrlDoConvert = ctrlForm.querySelector('button[type="submit"]');
+            // DOM Elements
+            const elements = {
+                form: document.getElementById('conversion-form'),
+                selectType: document.getElementById('conversion-type'),
+                textarea: document.getElementById('content'),
+                result: document.getElementById('result'),
+                convertButton: document.getElementById('conversion-form').querySelector('button[type="submit"]')
+            };
 
-            ctrlForm.addEventListener('submit', function (e) {
+            // API Configuration
+            const API_CONFIG = {
+                endpoint: '/api/v1/',
+                supportedExtensions: ['adi', 'adij', 'json']
+            };
+
+            // Form submission handler
+            function handleFormSubmit(e) {
                 e.preventDefault();
+                const input = elements.textarea.value;
+                const contentType = elements.selectType.value;
 
-                const input = ctrlText.value;
-                const contentType = ctrlSelectType.value;
+                elements.convertButton.setAttribute('aria-busy', 'true');
+                convertContent(input, contentType);
+            }
 
-                ctrlDoConvert.setAttribute('aria-busy', 'true');
-
-                fetch('/api/v1/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': contentType
-                    },
-                    body: input
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error ${response.status}`);
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        ctrlText.value = data;
-                        ctrlText.setAttribute('aria-invalid', 'false');
-                        ctrlResult.textContent = 'Conversion successful!';
-                        ctrlResult.className = 'text-success';
-                        ctrlResult.style.display = 'block';
-
-                        if (ctrlSelectType.value === '{{.ContentTypeADI}}') {
-                            ctrlSelectType.value = '{{.ContentTypeJSON}}';
-                        } else {
-                            ctrlSelectType.value = '{{.ContentTypeADI}}';
-                        }
-                    })
-                    .catch(error => {
-                        ctrlText.setAttribute('aria-invalid', 'true');
-                        if (error.message.includes('HTTP error 400')) {
-                            ctrlResult.textContent = 'Conversion failed please check your input.';
-                        } else {
-                            ctrlResult.textContent = `Server Error: ${error.message}`;
-                        }
-                        ctrlResult.className = 'text-error';
-                        ctrlResult.style.display = 'block';
-                    })
-                    .finally(() => {
-                        ctrlDoConvert.setAttribute('aria-busy', 'false');
+            // Content conversion API call
+            async function convertContent(input, contentType) {
+                try {
+                    const response = await fetch(API_CONFIG.endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': contentType },
+                        body: input
                     });
-            });
 
-            ctrlText.addEventListener('input', function () {
-                ctrlText.removeAttribute('aria-invalid');
-                ctrlResult.style.display = 'none';
-            });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+
+                    const data = await response.text();
+                    handleSuccessfulConversion(data);
+                } catch (error) {
+                    handleConversionError(error);
+                } finally {
+                    elements.convertButton.setAttribute('aria-busy', 'false');
+                }
+            }
+
+            // Success handler
+            function handleSuccessfulConversion(data) {
+                elements.textarea.value = data;
+                elements.textarea.setAttribute('aria-invalid', 'false');
+                showResult('Conversion successful!', 'text-success');
+                toggleConversionType();
+            }
+
+            // Error handler
+            function handleConversionError(error) {
+                elements.textarea.setAttribute('aria-invalid', 'true');
+                const message = error.message.includes('HTTP error 400')
+                    ? 'Conversion failed please check your input.'
+                    : `Server Error: ${error.message}`;
+                showResult(message, 'text-error');
+            }
 
             // File drop handling
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                ctrlText.addEventListener(eventName, preventDefaults, false);
-            });
+            function setupFileDropHandling() {
+                const dropEvents = {
+                    enter: () => updateDropZoneStyle(true),
+                    leave: () => updateDropZoneStyle(false),
+                    drop: handleFileDrop
+                };
 
-            function preventDefaults(e) {
+                // Prevent default behaviors
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+                    elements.textarea.addEventListener(event, preventDefault);
+                });
+
+                // Setup drag events
+                elements.textarea.addEventListener('dragenter', dropEvents.enter);
+                elements.textarea.addEventListener('dragover', dropEvents.enter);
+                elements.textarea.addEventListener('dragleave', dropEvents.leave);
+                elements.textarea.addEventListener('drop', dropEvents.drop);
+            }
+
+            // File drop handler
+            function handleFileDrop(e) {
+                preventDefault(e);
+                updateDropZoneStyle(false);
+
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+
+                const extension = file.name.toLowerCase().split('.').pop();
+                if (!API_CONFIG.supportedExtensions.includes(extension)) {
+                    alert('Only .adi, .adij, and .json files are supported');
+                    return;
+                }
+
+                readFile(file, extension);
+            }
+
+            // Utility functions
+            function preventDefault(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            ['dragenter', 'dragover'].forEach(eventName => {
-                ctrlText.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                ctrlText.addEventListener(eventName, unhighlight, false);
-            });
-
-            function highlight(e) {
-                ctrlText.style.border = '2px dashed #4a9eff';
-                ctrlText.style.backgroundColor = '#f8f9fa';
+            function updateDropZoneStyle(isDragging) {
+                elements.textarea.style.border = isDragging ? '2px dashed #4a9eff' : '2px dashed #ccc';
+                elements.textarea.style.backgroundColor = isDragging ? '#f8f9fa' : '';
             }
 
-            function unhighlight(e) {
-                ctrlText.style.border = '2px dashed #ccc';
-                ctrlText.style.backgroundColor = '';
+            function showResult(message, className) {
+                elements.result.textContent = message;
+                elements.result.className = className;
+                elements.result.style.display = 'block';
             }
 
-            ctrlText.addEventListener('drop', handleDrop, false);
+            function toggleConversionType() {
+                elements.selectType.value = elements.selectType.value === '{{.ContentTypeADI}}'
+                    ? '{{.ContentTypeJSON}}'
+                    : '{{.ContentTypeADI}}';
+            }
 
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const file = dt.files[0];
-
-                if (!file) return;
-
-                // Check file extension
-                const extension = file.name.toLowerCase().split('.').pop();
-                if (!['adi', 'adij', 'json'].includes(extension)) {
-                    alert('Only .adi, .adij and .json files are supported');
-                    return;
-                }
-
+            function readFile(file, extension) {
                 const reader = new FileReader();
-                reader.onload = function (event) {
-                    ctrlText.value = event.target.result;
-                    if (extension === 'adi') {
-                        ctrlSelectType.value = '{{.ContentTypeADI}}';
-                    } else {
-                        ctrlSelectType.value = '{{.ContentTypeJSON}}';
-                    }
+                reader.onload = (event) => {
+                    elements.textarea.value = event.target.result;
+                    elements.selectType.value = extension === 'adi'
+                        ? '{{.ContentTypeADI}}'
+                        : '{{.ContentTypeJSON}}';
                 };
-                reader.onerror = function (error) {
+                reader.onerror = (error) => {
                     console.error('Error reading file:', error);
                     alert('Error reading file');
                 };
                 reader.readAsText(file);
             }
+
+            // Event listeners
+            elements.form.addEventListener('submit', handleFormSubmit);
+            elements.textarea.addEventListener('input', () => {
+                elements.textarea.removeAttribute('aria-invalid');
+                elements.result.style.display = 'none';
+            });
+
+            // Initialize file drop handling
+            setupFileDropHandling();
         });
     </script>
 </body>
