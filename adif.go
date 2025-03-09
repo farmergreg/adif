@@ -9,4 +9,4 @@ const (
 	TagEOR = "<EOR>" // TagEOR is the end of record ADIF tag: <EOR>
 )
 
-const adiHeaderPreamble = "                     AM✠DG\nK9CTS High Performance ADIF Processing Library\n   https://github.com/hamradiolog-net/adif\n\n"
+const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n    https://github.com/hamradiolog-net/adif\n\n"

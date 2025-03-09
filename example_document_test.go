@@ -20,9 +20,9 @@ func ExampleDocument_ReadFrom() {
 	// Output:
 	// W9PVA
 	//
-	//                      AM✠DG
+	//                     AM✠DG
 	// K9CTS High Performance ADIF Processing Library
-	//    https://github.com/hamradiolog-net/adif
+	//     https://github.com/hamradiolog-net/adif
 	//
 	// <ADIF_VER:5>3.1.5<EOH>
 	// <BAND:3>10m<MODE:3>SSB<CALL:5>W9PVA<APP_K9CTS_TEST:4>TEST<EOR>
