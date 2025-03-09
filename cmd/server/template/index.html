@@ -27,15 +27,20 @@
             </section>
         </article>
         <article>
-            <header>Try it out</header>
+            <header>
+                <h1>Try it out</h1>
+            </header>
             <form id="conversion-form">
                 <select name="conversion-type" id="conversion-type">
                     <option value="{{.ContentTypeADI}}">ADIF to JSON</option>
                     <option value="{{.ContentTypeJSON}}">JSON to ADIF</option>
                 </select>
-                <textarea name="input" placeholder="Enter ADIF or JSON here" style="min-height: 300px;"
-                    aria-invalid="false" aria-describedby="input-helper">&lt;CALL:5&gt;w9pva&lt;EOR&gt;</textarea>
-                <small id="input-helper" style="display: none;"></small>
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content (or drop a .adi/.json file)</label>
+                    <textarea class="form-control" id="content" name="content" rows="4" required
+                        style="min-height: 200px; border: 2px dashed #ccc;"></textarea>
+                    <small id="conversion-result" style="display: none;"></small>
+                </div>
                 <button type="submit">Convert</button>
             </form>
         </article>
@@ -45,8 +50,8 @@
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('conversion-form');
             const select = document.getElementById('conversion-type');
-            const textarea = form.querySelector('textarea[name="input"]');
-            const inputHelper = document.getElementById('input-helper');
+            const textarea = document.getElementById('content');
+            const conversionResult = document.getElementById('conversion-result');
             const button = form.querySelector('button[type="submit"]');
 
             form.addEventListener('submit', function (e) {
@@ -73,9 +78,9 @@
                     .then(data => {
                         textarea.value = data;
                         textarea.setAttribute('aria-invalid', 'false');
-                        inputHelper.textContent = 'Conversion successful!';
-                        inputHelper.className = 'text-success';
-                        inputHelper.style.display = 'block';
+                        conversionResult.textContent = 'Conversion successful!';
+                        conversionResult.className = 'text-success';
+                        conversionResult.style.display = 'block';
 
                         if (select.value === '{{.ContentTypeADI}}') {
                             select.value = '{{.ContentTypeJSON}}';
@@ -86,12 +91,12 @@
                     .catch(error => {
                         textarea.setAttribute('aria-invalid', 'true');
                         if (error.message.includes('HTTP error 400')) {
-                            inputHelper.textContent = 'Conversion failed please check your input.';
+                            conversionResult.textContent = 'Conversion failed please check your input.';
                         } else {
-                            inputHelper.textContent = `Server Error: ${error.message}`;
+                            conversionResult.textContent = `Server Error: ${error.message}`;
                         }
-                        inputHelper.className = 'text-error';
-                        inputHelper.style.display = 'block';
+                        conversionResult.className = 'text-error';
+                        conversionResult.style.display = 'block';
                     })
                     .finally(() => {
                         button.setAttribute('aria-busy', 'false');
@@ -100,8 +105,70 @@
 
             textarea.addEventListener('input', function () {
                 textarea.removeAttribute('aria-invalid');
-                inputHelper.style.display = 'none';
+                conversionResult.style.display = 'none';
             });
+
+            // File drop handling
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                textarea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                textarea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                textarea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                textarea.style.border = '2px dashed #4a9eff';
+                textarea.style.backgroundColor = '#f8f9fa';
+            }
+
+            function unhighlight(e) {
+                textarea.style.border = '2px dashed #ccc';
+                textarea.style.backgroundColor = '';
+            }
+
+            textarea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+
+                if (!file) return;
+
+                // Check file extension
+                const extension = file.name.toLowerCase().split('.').pop();
+                if (!['adi', 'json'].includes(extension)) {
+                    alert('Only .adi and .json files are supported');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    textarea.value = event.target.result;
+
+                    // If it's a JSON file, try to auto-select JSON content type
+                    if (extension === 'json') {
+                        const contentTypeSelect = document.getElementById('conversion-type');
+                        if (contentTypeSelect) {
+                            contentTypeSelect.value = 'json';
+                        }
+                    }
+                };
+                reader.onerror = function (error) {
+                    console.error('Error reading file:', error);
+                    alert('Error reading file');
+                };
+                reader.readAsText(file);
+            }
         });
     </script>
 </body>
