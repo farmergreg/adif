@@ -11,11 +11,11 @@ import (
 type Document struct {
 	// Header is nil if there is no header.
 	// Otherwise it will be a Record with header fields inside.
-	Header Record `json:"header,omitempty"`
+	Header Record `json:"HEADER,omitempty"`
 
 	// Records is a slice of Record.
 	// It contains the QSO records.
-	Records []Record `json:"records"`
+	Records []Record `json:"RECORDS"`
 
 	headerPreamble string
 }
