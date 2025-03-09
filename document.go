@@ -26,10 +26,6 @@ func NewDocumentWithOptions(capacity int, headerPreamble string) *Document {
 		capacity = 32
 	}
 
-	if headerPreamble == "" {
-		headerPreamble = adiHeaderPreamble
-	}
-
 	return &Document{
 		Records:        make([]Record, 0, capacity),
 		headerPreamble: headerPreamble,
@@ -43,7 +39,10 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		bw = bufio.NewWriter(w)
 	}
 
-	if f.Header != nil {
+	if len(f.Header) > 0 {
+		if f.headerPreamble == "" {
+			f.headerPreamble = adiHeaderPreamble
+		}
 		ci, err := bw.WriteString(f.headerPreamble)
 		n += int64(ci)
 		if err != nil {
@@ -122,7 +121,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 // String returns the document as an ADI string.
 // Returns an empty string if the receiver is nil.
 func (f *Document) String() string {
-	if f == nil || (len(f.Records) == 0 && f.Header == nil) {
+	if f == nil || (len(f.Records) == 0 && len(f.Header) == 0) {
 		return ""
 	}
 
