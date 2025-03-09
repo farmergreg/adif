@@ -121,7 +121,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 // String returns the document as an ADI string.
 // Returns an empty string if the receiver is nil.
 func (f *Document) String() string {
-	if f == nil || (len(f.Records) == 0 && len(f.Header) == 0) {
+	if f == nil || len(f.Records) == 0 {
 		return ""
 	}
 
