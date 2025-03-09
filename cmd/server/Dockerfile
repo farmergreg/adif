@@ -2,14 +2,14 @@
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
-RUN go mod init server
-RUN go get github.com/hamradiolog-net/adif@latest
-
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN go build -o server
+
+RUN CGO_ENABLED=0 go build -o server -ldflags="-s -w" -trimpath ./cmd/server
 
 # Stage: Build Production Container
-FROM alpine:3.19
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/server .
 EXPOSE 8080
