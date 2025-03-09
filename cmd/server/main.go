@@ -1,20 +1,32 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 
 	"github.com/hamradiolog-net/adif"
 )
 
+//go:embed static
+var staticFiles embed.FS
+
+//go:embed template/index.html
+var indexHTML string
+
 const (
 	contentType     = "Content-Type"
 	contentTypeJSON = "application/json"
 	contentTypeADI  = "text/x-adif-adi"
+	contentTypeADIx = "text/x-adif-adix"
 )
+
+var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
 
 func main() {
 	addr := flag.String("addr", "localhost:8080", "server address to listen on")
@@ -24,25 +36,24 @@ func main() {
 	mux.HandleFunc("GET /api/v1/", handleIndex)
 	mux.HandleFunc("POST /api/v1/", handleConversion)
 
+	// Serve static files (HTMX and PicoCSS)
+	staticFS, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatalf("Failed to create sub-filesystem: %v", err)
+	}
+
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(staticFS)))
+
 	log.Printf("Starting server on %s", *addr)
 	log.Fatal(http.ListenAndServe(*addr, mux))
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write(fmt.Appendf(nil, `<h1>ADI <==> JSON Converter</h1>
-<div>To convert ADI to JSON:</div>
-<ul>
-	<li>POST an ADI document to this endpoint with Content-Type %s</li>
-	<li>Receive JSON output</li>
-</ul>
-<div>To convert JSON to ADI:</div>
-<ul>
-	<li>POST JSON to this endpoint with Content-Type %s</li>
-	<li>Receive ADI output</li>
-</ul>`,
-		contentTypeADI,
-		contentTypeJSON))
+	indexTemplate.Execute(w, map[string]string{
+		"ContentTypeADI":  contentTypeADI,
+		"ContentTypeJSON": contentTypeJSON,
+	})
 }
 
 func handleConversion(w http.ResponseWriter, r *http.Request) {
