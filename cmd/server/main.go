@@ -23,7 +23,6 @@ const (
 	contentType     = "Content-Type"
 	contentTypeJSON = "application/json"
 	contentTypeADI  = "text/x-adif-adi"
-	contentTypeADIx = "text/x-adif-adix"
 )
 
 var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
@@ -61,20 +60,20 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 	case contentTypeJSON: // JSON to ADIF
 		var doc adif.Document
 		if err := json.NewDecoder(r.Body).Decode(&doc); err != nil {
-			http.Error(w, "Invalid JSON input.", http.StatusBadRequest)
+			http.Error(w, "invalid json input", http.StatusBadRequest)
 			return
 		}
 
 		w.Header().Set(contentType, contentTypeADI)
 		w.WriteHeader(http.StatusOK)
 		if _, err := doc.WriteTo(w); err != nil {
-			http.Error(w, "Failed to write ADI output.", http.StatusInternalServerError)
+			http.Error(w, "unable to write adi output", http.StatusInternalServerError)
 			return
 		}
 	case contentTypeADI: // ADIF to JSON
 		doc := adif.NewDocument()
 		if _, err := doc.ReadFrom(r.Body); err != nil {
-			http.Error(w, "ADI input is invalid.", http.StatusBadRequest)
+			http.Error(w, "unable to read adi input", http.StatusBadRequest)
 			return
 		}
 
@@ -83,12 +82,14 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 
 		jsonData, err := json.MarshalIndent(doc, "", "  ")
 		if err != nil {
-			http.Error(w, "Failed to create JSON.", http.StatusInternalServerError)
+			http.Error(w, "unable to create json output", http.StatusInternalServerError)
 			return
 		}
 		w.Write(jsonData)
 
 	default:
-		http.Error(w, fmt.Sprintf("Unsupported %s. Use %s or %s", contentType, contentTypeADI, contentTypeJSON), http.StatusUnsupportedMediaType)
+		http.Error(w,
+			fmt.Sprintf("Unsupported %s. Use %s or %s", contentType, contentTypeADI, contentTypeJSON),
+			http.StatusUnsupportedMediaType)
 	}
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +8,7 @@
     <title>ADI ⟷ JSON Converter</title>
     <link rel="stylesheet" href="/static/pico-2.0.6.min.css">
 </head>
+
 <body>
     <main class="container">
         <article>
@@ -17,9 +19,10 @@
             <section>
                 <h3>API Endpoints</h3>
                 <ul>
-                    <li>POST JSON to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeJSON}}</code> to convert to ADI.</li>
-                    <li>POST an ADI document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADI}}</code> to convert to JSON.</li>
-                    <li>POST an ADIX document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADIx}}</code> to convert to JSON.</li>
+                    <li>POST JSON to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeJSON}}</code> to
+                        convert to ADI.</li>
+                    <li>POST an ADI document to <code>/api/v1/</code> with Content-Type <code>{{.ContentTypeADI}}</code>
+                        to convert to JSON.</li>
                 </ul>
             </section>
         </article>
@@ -30,7 +33,8 @@
                     <option value="{{.ContentTypeADI}}">ADIF to JSON</option>
                     <option value="{{.ContentTypeJSON}}">JSON to ADIF</option>
                 </select>
-                <textarea name="input" placeholder="Enter ADIF or JSON here" style="min-height: 300px;" aria-invalid="false" aria-describedby="input-helper">&lt;CALL:5&gt;w9pva&lt;EOR&gt;</textarea>
+                <textarea name="input" placeholder="Enter ADIF or JSON here" style="min-height: 300px;"
+                    aria-invalid="false" aria-describedby="input-helper">&lt;CALL:5&gt;w9pva&lt;EOR&gt;</textarea>
                 <small id="input-helper" style="display: none;"></small>
                 <button type="submit">Convert</button>
             </form>
@@ -38,14 +42,14 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('conversion-form');
             const select = document.getElementById('conversion-type');
             const textarea = form.querySelector('textarea[name="input"]');
             const inputHelper = document.getElementById('input-helper');
             const button = form.querySelector('button[type="submit"]');
 
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 const input = textarea.value;
@@ -60,45 +64,46 @@
                     },
                     body: input
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    textarea.value = data;
-                    textarea.setAttribute('aria-invalid', 'false');
-                    inputHelper.textContent = 'Conversion successful!';
-                    inputHelper.className = 'text-success';
-                    inputHelper.style.display = 'block';
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        textarea.value = data;
+                        textarea.setAttribute('aria-invalid', 'false');
+                        inputHelper.textContent = 'Conversion successful!';
+                        inputHelper.className = 'text-success';
+                        inputHelper.style.display = 'block';
 
-                    if (select.value === '{{.ContentTypeADI}}') {
-                        select.value = '{{.ContentTypeJSON}}';
-                    } else {
-                        select.value = '{{.ContentTypeADI}}';
-                    }
-                })
-                .catch(error => {
-                    textarea.setAttribute('aria-invalid', 'true');
-                    if (error.message.includes('HTTP error 400')) {
-                        inputHelper.textContent = 'Conversion failed please check your input.';
-                    } else {
-                        inputHelper.textContent = `Server Error: ${error.message}`;
-                    }
-                    inputHelper.className = 'text-error';
-                    inputHelper.style.display = 'block';
-                })
-                .finally(() => {
-                    button.setAttribute('aria-busy', 'false');
-                });
+                        if (select.value === '{{.ContentTypeADI}}') {
+                            select.value = '{{.ContentTypeJSON}}';
+                        } else {
+                            select.value = '{{.ContentTypeADI}}';
+                        }
+                    })
+                    .catch(error => {
+                        textarea.setAttribute('aria-invalid', 'true');
+                        if (error.message.includes('HTTP error 400')) {
+                            inputHelper.textContent = 'Conversion failed please check your input.';
+                        } else {
+                            inputHelper.textContent = `Server Error: ${error.message}`;
+                        }
+                        inputHelper.className = 'text-error';
+                        inputHelper.style.display = 'block';
+                    })
+                    .finally(() => {
+                        button.setAttribute('aria-busy', 'false');
+                    });
             });
 
-            textarea.addEventListener('input', function() {
+            textarea.addEventListener('input', function () {
                 textarea.removeAttribute('aria-invalid');
                 inputHelper.style.display = 'none';
             });
         });
     </script>
 </body>
+
 </html>
