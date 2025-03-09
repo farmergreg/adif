@@ -142,8 +142,8 @@
 
                 // Check file extension
                 const extension = file.name.toLowerCase().split('.').pop();
-                if (!['adi', 'json'].includes(extension)) {
-                    alert('Only .adi and .json files are supported');
+                if (!['adi', 'adij', 'json'].includes(extension)) {
+                    alert('Only .adi, .adij and .json files are supported');
                     return;
                 }
 
