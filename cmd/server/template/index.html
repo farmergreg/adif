@@ -5,86 +5,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <title>ADIF as JSON</title>
+    <title>ADIJ Proposal (ADIF as JSON) - A Proposal</title>
     <link rel="stylesheet" href="/static/pico-2.0.6.min.css">
 </head>
 
 <body>
     <main class="container">
-        <article>
-            <h1>Convert ADIF to JSON</h1>
-            <form id="conversion-form">
-                <fieldset>
-                    <label for="conversion-type">Conversion Type</label>
-                    <select name="conversion-type" id="conversion-type">
-                        <option value="{{.ContentTypeADI}}">ADIF to JSON</option>
-                        <option value="{{.ContentTypeJSON}}">JSON to ADIF</option>
-                    </select>
-                </fieldset>
-                <div class="mb-3">
-                    <label for="content" class="form-label">Drop an .adi, .adij, or .json file here:</label>
-                    <textarea class="form-control" id="content" name="content" rows="4" required
-                        style="min-height: 200px; border: 2px dashed #ccc; font-family: monospace;">&lt;PROGRAMID:30&gt;K9CTS ADIF as JSON (ADIJ) DEMO&lt;ADIF_VER:5&gt;3.1.4&lt;EOH&gt;
+        <header>
+            <hgroup>
+                <h1>ADIJ Proposal (ADIF as JSON) - A Proposal</h1>
+                <h2>Draft Proposal v1.0</h2>
+            </hgroup>
+        </header>
+        <p>Lets improve the standard so that it doesn't require a PhD to create a parser just to read a log file.
+            Something like JSON, the world's most ubiquitous data interchange format, ought to do!</p>
+        <details>
+            <summary role="button" class="secondary">Online Conversion Tool ADIF <--> JSON</summary>
+            <article>
+                <form id="conversion-form">
+                    <fieldset>
+                        <label for="conversion-type">Conversion Type</label>
+                        <select name="conversion-type" id="conversion-type">
+                            <option value="{{.ContentTypeADI}}">ADIF to JSON</option>
+                            <option value="{{.ContentTypeJSON}}">JSON to ADIF</option>
+                        </select>
+                    </fieldset>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Drop an .adi, .adij, or .json file here:</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" required
+                            style="min-height: 200px; border: 2px dashed #ccc; font-family: monospace;">&lt;PROGRAMID:30&gt;K9CTS ADIF as JSON (ADIJ) DEMO&lt;ADIF_VER:5&gt;3.1.4&lt;EOH&gt;
 &lt;CALL:5&gt;W9PVA&lt;BAND:3&gt;10M&lt;MODE:3&gt;SSB&lt;EOR&gt;
 &lt;CALL:5&gt;K9CTS&lt;BAND:3&gt;10M&lt;MODE:3&gt;SSB&lt;EOR&gt;
-                    </textarea>
-                    <small id="result" style="display: none;"></small>
-                </div>
-                <button type="submit">Convert</button>
-            </form>
-        </article>
-        <article>
-            <header>
-                <h1>API Documentation</h1>
-            </header>
-            <ul>
-                <li>POST JSON to <code>http://{{.ServerAddr}}/api/v1/</code> with Content-Type
-                    <code>{{.ContentTypeJSON}}</code> to
-                    convert to ADI.
-                </li>
-                <li>POST an ADI document to <code>http://{{.ServerAddr}}/api/v1/</code> with Content-Type
-                    <code>{{.ContentTypeADI}}</code>
-                    to convert to JSON.
-                </li>
-            </ul>
-        </article>
-        <article>
-            <header>
-                <h1>ADIF as JSON (ADIJ) Proposal</h1>
-            </header>
-            <p>
-                I'm proposing a new format for ADIF called ADIF as JSON (ADIJ). It is a simple format that is easy to
-                parse and use in your applications.
-            </p>
-            <p>
-            <ul>
-                <li>Proposal:
-                    <ul>
-                        <li>The HEADER is optional</li>
-                        <li>An ADIJ document MUST contain at least one record in the RECORDS array.</li>
-                        <li>Strict JSON rules apply (no trailing commas, comments, etc).</li>
-                        <li>All keys are UPPERCASE only because JSON is case sensitive.</li>
-                        <li>The use of UTF-8 for field values is encouraged:
-                            <ul>
-                                <li>When converting to ADI, the field length is the number of bytes (not runes)</li>
-                                <li>N.B. JSON is UTF-8 by default</li>
-                            </ul>
-                        </li>
-                        <li>The use of _INTL fields is discouraged.</li>
-                        <li>Field names (keys) should be limited to ASCII and follow the ADIF standard naming
-                            conventions.</li>
-                    </ul>
-                </li>
-                <li>Suggested HTTP Content-Type Headers:
-                    <ul>
-                        <li><code>x-adif-adij</code> - ADIJ format (ADIF as JSON)</li>
-                        <li><code>x-adif-adi</code> - ADI format (traditional ADIF)</li>
-                        <li><code>x-adif-adix</code> - ADIX format (ADIF XML)</li>
-                    </ul>
-                </li>
-            </ul>
-            Here is an example ADIJ document:
-            <pre>
+                        </textarea>
+                        <small id="result" style="display: none;"></small>
+                    </div>
+                    <button type="submit">Convert</button>
+                </form>
+            </article>
+        </details>
+        <details>
+            <summary role="button" class="secondary">API Documentation</summary>
+            <article>
+                <h2>API Endpoints</h2>
+
+                <h3>Convert ADIF to JSON</h3>
+                <kbd>POST <span id="url-adi"></span>
+                    Content-Type: {{.ContentTypeADI}}</kbd>
+                <p>Send an ADIF document in the request body to convert it to JSON format.</p>
+
+                <h3>Convert JSON to ADIF</h3>
+                <kbd>POST <span id="url-json"></span>
+                    Content-Type: {{.ContentTypeJSON}}</kbd>
+                <p>Send a JSON document in the request body to convert it to ADIF format.</p>
+
+                <h3>Response</h3>
+                <ul>
+                    <li><strong>200 OK</strong> - Successful conversion</li>
+                    <li><strong>400 Bad Request</strong> - Invalid input format</li>
+                </ul>
+
+                <h3>Example using cURL</h3>
+                <kbd>// Convert ADIF to JSON
+                    curl -X POST \
+                    -H "Content-Type: {{.ContentTypeADI}}" \
+                    --data-binary @logfile.adi \
+                    http://example.com/
+
+                    // Convert JSON to ADIF
+                    curl -X POST \
+                    -H "Content-Type: {{.ContentTypeJSON}}" \
+                    --data-binary @logfile.json \
+                    http://example.com/</kbd>
+            </article>
+        </details>
+        <details>
+            <summary role="button" class="secondary">ADIF as JSON Specification</summary>
+            <article>
+                <header>
+                    <h1>ADIJ Specification</h1>
+                    <small>Draft Proposal v1.0</small>
+                </header>
+
+                <h2>1. Overview</h2>
+                <p>
+                    ADIF as JSON (ADIJ) is a proposed modernization of the Amateur Data Interchange Format (ADIF)
+                    using JSON structure. This format aims to maintain compatibility with existing ADIF data while
+                    providing better integration with modern software development practices. The format strictly adheres
+                    to the <a href="https://www.json.org/">JSON</a> / <a
+                        href="https://www.ecma-international.org/publications-and-standards/standards/ecma-404/">ECMA-404</a>
+                    specification.
+                </p>
+
+                <h2>2. Specification</h2>
+
+                <h3>2.1 Document Structure</h3>
+                <ul>
+                    <li>An ADIJ document MUST be valid JSON as defined by <a href="https://www.json.org/">JSON.org</a> /
+                        <a
+                            href="https://www.ecma-international.org/publications-and-standards/standards/ecma-404/">ECMA-404</a>
+                    </li>
+                    <li>The document MUST be a single JSON object containing:
+                        <ul>
+                            <li>An optional "HEADER" object</li>
+                            <li>A required "RECORDS" array of objects</li>
+                        </ul>
+                    </li>
+                    <li>Each record in the "RECORDS" array MUST be a JSON object containing at least one field</li>
+                    <li>All values MUST be JSON strings (no numbers, booleans, null, or nested objects/arrays)</li>
+                </ul>
+
+                <h3>2.2 Field Requirements</h3>
+                <ul>
+                    <li>All field names (keys) MUST be UPPERCASE. (json names are case-sensitive) </li>
+                    <li>Field names MUST follow all ADIF naming conventions</li>
+                    <li>Field values MUST be strings, following JSON string encoding rules</li>
+                </ul>
+
+                <h3>2.3 Character Encoding</h3>
+                <ul>
+                    <li>Documents MUST use UTF-8 encoding (all json documents MUST be UTF-8)</li>
+                    <li>For backwards compatability, when converting ADIJ to ADI, field lengths MUST be measured in
+                        bytes,
+                        not characters</li>
+                    <li>The use of _INTL fields is deprecated in favor of UTF-8 encoding</li>
+                </ul>
+
+                <h3>2.4 Media Types</h3>
+                <p>The following media types are defined for ADIF variants:</p>
+                <ul>
+                    <li><code>application/x-adif-json</code> - ADIF in JSON format</li>
+                    <li><code>application/x-adif-adi</code> - ADIF in ADI format</li>
+                    <li><code>application/x-adif-xml</code> - ADIF in XML format</li>
+                </ul>
+
+                <h2>3. Example</h2>
+                <pre>
 {
   "HEADER": {
     "ADIF_VER": "3.1.4",
@@ -103,16 +158,61 @@
     }
   ]
 }
-                </pre>
+</pre>
+                <h2>4. Implementation Notes</h2>
+                <ul>
+                    <li>Implementations MUST reject documents that do not conform to standard JSON syntax</li>
+                </ul>
 
-
-            </p>
-
-        </article>
+                <hgroup></hgroup>
+                <h2>5. A Bridge Too Far</h2>
+                <small>Policy II.A: From one version of ADIF to the next, Data Types, Enumerations, Fields, and Formats
+                    shall be upwardly compatible, meaning that an ADIF file compliant with ADIF version N will comply
+                    with any future ADIF version M where M>N. </small>
+                </hgroup>
+                <ul>
+                    <li>It is further proposed that the ADIF group depreciate the ADX file format. It is unloved and
+                        rarely used.</li>
+                    <li>It is further proposed that the ADIF group depreciate USERDEFn. ADIF is a data transfer
+                        standard, not
+                        a database.</li>
+                </ul>
+            </article>
+        </details>
+        <details>
+            <summary role="button" class="secondary">Resources</summary>
+            <article>
+                <summary>Specification Resources</summary>
+                <ul>
+                    <li><a href="https://www.adif.org/">ADIF.org</a></li>
+                    <li><a href="https://www.json.org/">JSON.org</a></li>
+                    <li><a
+                            href="https://www.ecma-international.org/publications-and-standards/standards/ecma-404/">ECMA-404</a>
+                    </li>
+                </ul>
+            </article>
+            <article>
+                <summary>Critical Analysis</summary>
+                <p>
+                    This section contains links to blogs and articles that provide analysis and feedback on the ADIF
+                    format. It is hoped that these will be useful in understanding ADIF strengths and weaknesses.
+                </p>
+                <ul>
+                    <li><a href="https://tlfabian.blogspot.com/2016/07/musings-on-adif-file-format.html">Musings on ADIF
+                            File Format</a></li>
+                    <li>More articles to come as we do more research...</li>
+                </ul>
+            </article>
+        </details>
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Update API URLs with current host
+            const baseUrl = `${window.location.protocol}//${window.location.host}`;
+            document.getElementById('url-json').textContent = `${baseUrl}/`;
+            document.getElementById('url-adi').textContent = `${baseUrl}/`;
+
             // DOM Elements
             const elements = {
                 form: document.getElementById('conversion-form'),
@@ -124,7 +224,7 @@
 
             // API Configuration
             const API_CONFIG = {
-                endpoint: '/api/v1/',
+                endpoint: '/',
                 supportedExtensions: ['adi', 'adij', 'json']
             };
 

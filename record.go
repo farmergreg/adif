@@ -1,12 +1,10 @@
 package adif
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"math"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
@@ -14,10 +12,9 @@ import (
 
 // Interface implementations
 var (
-	_ io.WriterTo      = &Record{}
-	_ io.ReaderFrom    = &Record{}
-	_ fmt.Stringer     = &Record{}
-	_ json.Unmarshaler = &Record{}
+	_ io.WriterTo   = &Record{}
+	_ io.ReaderFrom = &Record{}
+	_ fmt.Stringer  = &Record{}
 )
 
 var recordBufferPool = sync.Pool{
@@ -219,26 +216,4 @@ func (r *Record) String() string {
 
 	recordBufferPool.Put(bufPtr)
 	return s
-}
-
-// UnmarshalJSON implements json.Unmarshaler to ensure field keys are uppercase and interned when unmarshaling from JSON
-func (r *Record) UnmarshalJSON(data []byte) error {
-	raw := make(map[adifield.Field]string)
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	if *r == nil {
-		*r = make(Record)
-	}
-
-	for k, v := range raw {
-		if intern, ok := adifield.FieldMap[k]; ok {
-			(*r)[intern.ID] = v
-		} else {
-			(*r)[adifield.Field(strings.ToUpper(string(k)))] = v
-		}
-	}
-
-	return nil
 }

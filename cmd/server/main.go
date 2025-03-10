@@ -21,19 +21,19 @@ var indexHTML string
 
 const (
 	contentType     = "Content-Type"
-	contentTypeJSON = "application/json"
-	contentTypeADI  = "text/x-adif-adi"
+	contentTypeJSON = "application/x-adif-json"
+	contentTypeADI  = "application/x-adif-adi"
 )
 
 var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
-var addr = flag.String("addr", "localhost:8080", "server address to listen on")
 
 func main() {
+	addr := flag.String("addr", "localhost:8080", "server address to listen on")
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/v1/", handleIndex)
-	mux.HandleFunc("POST /api/v1/", handleConversion)
+	mux.HandleFunc("GET /", handleIndex)
+	mux.HandleFunc("POST /", handleConversion)
 
 	// Serve static files (HTMX and PicoCSS)
 	staticFS, err := fs.Sub(staticFiles, "static")
@@ -52,11 +52,9 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	indexTemplate.Execute(w, struct {
 		ContentTypeJSON string
 		ContentTypeADI  string
-		ServerAddr      string
 	}{
 		ContentTypeJSON: contentTypeJSON,
 		ContentTypeADI:  contentTypeADI,
-		ServerAddr:      *addr,
 	})
 }
 

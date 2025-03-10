@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-curl -v --location 'localhost:8080/api/v1/' \
+curl -v --location 'localhost:8080/' \
 --header 'Content-Type: application/json' \
 --data '{
     "header": {
