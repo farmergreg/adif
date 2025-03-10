@@ -23,6 +23,7 @@ const (
 	contentType     = "Content-Type"
 	contentTypeJSON = "application/x-adif-json"
 	contentTypeADI  = "application/x-adif-adi"
+	contentTypeXML  = "application/x-adif-xml"
 )
 
 var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
@@ -50,11 +51,13 @@ func main() {
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	indexTemplate.Execute(w, struct {
-		ContentTypeJSON string
 		ContentTypeADI  string
+		ContentTypeXML  string
+		ContentTypeJSON string
 	}{
-		ContentTypeJSON: contentTypeJSON,
 		ContentTypeADI:  contentTypeADI,
+		ContentTypeXML:  contentTypeXML,
+		ContentTypeJSON: contentTypeJSON,
 	})
 }
 

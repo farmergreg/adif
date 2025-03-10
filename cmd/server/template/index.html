@@ -48,15 +48,15 @@
             <article>
                 <h2>API Endpoints</h2>
 
-                <h3>Convert ADIF to JSON</h3>
+                <h3>Convert ADI to JSON</h3>
                 <kbd>POST <span id="url-adi"></span>
                     Content-Type: {{.ContentTypeADI}}</kbd>
-                <p>Send an ADIF document in the request body to convert it to JSON format.</p>
+                <p>Send an ADI document in the request body to convert it to JSON.</p>
 
-                <h3>Convert JSON to ADIF</h3>
+                <h3>Convert JSON to ADI</h3>
                 <kbd>POST <span id="url-json"></span>
                     Content-Type: {{.ContentTypeJSON}}</kbd>
-                <p>Send a JSON document in the request body to convert it to ADIF format.</p>
+                <p>Send a JSON document in the request body to convert it to ADI.</p>
 
                 <h3>Response</h3>
                 <ul>
@@ -64,18 +64,20 @@
                     <li><strong>400 Bad Request</strong> - Invalid input format</li>
                 </ul>
 
-                <h3>Example using cURL</h3>
-                <kbd>// Convert ADIF to JSON
-                    curl -X POST \
-                    -H "Content-Type: {{.ContentTypeADI}}" \
-                    --data-binary @logfile.adi \
-                    http://example.com/
+                <h3>Example Requests</h3>
+                <div class="grid">
+                    <article>
+                        <header>ADIF to JSON</header>
+                        <kbd>curl -X POST -H "Content-Type: {{.ContentTypeADI}}" <span id="url-adi-example"></span>
+                            --data-binary @logfile.adi</kbd>
+                    </article>
 
-                    // Convert JSON to ADIF
-                    curl -X POST \
-                    -H "Content-Type: {{.ContentTypeJSON}}" \
-                    --data-binary @logfile.json \
-                    http://example.com/</kbd>
+                    <article>
+                        <header>JSON to ADIF</header>
+                        <kbd>curl -X POST -H "Content-Type: {{.ContentTypeJSON}}" <span id="url-json-example"></span>
+                            --data-binary @logfile.json</kbd>
+                    </article>
+                </div>
             </article>
         </details>
         <details>
@@ -90,7 +92,8 @@
                 <p>
                     ADIF as JSON (ADIJ) is a proposed modernization of the Amateur Data Interchange Format (ADIF)
                     using JSON structure. This format aims to maintain compatibility with existing ADIF data while
-                    providing better integration with modern software development practices. The format strictly adheres
+                    providing better integration with modern software development practices. The new .adij file format
+                    strictly adheres
                     to the <a href="https://www.json.org/">JSON</a> / <a
                         href="https://www.ecma-international.org/publications-and-standards/standards/ecma-404/">ECMA-404</a>
                     specification.
@@ -123,19 +126,20 @@
 
                 <h3>2.3 Character Encoding</h3>
                 <ul>
-                    <li>Documents MUST use UTF-8 encoding (all json documents MUST be UTF-8)</li>
+                    <li>Documents MUST use UTF-8 encoding (the json standard requires UTF-8)</li>
                     <li>For backwards compatability, when converting ADIJ to ADI, field lengths MUST be measured in
                         bytes,
-                        not characters</li>
-                    <li>The use of _INTL fields is deprecated in favor of UTF-8 encoding</li>
+                        not characters to avoid backwards compatibility issues.</li>
+                    <li>The use of _INTL fields is deprecated in favor of using UTF-8 encoding in the corresponding non
+                        _INTL field.</li>
                 </ul>
 
                 <h3>2.4 Media Types</h3>
                 <p>The following media types are defined for ADIF variants:</p>
                 <ul>
-                    <li><code>application/x-adif-json</code> - ADIF in JSON format</li>
-                    <li><code>application/x-adif-adi</code> - ADIF in ADI format</li>
-                    <li><code>application/x-adif-xml</code> - ADIF in XML format</li>
+                    <li><code>{{.ContentTypeJSON}}</code> - ADIF in JSON format</li>
+                    <li><code>{{.ContentTypeADI}}</code> - ADIF in ADI format</li>
+                    <li><code>{{.ContentTypeXML}}</code> - ADIF in XML format</li>
                 </ul>
 
                 <h2>3. Example</h2>
@@ -212,6 +216,8 @@
             const baseUrl = `${window.location.protocol}//${window.location.host}`;
             document.getElementById('url-json').textContent = `${baseUrl}/`;
             document.getElementById('url-adi').textContent = `${baseUrl}/`;
+            document.getElementById('url-json-example').textContent = `${baseUrl}/`;
+            document.getElementById('url-adi-example').textContent = `${baseUrl}/`;
 
             // DOM Elements
             const elements = {
