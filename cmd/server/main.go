@@ -49,7 +49,6 @@ func main() {
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
 	indexTemplate.Execute(w, struct {
 		ContentTypeADI  string
 		ContentTypeXML  string
@@ -71,7 +70,6 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set(contentType, contentTypeADI)
-		w.WriteHeader(http.StatusOK)
 		if _, err := doc.WriteTo(w); err != nil {
 			http.Error(w, "unable to write adi output", http.StatusInternalServerError)
 			return
@@ -84,7 +82,6 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set(contentType, contentTypeJSON)
-		w.WriteHeader(http.StatusOK)
 
 		encoder := json.NewEncoder(w)
 		encoder.SetIndent("", "  ")
