@@ -86,12 +86,12 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(contentType, contentTypeJSON)
 		w.WriteHeader(http.StatusOK)
 
-		jsonData, err := json.MarshalIndent(doc, "", "  ")
-		if err != nil {
+		encoder := json.NewEncoder(w)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(doc); err != nil {
 			http.Error(w, "unable to create json output", http.StatusInternalServerError)
 			return
 		}
-		w.Write(jsonData)
 
 	default:
 		http.Error(w,
