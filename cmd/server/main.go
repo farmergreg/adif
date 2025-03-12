@@ -33,8 +33,8 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", handleIndex)
-	mux.HandleFunc("POST /", handleConversion)
+	mux.Handle("GET /", RequestLogger(http.HandlerFunc(handleIndex)))
+	mux.Handle("POST /", RequestLogger(http.HandlerFunc(handleConversion)))
 
 	// Serve static files (HTMX and PicoCSS)
 	staticFS, err := fs.Sub(staticFiles, "static")
