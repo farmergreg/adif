@@ -33,7 +33,10 @@
                     <div class="mb-3">
                         <label for="content" class="form-label">Drop an .adi, .adij, or .json file here:</label>
                         <textarea class="form-control" id="content" name="content" rows="4" required
-                            style="min-height: 200px; border: 2px dashed #ccc; font-family: monospace;">&lt;PROGRAMID:30&gt;K9CTS ADIF as JSON (ADIJ) DEMO&lt;ADIF_VER:5&gt;3.1.4&lt;EOH&gt;
+                            style="min-height: 200px; border: 2px dashed #ccc; font-family: monospace;">WARNING: This HTML &lt;textarea&gt; control will corrupt ADIF documents that contain Windows line endings (\r\n).
+WARNING: For a perfect converion, use the API.
+
+&lt;PROGRAMID:30&gt;K9CTS ADIF as JSON (ADIJ) DEMO&lt;ADIF_VER:5&gt;3.1.4&lt;EOH&gt;
 &lt;CALL:5&gt;W9PVA&lt;BAND:3&gt;10M&lt;MODE:3&gt;SSB&lt;EOR&gt;
 &lt;CALL:5&gt;K9CTS&lt;BAND:3&gt;10M&lt;MODE:3&gt;SSB&lt;EOR&gt;
                         </textarea>
@@ -139,7 +142,13 @@
                     <li><code>{{.ContentTypeXML}}</code> - ADIF in XML format</li>
                 </ul>
 
-                <h2>3. Example</h2>
+                <h2>3. Examples</h2>
+                <h2>3.1 Example 1</h3>
+                <pre>{
+  "RECORDS": [ { "BAND": "9M", "CALL": "W9PVA", "MODE": "SSB" } ]
+}
+</pre>
+                <h3>3.2 Example 2</h3>
                 <pre>{
   "HEADER": {
     "ADIF_VER": "3.1.4",
