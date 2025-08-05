@@ -2,11 +2,11 @@
 #  Arguments  #
 ###############
 # Toolchain Software Versions
-ARG VERSION_GOLANG=1.24.0-bookworm
+ARG VERSION_GOLANG=1.24.5-bookworm
 
 # Development Tool Versions
 ARG VERSION_DELVE=latest
-ARG VERSION_GOPLS=latest
+ARG VERSION_GOPLS=v0.18.1
 ARG VERSION_GOIMPORTS=latest
 ARG VERSION_STATICCHECK=latest
 ARG VERSION_GOCRITIC=latest
@@ -74,13 +74,11 @@ RUN \
     chown -R ${USER}:${GID} /home/${USER}/.config
 
 USER ${UID}:${GID}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID}              \
-    --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID}      \
-    go install github.com/go-delve/delve/cmd/dlv@${VERSION_DELVE}               &&  \
-    go install golang.org/x/tools/gopls@${VERSION_GOPLS}                        &&  \
-    go install golang.org/x/tools/cmd/goimports@${VERSION_GOIMPORTS}            &&  \
-    go install honnef.co/go/tools/cmd/staticcheck@${VERSION_STATICCHECK}        &&  \
-    go install -v github.com/go-critic/go-critic/cmd/gocritic@${VERSION_GOCRITIC}
+RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install github.com/go-delve/delve/cmd/dlv@${VERSION_DELVE}
+RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/cmd/goimports@${VERSION_GOIMPORTS}
+RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install honnef.co/go/tools/cmd/staticcheck@${VERSION_STATICCHECK}
+RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install -v github.com/go-critic/go-critic/cmd/gocritic@${VERSION_GOCRITIC}
+RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/gopls@${VERSION_GOPLS}
 
 WORKDIR /app
 CMD ["sleep", "infinity"]
