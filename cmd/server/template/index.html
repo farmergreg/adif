@@ -359,9 +359,7 @@ WARNING: For a perfect converion, use the API.
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     elements.textarea.value = event.target.result;
-                    elements.selectType.value = extension === 'adi'
-                        ? '{{.ContentTypeADI}}'
-                        : '{{.ContentTypeJSON}}';
+                    elements.selectType.value = '{{.ContentTypeAutoDetect}}';
                 };
                 reader.onerror = (error) => {
                     console.error('Error reading file:', error);
