@@ -158,8 +158,17 @@ WARNING: For a perfect converion, use the API.
                 <h2>3. Examples</h2>
                 <h2>3.1 Example 1</h3>
                 <pre>{
-  "RECORDS": [ { "BAND": "9M", "CALL": "W9PVA", "MODE": "SSB" } ]
+  "RECORDS": [
+    {
+      "BAND": "9M",
+      "CALL": "W9PVA",
+      "MODE": "SSB",
+      "QSO_DATE": "20250805",
+      "TIME_ON": "201506"
+    }
+  ]
 }
+
 </pre>
                 <h3>3.2 Example 2</h3>
                 <pre>{
@@ -169,14 +178,18 @@ WARNING: For a perfect converion, use the API.
   },
   "RECORDS": [
     {
-      "BAND": "10M",
+      "BAND": "9M",
       "CALL": "W9PVA",
-      "MODE": "SSB"
+      "MODE": "SSB",
+      "QSO_DATE": "20250805",
+      "TIME_ON": "201506"
     },
     {
-      "BAND": "10M",
+      "BAND": "9M",
       "CALL": "K9CTS",
-      "MODE": "SSB"
+      "MODE": "CW",
+      "QSO_DATE": "20250806",
+      "TIME_ON": "202522"
     }
   ]
 }

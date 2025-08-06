@@ -66,7 +66,6 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleConversion(w http.ResponseWriter, r *http.Request) {
-
 	contentType := r.Header.Get(contentType)
 	data := r.Body
 
