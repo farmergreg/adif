@@ -26,6 +26,7 @@
                     <fieldset>
                         <label for="conversion-type">Conversion Type</label>
                         <select name="conversion-type" id="conversion-type">
+                            <option value="{{.ContentTypeAutoDetect}}">Auto Detect</option>
                             <option value="{{.ContentTypeADI}}">ADIF to JSON</option>
                             <option value="{{.ContentTypeJSON}}">JSON to ADIF</option>
                         </select>
@@ -50,6 +51,18 @@ WARNING: For a perfect converion, use the API.
             <summary role="button" class="secondary">API Documentation</summary>
             <article>
                 <h2>API Endpoints</h2>
+
+                <h3>Automatic</h3>
+                <kbd>POST <span id="url-auto-detect"></span>
+                    Content-Type: {{.ContentTypeAutoDetect}}</kbd>
+                <p>
+                    Automatically detect JSON and ADI content.
+                    <ul>
+                        <li>Convert valid ADIF JSON to ADI.</li>
+                        <li>Convert valid ADIF ADI to JSON.</li>
+                        <li>For best performance and reliability, please use the other conversion end-points.</li>
+                    </ul>
+                </p>
 
                 <h3>Convert ADI to JSON</h3>
                 <kbd>POST <span id="url-adi"></span>
@@ -277,7 +290,6 @@ WARNING: For a perfect converion, use the API.
                 elements.textarea.value = data;
                 elements.textarea.setAttribute('aria-invalid', 'false');
                 showResult('Conversion successful!', 'text-success');
-                toggleConversionType();
             }
 
             // Error handler
@@ -341,12 +353,6 @@ WARNING: For a perfect converion, use the API.
                 elements.result.textContent = message;
                 elements.result.className = className;
                 elements.result.style.display = 'block';
-            }
-
-            function toggleConversionType() {
-                elements.selectType.value = elements.selectType.value === '{{.ContentTypeADI}}'
-                    ? '{{.ContentTypeJSON}}'
-                    : '{{.ContentTypeADI}}';
             }
 
             function readFile(file, extension) {

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -20,10 +22,11 @@ var staticFiles embed.FS
 var indexHTML string
 
 const (
-	contentType     = "Content-Type"
-	contentTypeJSON = "application/x-adif-json"
-	contentTypeADI  = "application/x-adif-adi"
-	contentTypeXML  = "application/x-adif-xml"
+	contentType           = "Content-Type"
+	contentTypeJSON       = "application/x-adif-json"
+	contentTypeADI        = "application/x-adif-adi"
+	contentTypeXML        = "application/x-adif-xml"
+	contentTypeAutoDetect = "application/x-adif-auto-detect"
 )
 
 var indexTemplate = template.Must(template.New("index").Parse(indexHTML))
@@ -50,21 +53,44 @@ func main() {
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	indexTemplate.Execute(w, struct {
-		ContentTypeADI  string
-		ContentTypeXML  string
-		ContentTypeJSON string
+		ContentTypeADI        string
+		ContentTypeXML        string
+		ContentTypeJSON       string
+		ContentTypeAutoDetect string
 	}{
-		ContentTypeADI:  contentTypeADI,
-		ContentTypeXML:  contentTypeXML,
-		ContentTypeJSON: contentTypeJSON,
+		ContentTypeADI:        contentTypeADI,
+		ContentTypeXML:        contentTypeXML,
+		ContentTypeJSON:       contentTypeJSON,
+		ContentTypeAutoDetect: contentTypeAutoDetect,
 	})
 }
 
 func handleConversion(w http.ResponseWriter, r *http.Request) {
-	switch r.Header.Get(contentType) {
+
+	contentType := r.Header.Get(contentType)
+	data := r.Body
+
+	if contentType == contentTypeAutoDetect {
+		input, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "unable to read http request body", http.StatusBadRequest)
+			return
+		}
+
+		// Naively assume that an ADIF file would not be audacious enough to begin with a comment that contains json
+		input = bytes.TrimLeft(input, " \t\r\n")
+		if input[0] == '{' || input[0] == '[' {
+			contentType = contentTypeJSON
+		} else {
+			contentType = contentTypeADI
+		}
+		data = io.NopCloser(bytes.NewReader(input))
+	}
+
+	switch contentType {
 	case contentTypeJSON: // JSON to ADIF
 		var doc adif.Document
-		if err := json.NewDecoder(r.Body).Decode(&doc); err != nil {
+		if err := json.NewDecoder(data).Decode(&doc); err != nil {
 			http.Error(w, "invalid json input", http.StatusBadRequest)
 			return
 		}
@@ -76,7 +102,7 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 		}
 	case contentTypeADI: // ADIF to JSON
 		doc := adif.NewDocument()
-		if _, err := doc.ReadFrom(r.Body); err != nil {
+		if _, err := doc.ReadFrom(data); err != nil {
 			http.Error(w, "unable to read adi input", http.StatusBadRequest)
 			return
 		}
@@ -95,4 +121,5 @@ func handleConversion(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("Unsupported %s. Use %s or %s", contentType, contentTypeADI, contentTypeJSON),
 			http.StatusUnsupportedMediaType)
 	}
+
 }
