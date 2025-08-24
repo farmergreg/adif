@@ -2,11 +2,11 @@
 #  Arguments  #
 ###############
 # Toolchain Software Versions
-ARG VERSION_GOLANG=1.24.5-bookworm
+ARG VERSION_GOLANG=1.25-trixie
 
 # Development Tool Versions
 ARG VERSION_DELVE=latest
-ARG VERSION_GOPLS=v0.18.1
+ARG VERSION_GOPLS=latest
 ARG VERSION_GOIMPORTS=latest
 ARG VERSION_STATICCHECK=latest
 ARG VERSION_GOCRITIC=latest
