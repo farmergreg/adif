@@ -9,11 +9,7 @@ import (
 	_ "embed"
 
 	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
-	/*
-		eminlin "github.com/Eminlin/GoADIFLog"
-		eminlinformat "github.com/Eminlin/GoADIFLog/format"
-		matir "github.com/Matir/adifparser"
-	*/)
+)
 
 func BenchmarkAllTestFiles(b *testing.B) {
 	fs, err := testFileFS.ReadDir("testdata")
@@ -23,7 +19,7 @@ func BenchmarkAllTestFiles(b *testing.B) {
 
 	for _, f := range fs {
 		b.Run(f.Name(), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
 				p := NewADIReader(reader, true)
 				for {
@@ -58,7 +54,7 @@ func loadTestData() []Record {
 func BenchmarkReadThisLibrary(b *testing.B) {
 	var qsoList []Record
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		qsoList = make([]Record, 0, 10000)
 		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
@@ -84,7 +80,7 @@ func BenchmarkReadJSON(b *testing.B) {
 	var records []Record
 	var readCountJSON int
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		records = records[:0]
 		// convoluted, but this is to match the other benchmarks which also work with string input...
 		// in reality, this does not affect the speed of this benchmark...
@@ -100,59 +96,12 @@ func BenchmarkReadJSON(b *testing.B) {
 	}
 }
 
-/*
-func BenchmarkReadMatir(b *testing.B) {
-	var qsoList []matir.ADIFRecord
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		qsoList = make([]matir.ADIFRecord, 0, 10000)
-		r := matir.NewADIFReader(strings.NewReader(benchmarkFile))
-		for {
-			q, err := r.ReadRecord()
-			if err != nil {
-				break
-			}
-			qsoList = append(qsoList, q)
-		}
-	}
-
-	_ = len(qsoList)
-}
-
-func BenchmarkReadEminlin(b *testing.B) {
-	qsoListNative := loadTestData()
-
-	file, err := os.CreateTemp("", "eminlin-test.adi")
-	if err != nil {
-		b.Fatal(err)
-	}
-	for _, qso := range qsoListNative {
-		qso.WriteTo(file)
-	}
-	file.Close()
-	realFile := file.Name() + ".adi"
-	os.Rename(file.Name(), realFile)
-
-	var log []eminlinformat.CQLog
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		log, err = eminlin.Parse(realFile)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	_ = len(log)
-	os.Remove(realFile)
-}
-*/
-
 func BenchmarkWriteThisLibrary(b *testing.B) {
 	qsoListNative := loadTestData()
 	var writeCountADI int
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		var sb strings.Builder
 		writeCountADI = 0
 		for _, qso := range qsoListNative {
@@ -166,50 +115,6 @@ func BenchmarkWriteThisLibrary(b *testing.B) {
 		b.Errorf("Write count mismatch: ADI %d, expected %d", writeCountADI, len(qsoListNative))
 	}
 }
-
-func BenchmarkWriteJSON(b *testing.B) {
-	qsoListNative := loadTestData()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		data, err := json.Marshal(qsoListNative)
-		if err != nil {
-			b.Fatal(err)
-		}
-		_ = string(data)
-	}
-}
-
-/*
-func BenchmarkWriteMatir(b *testing.B) {
-	// Setup Matir test data
-	var qsoListMatir []matir.ADIFRecord
-	r := matir.NewADIFReader(strings.NewReader(benchmarkFile))
-	for {
-		qso, err := r.ReadRecord()
-		if err != nil {
-			break
-		}
-		qsoListMatir = append(qsoListMatir, qso)
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		var sb strings.Builder
-		mw := matir.NewADIFWriter(&sb)
-		for _, qso := range qsoListMatir {
-			mw.WriteRecord(qso)
-		}
-		_ = sb.String()
-	}
-}
-*/
-
-/*
-// Eminlin does not support writing adi files
-func BenchmarkWriteEminlin(b *testing.B) {
-}
-*/
 
 func BenchmarkLoTWOneRecord(b *testing.B) {
 	const oneRecord = `<APP_LoTW_OWNCALL:5>K9CTS
@@ -249,7 +154,7 @@ func BenchmarkLoTWOneRecord(b *testing.B) {
 	record := NewRecord()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		record.ReadFrom(strings.NewReader(oneRecord))
 		_ = record[adifield.CALL]
 	}
