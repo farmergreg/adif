@@ -9,11 +9,11 @@ It's idiomatic, developer-friendly API seamlessly integrates with your codebase 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/go.mod)
 [![License](https://img.shields.io/github/license/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/LICENSE)
 
-## ✨ Key Features
+## ✨ Features
 
+- 🔧 **Developer Friendly**: Clean, idiomatic Go interfaces
 - 🚀 **Blazing Fast**: 3-20x faster than other ADI libraries; more than 2x faster than Go's native JSON marshaling!
 - 💡 **Memory Efficient**: Up to 1400x fewer memory allocations than alternatives
-- 🔧 **Developer Friendly**: Clean, idiomatic Go interfaces
 - 🔬 **Tested**: Comprehensive test coverage ensures reliability
 
 ## 🚀 Quick Start
@@ -67,6 +67,7 @@ This parser achieves high performance through the following optimizations:
 If you found this library useful, you may also be interested in the following projects:
 
 - [hamradiolog-net/adif-spec](https://github.com/hamradiolog-net/adif-spec): ADIF Specification For Go
+- [hamradiolog-net/adif-benchmark](https://github.com/hamradiolog-net/adif-benchmark): ADIF Parsing Benchmarks
 - [g3zod/CreateADIFTestFiles](https://github.com/g3zod/CreateADIFTestFiles) ADI Test Files
 - [g3zod/CreateADIFExportFiles](https://github.com/g3zod/CreateADIFExportFiles) ADIF Workgroup Specification Export Tool
 
