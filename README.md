@@ -14,7 +14,7 @@ It's idiomatic, developer-friendly API seamlessly integrates with your codebase 
 - 🚀 **Blazing Fast**: 3-20x faster than other ADI libraries; more than 2x faster than Go's native JSON marshaling!
 - 💡 **Memory Efficient**: Up to 1400x fewer memory allocations than alternatives
 - 🔧 **Developer Friendly**: Clean, idiomatic Go interfaces
-- 🔬 **Battle Tested**: Comprehensive test coverage ensures reliability
+- 🔬 **Tested**: Comprehensive test coverage ensures reliability
 
 ## 🚀 Quick Start
 
@@ -48,49 +48,19 @@ JSON marshaling is included as a baseline for comparison.
 
 This parser achieves high performance through the following optimizations:
 
-### Architecture
-
-- Implements an O(n) time complexity streaming parser
-- Zero-copy techniques to minimize memory operations
-- Efficient buffer reuse patterns
-- Simple API
-
 ### Performance Optimizations
 
 - Leverages stdlib I/O operations with SSE/SIMD acceleration depending upon your CPU architecture
 - Smart buffer pre-allocation based on discovered record sizes
 - Optimized ASCII case conversion using bitwise operations
-- Custom base-10 integer parsing for ADIF field lengths
+- Optimized base-10 integer parsing for ADIF field lengths
 
 ### Memory Management
 
+- Zero-copy techniques minimize memory operations
+- String interning of repeated field names greatly reduces allocations and memory use
 - Minimal temporary allocations during field parsing
-- String interning for common ADI field names to reduce allocations and memory use
-- Constant memory overhead during streaming operations
-- Dynamic buffer allocation based on learned field counts
-
-## Performance Considerations
-
-Alternative implementations explored:
-
-1. Non-Streaming / Read ADI File into Memory:
-   - 20% performance improvement over current streaming implementation
-   - Rejected to maintain streaming capability for large data sets
-
-2. slice of fields instead of map:
-   - L1/2/3 cache-friendly design
-   - O(n) lookup time instead of map O(1) lookup time.
-   - For small values of n where n is less than ~40, this is faster than the map based implementation.
-   - 15% faster parsing than current map-based implementation on test files.
-   - 30% faster writing performance (it is much faster to iterate over a list than a map)
-   - Rejected in favor of better API ergonomics
-   - Still considering switching to this implementation because it is common to see ADI records with less than 40 fields.
-   - Downside is that above ~50 fields, the O(n) map lookup is faster than the O(n) list lookup.
-
-Future optimization possibilities:
-
-- A perfect hash function with a custom map implementation.
-- Direct SIMD implementation for parsing operations.
+- Dynamic buffer sizing based on learned field counts
 
 ## Related Projects
 
