@@ -18,7 +18,7 @@ var (
 )
 
 var recordBufferPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		b := make([]byte, 0, 1024)
 		return &b
 	},
