@@ -66,8 +66,8 @@ This parser achieves high performance through the following optimizations:
 
 If you found this library useful, you may also be interested in the following projects:
 
-- [hamradiolog-net/adif-spec](https://github.com/hamradiolog-net/adif-spec): ADIF Specification For Go
-- [hamradiolog-net/adif-benchmark](https://github.com/hamradiolog-net/adif-benchmark): ADIF Parsing Benchmarks
+- [Go ADIF Parser Benchmarks](https://github.com/hamradiolog-net/adif-benchmark)
+- [Go ADIF Specification](https://github.com/hamradiolog-net/adif-spec)
 - [g3zod/CreateADIFTestFiles](https://github.com/g3zod/CreateADIFTestFiles) ADI Test Files
 - [g3zod/CreateADIFExportFiles](https://github.com/g3zod/CreateADIFExportFiles) ADIF Workgroup Specification Export Tool
 
