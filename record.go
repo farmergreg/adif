@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
 )
 
 // Interface implementations
@@ -26,7 +26,7 @@ var recordBufferPool = sync.Pool{
 
 // recordPriorityFieldOrder defines the order of priority fields when writing ADIF records.
 // These fields are written first, in this order.
-var recordPriorityFieldOrder = [...]adifield.Field{
+var recordPriorityFieldOrder = [...]adifield.ADIField{
 
 	// Minimum "required" fields:
 	// https://www.adif.org/315/ADIF_315_Resources.htm#ADIFImplementationNotesMinimumFields
@@ -57,7 +57,7 @@ var recordPriorityFieldOrder = [...]adifield.Field{
 }
 
 // recordPriorityFields is used for quick lookups to determine if a field is a priority field
-var recordPriorityFields = make(map[adifield.Field]struct{}, len(recordPriorityFieldOrder))
+var recordPriorityFields = make(map[adifield.ADIField]struct{}, len(recordPriorityFieldOrder))
 
 func init() {
 	for _, field := range recordPriorityFieldOrder {
@@ -153,7 +153,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 }
 
 // appendField adds a single ADIF field to the buffer
-func (r *Record) appendField(buf []byte, field adifield.Field) []byte {
+func (r *Record) appendField(buf []byte, field adifield.ADIField) []byte {
 	value, ok := (*r)[field]
 	if !ok {
 		return buf

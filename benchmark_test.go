@@ -8,7 +8,7 @@ import (
 
 	_ "embed"
 
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
 )
 
 func BenchmarkAllTestFiles(b *testing.B) {

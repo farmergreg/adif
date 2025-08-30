@@ -1,7 +1,7 @@
 package adif
 
 import (
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
 )
 
 // Document represents a complete ADIF document.
@@ -22,4 +22,4 @@ type Document struct {
 
 // Record is a map of ADIF fields to their values, representing either a header or QSO record.
 // The field keys must be UPPERCASE strings of type adifield.Field.
-type Record map[adifield.Field]string
+type Record map[adifield.ADIField]string

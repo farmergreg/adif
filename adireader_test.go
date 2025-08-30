@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
 )
 
 //go:embed testdata/*.adi
@@ -317,8 +317,8 @@ func TestParseSingleRecord(t *testing.T) {
 				}
 			}
 
-			if qso[adifield.Field(tt.fieldName)] != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso[adifield.Field(tt.fieldName)])
+			if qso[adifield.ADIField(tt.fieldName)] != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso[adifield.ADIField(tt.fieldName)])
 			}
 
 			if isHeader != tt.isHeaderRecord {
@@ -374,8 +374,8 @@ func TestParseLongFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.Field(fieldName)] != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record[adifield.Field(fieldName)])
+	if record[adifield.ADIField(fieldName)] != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record[adifield.ADIField(fieldName)])
 	}
 }
 

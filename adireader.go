@@ -6,7 +6,7 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
 )
 
 var _ ADIFReader = (*adiReader)(nil) // Implements ADIFReader
@@ -27,7 +27,7 @@ type adiReader struct {
 	r *bufio.Reader
 
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
-	appFieldMap map[adifield.Field]adifield.Field
+	appFieldMap map[adifield.ADIField]adifield.ADIField
 
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
@@ -110,7 +110,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 //
 // Future Plans: I would like to take a look at using simd directly.
 // However, the current implementation IS attempting to take advantage of the standard library's existing simd capabilities.
-func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64, err error) {
+func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n int64, err error) {
 	// Step 1: Read in the entire data specifier "<fieldname:length:...>" and remove the trailing '>'
 	volatileSpecifier, n, err := p.readDataSpecifierVolatile()
 	if err != nil {
@@ -125,16 +125,16 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, n int64
 	fastToUpper(volatileField)
 
 	// Step 2.1: field name string interning - reduce memory allocations
-	field = adifield.Field(unsafe.String(&volatileField[0], len(volatileField)))
-	if fieldDef, ok := adifield.FieldMap[field]; ok {
-		field = fieldDef.ID
+	field = adifield.ADIField(unsafe.String(&volatileField[0], len(volatileField)))
+	if fieldDef, ok := adifield.ADIFieldMap[field]; ok {
+		field = fieldDef.Key
 	} else if id, ok := p.appFieldMap[field]; ok {
 		field = id
 	} else {
-		field = adifield.Field(string(volatileField))
+		field = adifield.ADIField(string(volatileField))
 
 		if p.appFieldMap == nil {
-			p.appFieldMap = make(map[adifield.Field]adifield.Field, 16)
+			p.appFieldMap = make(map[adifield.ADIField]adifield.ADIField, 16)
 		}
 		p.appFieldMap[field] = field
 	}

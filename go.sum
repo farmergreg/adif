@@ -1,4 +1,2 @@
-github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1 h1:FWNFq4fM1wPfcK40yHE5UO3RUdSNPaBC+j3PokzA6OQ=
-github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1/go.mod h1:5YoVOkjYAQumqlV356Hj3xeYh4BdZuLE0/nRkf2NKkI=
-github.com/hamradiolog-net/adif-spec v1.0.13 h1:Tz8Z2VJqUn1PV7b77UF0y448SULVHAnN6gGnv03cJgc=
-github.com/hamradiolog-net/adif-spec v1.0.13/go.mod h1:C5u6WCMHd3MKhliC8h27+og2SG7i1jYpCMkodhuGORc=
+github.com/hamradiolog-net/adif-spec/v2 v2.0.6 h1:R0z/i7cYrR7mGxckPYGiBDbEDSUYen8Mbbg4OiwotKk=
+github.com/hamradiolog-net/adif-spec/v2 v2.0.6/go.mod h1:quNAt5byS7WYHVyd6jtbEKZ+v1cO99LgH2BlbO7YByM=

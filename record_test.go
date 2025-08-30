@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hamradiolog-net/adif-spec/src/pkg/adifield"
-	"github.com/hamradiolog-net/adif-spec/src/pkg/spec"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/spec"
 )
 
 var qsoWithLou = func() *Record {
@@ -112,7 +112,7 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	var qso = NewRecord()
 	qso[adifield.PROGRAMID] = "HamRadioLog.Net"
 	qso[adifield.PROGRAMVERSION] = strings.Repeat("1", size)
-	qso[adifield.ADIF_VER] = spec.ADIFVersion
+	qso[adifield.ADIF_VER] = spec.ADIF_VER
 
 	adiLength := qso.appendAsADIPreCalculate()
 	buf := make([]byte, 0, adiLength)

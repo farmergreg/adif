@@ -1,8 +1,31 @@
-# github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
-## explicit; go 1.13
-github.com/gocarina/gocsv
-# github.com/hamradiolog-net/adif-spec v1.0.13
+# github.com/hamradiolog-net/adif-spec/v2 v2.0.6
 ## explicit; go 1.25
-github.com/hamradiolog-net/adif-spec/src/pkg/adifield
-github.com/hamradiolog-net/adif-spec/src/pkg/shared
-github.com/hamradiolog-net/adif-spec/src/pkg/spec
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/aditype
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/antpath
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/arrlsection
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/award
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/awardsponsor
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/band
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/contest
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/continent
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/credit
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/dxccentitycode
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/eqslag
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/mode
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/morsekeytype
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/primaryadministrativesubdivision
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/propagationmode
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qslmedium
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qslrcvd
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qslsent
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qslvia
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qsocomplete
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qsodownloadstatus
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/qsouploadstatus
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/region
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/secondaryadministrativesubdivision
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/secondaryadministrativesubdivisionalt
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/enum/submode
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/spec
+github.com/hamradiolog-net/adif-spec/v2/src/pkg/spectype
