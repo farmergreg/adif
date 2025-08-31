@@ -125,7 +125,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 	if len(volatileField) == 0 {
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
-	fastToUpper(volatileField)
+	fastASCIIToUpper(volatileField)
 
 	// Step 2.1: field name string interning - reduce memory allocations
 	field = adifield.ADIField(unsafe.String(&volatileField[0], len(volatileField)))
@@ -244,8 +244,8 @@ func (p *adiReader) discardUntilLessThan() (n int64, err error) {
 	}
 }
 
-// fastToUpper is a faster version of bytes.ToUpper (we assume ASCII and that most characters are already UPPERCASE)
-func fastToUpper(data []byte) {
+// fastASCIIToUpper is a faster version of bytes.ToUpper (we assume ASCII)
+func fastASCIIToUpper(data []byte) {
 	for i, b := range data {
 		if b&0b01000000 > 0 && 'a' <= b && b <= 'z' {
 			data[i] = b - 'a' + 'A'
