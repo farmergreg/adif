@@ -22,6 +22,8 @@ const (
 	maxADIReaderDataSize = 1024 * 1024 * 1
 )
 
+var adiFieldMap map[adifield.ADIField]adifield.Spec = adifield.ADIFieldMap()
+
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
 type adiReader struct {
 	r *bufio.Reader
@@ -126,7 +128,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 
 	// Step 2.1: field name string interning - reduce memory allocations
 	field = adifield.ADIField(unsafe.String(&volatileField[0], len(volatileField)))
-	if fieldDef, ok := adifield.ADIFieldMap[field]; ok {
+	if fieldDef, ok := adiFieldMap[field]; ok {
 		field = fieldDef.Key
 	} else if id, ok := p.appFieldMap[field]; ok {
 		field = id

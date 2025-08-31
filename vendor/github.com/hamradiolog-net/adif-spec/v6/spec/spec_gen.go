@@ -1,10 +1,10 @@
 // DO NOT EDIT; GENERATED CODE
-// ADIF: 3.1.6 Proposed
+// run `go generate ./...` from the project root to rebuild this file.
 
+// Package spec provides code and constants as defined in ADIF 3.1.6 (Proposed)
 package spec
 
-// ADIF_VER is the version of the ADIF specification.
-// This is the version that is currently supported by this package.
+// ADIF_VER is the version of the ADIF specification used to generate the adif-spec library.
 const ADIF_VER = "3.1.6"
 
 const ADIF_VER_MAJOR = 3 // ADIF Major Version
