@@ -22,6 +22,7 @@ const (
 	maxADIReaderDataSize = 1024 * 1024 * 1
 )
 
+// adiFieldMap is a reference to the ADIF Specification's list of valid fields
 var adiFieldMap map[adifield.ADIField]adifield.Spec = adifield.ADIFieldMap()
 
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
