@@ -6,7 +6,7 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
 var _ ADIFReader = (*adiReader)(nil) // Implements ADIFReader

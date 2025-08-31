@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
 func ExampleDocument_ReadFrom() {

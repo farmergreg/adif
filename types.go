@@ -1,7 +1,7 @@
 package adif
 
 import (
-	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
 // Document represents a complete ADIF document.

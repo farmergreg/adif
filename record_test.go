@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/adifield"
-	"github.com/hamradiolog-net/adif-spec/v2/src/pkg/spec"
+	"github.com/hamradiolog-net/adif-spec/v6/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/spec"
 )
 
 var qsoWithLou = func() *Record {
