@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"strings"
 	"unsafe"
 
 	"github.com/hamradiolog-net/adif-spec/v6/adifield"
@@ -22,15 +23,12 @@ const (
 	maxADIReaderDataSize = 1024 * 1024 * 1
 )
 
-// adiFieldMap is a reference to the ADIF Specification's list of valid fields
-var adiFieldMap map[adifield.ADIField]adifield.Spec = adifield.ADIFieldMap()
-
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
 type adiReader struct {
 	r *bufio.Reader
 
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
-	appFieldMap map[adifield.ADIField]adifield.ADIField
+	appFieldMap map[string]adifield.ADIField
 
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
@@ -55,6 +53,7 @@ func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
 		skipHeader:        skipHeader,
 		preAllocateFields: 8,
 	}
+	p.appFieldMap = make(map[string]adifield.ADIField, 128)
 
 	return p
 }
@@ -125,21 +124,15 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 	if len(volatileField) == 0 {
 		return "", "", n, ErrMalformedADI // field name is empty
 	}
-	fastASCIIToUpper(volatileField)
 
 	// Step 2.1: field name string interning - reduce memory allocations
-	field = adifield.ADIField(unsafe.String(&volatileField[0], len(volatileField)))
-	if fieldDef, ok := adiFieldMap[field]; ok {
-		field = fieldDef.Key
-	} else if id, ok := p.appFieldMap[field]; ok {
-		field = id
-	} else {
-		field = adifield.ADIField(string(volatileField))
-
-		if p.appFieldMap == nil {
-			p.appFieldMap = make(map[adifield.ADIField]adifield.ADIField, 16)
-		}
-		p.appFieldMap[field] = field
+	var ok bool
+	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
+	if field, ok = p.appFieldMap[fieldStringUnsafe]; !ok {
+		fieldStringSafe := strings.Clone(fieldStringUnsafe)
+		fieldName := adifield.ADIField(strings.ToUpper(fieldStringSafe))
+		field = fieldName
+		p.appFieldMap[fieldStringSafe] = fieldName
 	}
 
 	// Step 3: Parse Field Length
@@ -240,15 +233,6 @@ func (p *adiReader) discardUntilLessThan() (n int64, err error) {
 			continue
 		default:
 			return n, err
-		}
-	}
-}
-
-// fastASCIIToUpper is a faster version of bytes.ToUpper (we assume ASCII)
-func fastASCIIToUpper(data []byte) {
-	for i, b := range data {
-		if b&0b01000000 > 0 && 'a' <= b && b <= 'z' {
-			data[i] = b - 'a' + 'A'
 		}
 	}
 }
