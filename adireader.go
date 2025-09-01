@@ -130,9 +130,11 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
 	if field, ok = p.appFieldMap[fieldStringUnsafe]; !ok {
 		fieldStringSafe := strings.Clone(fieldStringUnsafe)
-		fieldName := adifield.ADIField(strings.ToUpper(fieldStringSafe))
-		field = fieldName
-		p.appFieldMap[fieldStringSafe] = fieldName
+		field = adifield.ADIField(strings.ToUpper(fieldStringSafe))
+
+		// The key is the original, non-forced-uppercase value because we assume we'll see it repeatedly.
+		// It will always need the same transformation (if any) applied.
+		p.appFieldMap[fieldStringSafe] = field
 	}
 
 	// Step 3: Parse Field Length
