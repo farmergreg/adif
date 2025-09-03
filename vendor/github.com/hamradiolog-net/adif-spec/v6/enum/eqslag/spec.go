@@ -1,8 +1,6 @@
 package eqslag
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -19,8 +17,4 @@ type Spec struct {
 	// Comments     string           `json:"Comments,omitempty"`
 	Key         EQSLAG `json:"Status"` // Status
 	Description string `json:"Description"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%s = %s", s.Key, s.Description)
 }

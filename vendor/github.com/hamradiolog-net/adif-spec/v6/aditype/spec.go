@@ -18,7 +18,3 @@ type Spec struct {
 	IsImportOnly      spectype.Boolean `json:"Import-only,omitempty"`
 	Comments          string           `json:"Comments,omitempty"`
 }
-
-func (s Spec) String() string {
-	return s.Description
-}

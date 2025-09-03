@@ -1,7 +1,6 @@
 package dxccentitycode
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
@@ -35,12 +34,4 @@ func (d Spec) Identifier() string {
 	}
 
 	return name
-}
-
-func (s Spec) String() string {
-	deleted := ""
-	if s.IsDeleted {
-		deleted = " (DELETED) "
-	}
-	return fmt.Sprintf("%s = %s%s", s.Key, s.EntityName, deleted)
 }

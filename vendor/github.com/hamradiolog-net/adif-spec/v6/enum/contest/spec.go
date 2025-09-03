@@ -1,8 +1,6 @@
 package contest
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -19,8 +17,4 @@ type Spec struct {
 	// Comments     string           `json:"Comments,omitempty"`
 	Key         Contest `json:"Contest-ID"` // Contest ID
 	Description string  `json:"Description"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%-20s = %s", s.Key, s.Description)
 }

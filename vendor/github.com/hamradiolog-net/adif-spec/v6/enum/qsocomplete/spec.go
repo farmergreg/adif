@@ -1,8 +1,6 @@
 package qsocomplete
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -19,8 +17,4 @@ type Spec struct {
 	// Comments     string           `json:"Comments,omitempty"`
 	Key         QSOComplete `json:"Abbreviation"` // Abbreviation
 	Description string      `json:"Meaning"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%-4s = %s", s.Key, s.Description)
 }

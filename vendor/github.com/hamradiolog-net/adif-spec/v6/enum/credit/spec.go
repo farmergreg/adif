@@ -1,8 +1,6 @@
 package credit
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -21,8 +19,4 @@ type Spec struct {
 	Sponsor string `json:"Sponsor"`
 	Award   string `json:"Award"`
 	Facet   string `json:"Facet"`
-}
-
-func (c Spec) String() string {
-	return fmt.Sprintf("%-20s = %-15s %-45s %-15s", c.Key, c.Sponsor, c.Award, c.Facet)
 }

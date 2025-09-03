@@ -1,8 +1,6 @@
 package mode
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/enum/submode"
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
@@ -21,12 +19,4 @@ type Spec struct {
 	Key         Mode                `json:"Mode"` // Mode
 	Submodes    submode.SubModeList `json:"Submodes,omitempty"`
 	Description string              `json:"Description,omitempty"`
-}
-
-func (s Spec) String() string {
-	if s.IsImportOnly {
-		return fmt.Sprintf("%-10s = %s", s.Key, s.Submodes)
-	} else {
-		return fmt.Sprintf("%-22s = %s", s.Key, s.Submodes)
-	}
 }

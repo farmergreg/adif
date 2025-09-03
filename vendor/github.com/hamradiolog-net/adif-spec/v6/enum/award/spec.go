@@ -17,7 +17,3 @@ type Spec struct {
 	// Comments     string           `json:"Comments,omitempty"`
 	Key Award `json:"Award"` // Award
 }
-
-func (a Spec) String() string {
-	return string(a.Key)
-}

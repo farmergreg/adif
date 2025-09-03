@@ -1,8 +1,6 @@
 package qslrcvd
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -20,8 +18,4 @@ type Spec struct {
 	Key         QSLRcvd `json:"Status"` // Status
 	Meaning     string  `json:"Meaning"`
 	Description string  `json:"Description"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%s = %s", s.Key, s.Description)
 }

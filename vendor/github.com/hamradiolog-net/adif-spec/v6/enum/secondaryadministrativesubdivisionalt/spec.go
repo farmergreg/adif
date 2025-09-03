@@ -1,8 +1,6 @@
 package secondaryadministrativesubdivisionalt
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/enum/dxccentitycode"
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
@@ -23,8 +21,4 @@ type Spec struct {
 	Region         string                                `json:"Region"`
 	District       string                                `json:"District"`
 	IsDeleted      spectype.Boolean                      `json:"Deleted,omitempty"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%-50s = DXCC: %s %s", s.Key, s.DXCCEntityCode, s.Region)
 }

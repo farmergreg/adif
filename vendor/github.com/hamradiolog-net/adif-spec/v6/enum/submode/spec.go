@@ -1,8 +1,6 @@
 package submode
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -20,8 +18,4 @@ type Spec struct {
 	Key         SubMode `json:"Submode"` // Submode
 	Mode        string  `json:"Mode"`
 	Description string  `json:"Description,omitempty"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%-15s = %-15s %s", s.Key, s.Mode, s.Description)
 }

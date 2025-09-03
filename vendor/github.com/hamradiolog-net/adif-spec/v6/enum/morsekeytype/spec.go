@@ -1,8 +1,6 @@
 package morsekeytype
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -22,8 +20,4 @@ type Spec struct {
 	Characteristics  string       `json:"Characteristics,omitempty"`
 	MorseComposition string       `json:"Morse Composition,omitempty"`
 	Examples         string       `json:"Examples,omitempty"`
-}
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%-4s = %s", s.Key, s.Description)
 }

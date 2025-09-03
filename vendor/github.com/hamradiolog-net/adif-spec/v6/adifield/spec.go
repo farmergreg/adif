@@ -1,8 +1,6 @@
 package adifield
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
 
@@ -23,12 +21,4 @@ type Spec struct {
 	MaximumValue  spectype.Integer `json:"Maximum Value,omitempty"`
 	IsImportOnly  spectype.Boolean `json:"Import-only,omitempty"`
 	Comments      string           `json:"Comments,omitempty"`
-}
-
-func (s Spec) String() string {
-	if s.IsHeaderField {
-		return fmt.Sprintf("Header: %s", s.Description)
-	} else {
-		return fmt.Sprintf("Record: %s", s.Description)
-	}
 }

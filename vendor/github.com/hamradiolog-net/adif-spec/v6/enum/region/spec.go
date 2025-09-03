@@ -1,8 +1,6 @@
 package region
 
 import (
-	"fmt"
-
 	"github.com/hamradiolog-net/adif-spec/v6/enum/dxccentitycode"
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
 )
@@ -22,14 +20,10 @@ type Spec struct {
 	DXCCEntityCode dxccentitycode.DXCCEntityCode `json:"DXCC Entity Code"`
 	Region         string                        `json:"Region"`
 	Prefix         string                        `json:"Prefix,omitempty"`
-	Applicability  spectype.StringSlice          `json:"Applicability,omitempty"` // TODO custom type
+	Applicability  spectype.StringSlice          `json:"Applicability,omitempty"`
 	StartDate      spectype.DateTime             `json:"Start Date,omitempty"`
 	EndDate        spectype.DateTime             `json:"End Date,omitempty"`
 }
 
 // RegionCode represents a region entity code.
 type RegionCode string
-
-func (s Spec) String() string {
-	return fmt.Sprintf("%4s.%-3s = %-5s %-15s; IMPORTANT: This is NOT the Region Code. It is a lookup key for use with RegionCompositeKeyMap", s.Code, s.DXCCEntityCode, s.Code, s.Region)
-}
