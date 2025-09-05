@@ -74,11 +74,19 @@ RUN \
     chown -R ${USER}:${GID} /home/${USER}/.config
 
 USER ${UID}:${GID}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install github.com/go-delve/delve/cmd/dlv@${VERSION_DELVE}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/cmd/goimports@${VERSION_GOIMPORTS}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install honnef.co/go/tools/cmd/staticcheck@${VERSION_STATICCHECK}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install -v github.com/go-critic/go-critic/cmd/gocritic@${VERSION_GOCRITIC}
-RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/gopls@${VERSION_GOPLS}
+# Cursor does not like the mounts...
+# see also: devcontainer.json
+# RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install github.com/go-delve/delve/cmd/dlv@${VERSION_DELVE}
+# RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/cmd/goimports@${VERSION_GOIMPORTS}
+# RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install honnef.co/go/tools/cmd/staticcheck@${VERSION_STATICCHECK}
+# RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install -v github.com/go-critic/go-critic/cmd/gocritic@${VERSION_GOCRITIC}
+# RUN --mount=type=cache,target=${HOME}/go/pkg/mod,uid=${UID},gid=${GID} --mount=type=cache,target=${XDG_CACHE_HOME}/go-build,uid=${UID},gid=${GID} go install golang.org/x/tools/gopls@${VERSION_GOPLS}
+
+RUN go install github.com/go-delve/delve/cmd/dlv@${VERSION_DELVE}
+RUN go install golang.org/x/tools/cmd/goimports@${VERSION_GOIMPORTS}
+RUN go install honnef.co/go/tools/cmd/staticcheck@${VERSION_STATICCHECK}
+RUN go install -v github.com/go-critic/go-critic/cmd/gocritic@${VERSION_GOCRITIC}
+RUN go install golang.org/x/tools/gopls@${VERSION_GOPLS}
 
 WORKDIR /app
 CMD ["sleep", "infinity"]
