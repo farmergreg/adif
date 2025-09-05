@@ -1,5 +1,5 @@
 {
-    "name": "ADIF Parser",
+    "name": "adif-parser",
     "build": {
         "dockerfile": "Dockerfile",
         "target": "dev-container",
