@@ -1,9 +1,17 @@
 package dxccentitycode
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
+	"github.com/hamradiolog-net/adif-spec/v6/internal/codegen"
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
+)
+
+var (
+	_ codegen.CodeGenContainer = SpecMapContainer{}
+	_ codegen.CodeGenSpec      = Spec{}
 )
 
 // SpecMapContainer contains all DXCCEntityCode specifications as defined by the ADIF Workgroup specification exports.
@@ -34,4 +42,32 @@ func (d Spec) Identifier() string {
 	}
 
 	return name
+}
+
+func (s Spec) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForEnum {
+	deleted := ""
+	if s.IsDeleted {
+		deleted = " (DELETED) "
+	}
+	return codegen.CodeGeneratorMetadataForEnum{
+		ConstName:     codegen.ToGoIdentifier(s.Identifier()),
+		ConstValue:    strconv.Itoa(int(s.Key)),
+		ConstComments: fmt.Sprintf("%s = %s%s", s.Key, s.EntityName, deleted),
+		IsDeprecated:  bool(s.IsImportOnly),
+	}
+}
+
+func (c SpecMapContainer) CodeGeneratorRecords() map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec {
+	result := make(map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec, len(c.Records))
+	for k, v := range c.Records {
+		result[k] = v
+	}
+	return result
+}
+
+func (c SpecMapContainer) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForContainer {
+	return codegen.CodeGeneratorMetadataForContainer{
+		PackageName: "dxccentitycode",
+		DataType:    "DXCCEntityCode",
+	}
 }

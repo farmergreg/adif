@@ -1,10 +1,11 @@
 package aditype
 
-// ADITypeIndicator is a single character that represents the ADIF Data Type Indicator that precedes the data field in an ADI record.
-type ADITypeIndicator rune
+import "github.com/hamradiolog-net/adif-spec/v6/internal/codegen"
 
 // ADIType represents the ADIF data type of a data field
 type ADIType string
+
+var _ codegen.CodeGeneratorEnumValue = ADIType("")
 
 func (t ADIType) String() string {
 	return string(t)

@@ -1,4 +1,4 @@
-# github.com/hamradiolog-net/adif-spec/v6 v6.0.0-beta.9
+# github.com/hamradiolog-net/adif-spec/v6 v6.0.0-beta.10
 ## explicit; go 1.25
 github.com/hamradiolog-net/adif-spec/v6/adifield
 github.com/hamradiolog-net/adif-spec/v6/aditype
@@ -27,5 +27,6 @@ github.com/hamradiolog-net/adif-spec/v6/enum/region
 github.com/hamradiolog-net/adif-spec/v6/enum/secondaryadministrativesubdivision
 github.com/hamradiolog-net/adif-spec/v6/enum/secondaryadministrativesubdivisionalt
 github.com/hamradiolog-net/adif-spec/v6/enum/submode
+github.com/hamradiolog-net/adif-spec/v6/internal/codegen
 github.com/hamradiolog-net/adif-spec/v6/spec
 github.com/hamradiolog-net/adif-spec/v6/spectype

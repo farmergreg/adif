@@ -1,31 +1,11 @@
 package band
 
-import (
-	"encoding/json"
-	"strconv"
-)
+import "github.com/hamradiolog-net/adif-spec/v6/internal/codegen"
 
-// Band represents a ham radio band
+// Band represents a range of radio frequencies
 type Band string
 
-// MHz is Megahertz
-type MHz float64
-
-func (a *MHz) UnmarshalJSON(data []byte) error {
-	var val string
-	err := json.Unmarshal(data, &val)
-	if err != nil {
-		return err
-	}
-
-	mhz, err := strconv.ParseFloat(val, 64)
-	if err != nil {
-		return err
-	}
-
-	*a = MHz(mhz)
-	return nil
-}
+var _ codegen.CodeGeneratorEnumValue = Band("")
 
 func (b Band) String() string {
 	return string(b)

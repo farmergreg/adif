@@ -1,8 +1,17 @@
 package mode
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/hamradiolog-net/adif-spec/v6/enum/submode"
+	"github.com/hamradiolog-net/adif-spec/v6/internal/codegen"
 	"github.com/hamradiolog-net/adif-spec/v6/spectype"
+)
+
+var (
+	_ codegen.CodeGenContainer = SpecMapContainer{}
+	_ codegen.CodeGenSpec      = Spec{}
 )
 
 // SpecMapContainer contains all Mode specifications as defined by the ADIF Workgroup specification exports.
@@ -19,4 +28,34 @@ type Spec struct {
 	Key         Mode                `json:"Mode"` // Mode
 	Submodes    submode.SubModeList `json:"Submodes,omitempty"`
 	Description string              `json:"Description,omitempty"`
+}
+
+func (s Spec) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForEnum {
+	var comments string
+	if s.IsImportOnly {
+		comments = fmt.Sprintf("%-10s = %s", s.Key, s.Submodes)
+	} else {
+		comments = fmt.Sprintf("%-22s = %s", s.Key, s.Submodes)
+	}
+	return codegen.CodeGeneratorMetadataForEnum{
+		ConstName:     codegen.ToGoIdentifier(string(s.Key)),
+		ConstValue:    strconv.QuoteToASCII(string(s.Key)),
+		ConstComments: comments,
+		IsDeprecated:  bool(s.IsImportOnly),
+	}
+}
+
+func (c SpecMapContainer) CodeGeneratorRecords() map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec {
+	result := make(map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec, len(c.Records))
+	for k, v := range c.Records {
+		result[k] = v
+	}
+	return result
+}
+
+func (c SpecMapContainer) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForContainer {
+	return codegen.CodeGeneratorMetadataForContainer{
+		PackageName: "mode",
+		DataType:    "Mode",
+	}
 }
