@@ -11,15 +11,23 @@ import (
 // Future Work:
 // This type intentionally resembles the ADX XML structure even though XML is not currently supported by this library.
 type Document struct {
-	// Header is nil when there is no header.
+	// header is nil when there is no header.
 	// Otherwise it will be a Record with header fields inside.
-	Header RecordThing `json:"HEADER,omitempty"`
+	header RecordThing `json:"HEADER,omitempty"`
 
-	// Records is a slice of Record.
+	// records is a slice of Record.
 	// It contains the QSO records.
-	Records []RecordThing `json:"RECORDS"`
+	records []RecordThing `json:"RECORDS"`
 
 	headerPreamble string
+}
+
+func (d Document) Header() RecordThing {
+	return d.header
+}
+
+func (d Document) Records() []RecordThing {
+	return d.records
 }
 
 // Record is a map of ADIF fields to their values, representing EITHER a Header record or a QSO record.
@@ -58,6 +66,11 @@ func (r Record) Fields() []adifield.ADIField {
 		fields = append(fields, field)
 	}
 	return fields
+}
+
+type DocumentThing interface {
+	Header() RecordThing
+	Records() []RecordThing
 }
 
 type RecordThing interface {

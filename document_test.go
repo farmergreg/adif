@@ -86,27 +86,27 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 	secondDoc.ReadFrom(strings.NewReader(buf.String()))
 
 	// Verify
-	if firstDoc.Header != nil {
-		if firstDoc.Header.Count() != secondDoc.Header.Count() {
-			t.Errorf("header length mismatch: got %d, want %d", secondDoc.Header.Count(), firstDoc.Header.Count())
+	if firstDoc.header != nil {
+		if firstDoc.header.Count() != secondDoc.header.Count() {
+			t.Errorf("header length mismatch: got %d, want %d", secondDoc.header.Count(), firstDoc.header.Count())
 		}
-		for _, field := range firstDoc.Header.Fields() {
-			if firstDoc.Header.Get(field) != secondDoc.Header.Get(field) {
-				t.Errorf("header field %q mismatch: got %v, want %v", field, secondDoc.Header.Get(field), firstDoc.Header.Get(field))
+		for _, field := range firstDoc.header.Fields() {
+			if firstDoc.header.Get(field) != secondDoc.header.Get(field) {
+				t.Errorf("header field %q mismatch: got %v, want %v", field, secondDoc.header.Get(field), firstDoc.header.Get(field))
 			}
 		}
 	}
 
-	if len(firstDoc.Records) != len(secondDoc.Records) {
-		t.Errorf("records length mismatch: got %d, want %d", len(secondDoc.Records), len(firstDoc.Records))
+	if len(firstDoc.records) != len(secondDoc.records) {
+		t.Errorf("records length mismatch: got %d, want %d", len(secondDoc.records), len(firstDoc.records))
 	}
-	for r := range firstDoc.Records {
-		if firstDoc.Records[r].Count() != secondDoc.Records[r].Count() {
-			t.Errorf("record %d fields length mismatch: got %d, want %d", r, secondDoc.Records[r].Count(), firstDoc.Records[r].Count())
+	for r := range firstDoc.records {
+		if firstDoc.records[r].Count() != secondDoc.records[r].Count() {
+			t.Errorf("record %d fields length mismatch: got %d, want %d", r, secondDoc.records[r].Count(), firstDoc.records[r].Count())
 		}
-		for _, field := range firstDoc.Records[r].Fields() {
-			if firstDoc.Records[r].Get(field) != secondDoc.Records[r].Get(field) {
-				t.Errorf("record %d field %q mismatch: got %v, want %v", r, field, secondDoc.Records[r].Get(field), firstDoc.Records[r].Get(field))
+		for _, field := range firstDoc.records[r].Fields() {
+			if firstDoc.records[r].Get(field) != secondDoc.records[r].Get(field) {
+				t.Errorf("record %d field %q mismatch: got %v, want %v", r, field, secondDoc.records[r].Get(field), firstDoc.records[r].Get(field))
 			}
 		}
 	}

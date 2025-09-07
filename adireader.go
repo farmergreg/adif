@@ -42,7 +42,7 @@ type adiReader struct {
 
 // NewADIReader returns an ADIFReader that can parse ADIF *.adi formatted records.
 // If skipHeader is true, Next() will not return the header record if it exists.
-func NewADIReader(r io.Reader, skipHeader bool) ADIFReader {
+func NewADIReader(r io.Reader, skipHeader bool) *adiReader {
 	br, ok := r.(*bufio.Reader)
 	if !ok {
 		br = bufio.NewReader(r)

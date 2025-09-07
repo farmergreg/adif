@@ -27,7 +27,7 @@ func NewDocumentWithOptions(capacity int, headerPreamble string) *Document {
 	}
 
 	return &Document{
-		Records:        make([]RecordThing, 0, capacity),
+		records:        make([]RecordThing, 0, capacity),
 		headerPreamble: headerPreamble,
 	}
 }
@@ -39,7 +39,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		bw = bufio.NewWriter(w)
 	}
 
-	if f.Header != nil && f.Header.Count() > 0 {
+	if f.header != nil && f.header.Count() > 0 {
 		if f.headerPreamble == "" {
 			f.headerPreamble = adiHeaderPreamble
 		}
@@ -50,7 +50,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		}
 
 		var c64 int64
-		c64, err = f.Header.WriteTo(bw)
+		c64, err = f.header.WriteTo(bw)
 		n += c64
 		if err != nil {
 			return handleFlush(bw, n, err)
@@ -63,7 +63,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		}
 	}
 
-	for _, record := range f.Records {
+	for _, record := range f.records {
 		c, err := record.WriteTo(bw)
 		n += c
 		if err != nil {
@@ -97,9 +97,9 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 
 	if isHeader {
-		f.Header = &firstRecord
+		f.header = &firstRecord
 	} else {
-		f.Records = append(f.Records, &firstRecord)
+		f.records = append(f.records, &firstRecord)
 	}
 
 	for {
@@ -111,7 +111,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 			}
 			return n, err
 		}
-		f.Records = append(f.Records, &record)
+		f.records = append(f.records, &record)
 	}
 
 	return n, nil
@@ -120,7 +120,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 // String returns the document as an ADI string.
 // Returns an empty string if the receiver is nil.
 func (f *Document) String() string {
-	if f == nil || len(f.Records) == 0 {
+	if f == nil || len(f.records) == 0 {
 		return ""
 	}
 
