@@ -156,6 +156,6 @@ func BenchmarkLoTWOneRecord(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		record.ReadFrom(strings.NewReader(oneRecord))
-		_ = record[adifield.CALL]
+		_ = record.r[adifield.CALL]
 	}
 }

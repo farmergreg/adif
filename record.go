@@ -75,12 +75,14 @@ func NewRecordWithCapacity(initialCapacity int) Record {
 	if initialCapacity < 1 {
 		initialCapacity = 7
 	}
-	return make(Record, initialCapacity)
+	r := Record{}
+	r.r = make(map[adifield.ADIField]string, initialCapacity)
+	return r
 }
 
 // Reset clears the record of all fields.
 func (r Record) Reset() {
-	clear(r)
+	clear(r.r)
 }
 
 // ReadFrom reads an ADIF formatted record from the provided io.Reader.
@@ -132,7 +134,7 @@ func (r *Record) WriteTo(dest io.Writer) (int64, error) {
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
 func (r *Record) appendAsADI(buf []byte) []byte {
-	if len(*r) == 0 {
+	if len(r.r) == 0 {
 		return buf
 	}
 
@@ -142,7 +144,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 	}
 
 	// Remaining fields
-	for field := range *r {
+	for field := range r.r {
 		if _, isPriority := recordPriorityFields[field]; isPriority {
 			continue
 		}
@@ -154,7 +156,7 @@ func (r *Record) appendAsADI(buf []byte) []byte {
 
 // appendField adds a single ADIF field to the buffer
 func (r *Record) appendField(buf []byte, field adifield.ADIField) []byte {
-	value, ok := (*r)[field]
+	value, ok := r.r[field]
 	if !ok {
 		return buf
 	}
@@ -171,11 +173,11 @@ func (r *Record) appendField(buf []byte, field adifield.ADIField) []byte {
 
 // appendAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the AppendAsADI method.
 func (r *Record) appendAsADIPreCalculate() (adiLength int) {
-	if len(*r) == 0 {
+	if len(r.r) == 0 {
 		return 0
 	}
 
-	for field, value := range *r {
+	for field, value := range r.r {
 		valueLength := len(value)
 		if valueLength == 0 {
 			continue

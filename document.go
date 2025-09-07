@@ -27,7 +27,7 @@ func NewDocumentWithOptions(capacity int, headerPreamble string) *Document {
 	}
 
 	return &Document{
-		Records:        make([]Record, 0, capacity),
+		Records:        make([]RecordThing, 0, capacity),
 		headerPreamble: headerPreamble,
 	}
 }
@@ -39,7 +39,7 @@ func (f *Document) WriteTo(w io.Writer) (n int64, err error) {
 		bw = bufio.NewWriter(w)
 	}
 
-	if len(f.Header) > 0 {
+	if f.Header != nil && f.Header.Count() > 0 {
 		if f.headerPreamble == "" {
 			f.headerPreamble = adiHeaderPreamble
 		}
@@ -97,9 +97,9 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 
 	if isHeader {
-		f.Header = firstRecord
+		f.Header = &firstRecord
 	} else {
-		f.Records = append(f.Records, firstRecord)
+		f.Records = append(f.Records, &firstRecord)
 	}
 
 	for {
@@ -111,7 +111,7 @@ func (f *Document) ReadFrom(r io.Reader) (n int64, err error) {
 			}
 			return n, err
 		}
-		f.Records = append(f.Records, record)
+		f.Records = append(f.Records, &record)
 	}
 
 	return n, nil

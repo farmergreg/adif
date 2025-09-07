@@ -87,12 +87,12 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 
 	// Verify
 	if firstDoc.Header != nil {
-		if len(firstDoc.Header) != len(secondDoc.Header) {
-			t.Errorf("header length mismatch: got %d, want %d", len(secondDoc.Header), len(firstDoc.Header))
+		if firstDoc.Header.Count() != secondDoc.Header.Count() {
+			t.Errorf("header length mismatch: got %d, want %d", secondDoc.Header.Count(), firstDoc.Header.Count())
 		}
-		for field := range firstDoc.Header {
-			if (firstDoc.Header)[field] != (secondDoc.Header)[field] {
-				t.Errorf("header field %q mismatch: got %v, want %v", field, (secondDoc.Header)[field], (firstDoc.Header)[field])
+		for _, field := range firstDoc.Header.Fields() {
+			if firstDoc.Header.Get(field) != secondDoc.Header.Get(field) {
+				t.Errorf("header field %q mismatch: got %v, want %v", field, secondDoc.Header.Get(field), firstDoc.Header.Get(field))
 			}
 		}
 	}
@@ -101,12 +101,12 @@ func parseExportParseVerifyHelper(t *testing.T, adif string) {
 		t.Errorf("records length mismatch: got %d, want %d", len(secondDoc.Records), len(firstDoc.Records))
 	}
 	for r := range firstDoc.Records {
-		if len(firstDoc.Records[r]) != len(secondDoc.Records[r]) {
-			t.Errorf("record %d fields length mismatch: got %d, want %d", r, len(secondDoc.Records[r]), len(firstDoc.Records[r]))
+		if firstDoc.Records[r].Count() != secondDoc.Records[r].Count() {
+			t.Errorf("record %d fields length mismatch: got %d, want %d", r, secondDoc.Records[r].Count(), firstDoc.Records[r].Count())
 		}
-		for field := range firstDoc.Records[r] {
-			if firstDoc.Records[r][field] != secondDoc.Records[r][field] {
-				t.Errorf("record %d field %q mismatch: got %v, want %v", r, field, secondDoc.Records[r][field], firstDoc.Records[r][field])
+		for _, field := range firstDoc.Records[r].Fields() {
+			if firstDoc.Records[r].Get(field) != secondDoc.Records[r].Get(field) {
+				t.Errorf("record %d field %q mismatch: got %v, want %v", r, field, secondDoc.Records[r].Get(field), firstDoc.Records[r].Get(field))
 			}
 		}
 	}

@@ -39,7 +39,7 @@ func TestVerifyRecordCount(t *testing.T) {
 				if err == io.EOF {
 					break
 				}
-				if qso == nil {
+				if qso.r == nil {
 					t.Fatal("Expected non-nil QSO")
 				}
 				if err != nil {
@@ -113,14 +113,14 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			var index = 0
 			if tt.hasHeader {
-				if records[0][adifield.PROGRAMID] != "TEST" {
-					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0][adifield.PROGRAMID])
+				if records[0].r[adifield.PROGRAMID] != "TEST" {
+					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0].r[adifield.PROGRAMID])
 				}
 				index++
 			}
 
-			if records[index][adifield.CALL] != "W9PVA" {
-				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index][adifield.CALL])
+			if records[index].r[adifield.CALL] != "W9PVA" {
+				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index].r[adifield.CALL])
 			}
 		})
 	}
@@ -137,11 +137,11 @@ func TestParseWithMissingEOR(t *testing.T) {
 	}
 
 	expectedFields := 1
-	if len(qso) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
+	if len(qso.r) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.r))
 	}
-	if qso[adifield.CALL] != "W9PVA" {
-		t.Errorf("Expected CALL 'W9PVA', got %s", qso[adifield.CALL])
+	if qso.r[adifield.CALL] != "W9PVA" {
+		t.Errorf("Expected CALL 'W9PVA', got %s", qso.r[adifield.CALL])
 	}
 }
 
@@ -155,11 +155,11 @@ func TestParseWithMissingEOH(t *testing.T) {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
 	expectedFields := 1
-	if len(qso) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
+	if len(qso.r) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.r))
 	}
-	if qso[adifield.ADIF_VER] != "3.1.5" {
-		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso[adifield.ADIF_VER])
+	if qso.r[adifield.ADIF_VER] != "3.1.5" {
+		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.r[adifield.ADIF_VER])
 	}
 }
 
@@ -172,7 +172,7 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	val := qso["APP_LOTW_2XQSL"]
+	val := qso.r["APP_LOTW_2XQSL"]
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
 	}
@@ -194,7 +194,7 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
-	val := qso["APP_LOTW_EOF"]
+	val := qso.r["APP_LOTW_EOF"]
 	if val != "" {
 		t.Errorf("Expected empty string, got %s", val)
 	}
@@ -256,7 +256,7 @@ func TestParseNoRecords(t *testing.T) {
 			qso, _, _, err := p.Next()
 
 			// Assert
-			if len(qso) != 0 {
+			if len(qso.r) != 0 {
 				t.Errorf("Expected empty QSO, got %v", qso)
 			}
 
@@ -317,8 +317,8 @@ func TestParseSingleRecord(t *testing.T) {
 				}
 			}
 
-			if qso[adifield.ADIField(tt.fieldName)] != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso[adifield.ADIField(tt.fieldName)])
+			if qso.r[adifield.ADIField(tt.fieldName)] != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.r[adifield.ADIField(tt.fieldName)])
 			}
 
 			if isHeader != tt.isHeaderRecord {
@@ -342,18 +342,18 @@ func TestParseSkipHeader(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.PROGRAMID] != "" {
-		t.Errorf("Expected empty PROGRAMID, got %s", record[adifield.PROGRAMID])
+	if record.r[adifield.PROGRAMID] != "" {
+		t.Errorf("Expected empty PROGRAMID, got %s", record.r[adifield.PROGRAMID])
 	}
-	if record[adifield.COMMENT] != "GOOD" {
-		t.Errorf("Expected COMMENT 'GOOD', got %s", record[adifield.COMMENT])
+	if record.r[adifield.COMMENT] != "GOOD" {
+		t.Errorf("Expected COMMENT 'GOOD', got %s", record.r[adifield.COMMENT])
 	}
 
 	recordTwo, _, _, errTwo := p.Next()
 	if errTwo != io.EOF {
 		t.Errorf("Expected EOF error, got %v", errTwo)
 	}
-	if len(recordTwo) != 0 {
+	if len(recordTwo.r) != 0 {
 		t.Errorf("Expected empty record, got %v", recordTwo)
 	}
 }
@@ -374,8 +374,8 @@ func TestParseLongFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.ADIField(fieldName)] != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record[adifield.ADIField(fieldName)])
+	if record.r[adifield.ADIField(fieldName)] != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.r[adifield.ADIField(fieldName)])
 	}
 }
 
@@ -391,8 +391,8 @@ func TestParseLargeData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
-		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record[adifield.COMMENT])
+	if record.r[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
+		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record.r[adifield.COMMENT])
 	}
 }
 
@@ -408,7 +408,7 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	if err != ErrInvalidFieldLength {
 		t.Errorf("Expected ErrInvalidFieldLength error, got %v", err)
 	}
-	if record[adifield.COMMENT] != "" {
-		t.Errorf("Expected empty string, got %s", record[adifield.COMMENT])
+	if record.r[adifield.COMMENT] != "" {
+		t.Errorf("Expected empty string, got %s", record.r[adifield.COMMENT])
 	}
 }

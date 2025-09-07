@@ -11,11 +11,11 @@ import (
 
 var qsoWithLou = func() *Record {
 	qso := NewRecordWithCapacity(5)
-	qso[adifield.CALL] = "W9PVA"
-	qso[adifield.RST_RCVD] = "58"
-	qso[adifield.RST_SENT] = "59"
-	qso[adifield.COMMENT] = "Eyeball QSO 👀"
-	qso[adifield.QSO_DATE] = "" // empty on purpose to test zero length field
+	qso.Set(adifield.CALL, "W9PVA")
+	qso.Set(adifield.RST_RCVD, "58")
+	qso.Set(adifield.RST_SENT, "59")
+	qso.Set(adifield.COMMENT, "Eyeball QSO 👀")
+	qso.Set(adifield.QSO_DATE, "") // empty on purpose to test zero length field
 	return &qso
 }()
 
@@ -110,9 +110,9 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 	// Arrange
 	var size = rand.Intn(10000000) + (1024 * 50)
 	var qso = NewRecord()
-	qso[adifield.PROGRAMID] = "HamRadioLog.Net"
-	qso[adifield.PROGRAMVERSION] = strings.Repeat("1", size)
-	qso[adifield.ADIF_VER] = spec.ADIF_VER
+	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
+	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
+	qso.Set(adifield.ADIF_VER, spec.ADIF_VER)
 
 	adiLength := qso.appendAsADIPreCalculate()
 	buf := make([]byte, 0, adiLength)
@@ -142,8 +142,8 @@ func TestWriteTo(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 	expectedFields := 5
-	if len(qso) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
+	if qso.Count() != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, qso.Count())
 	}
 
 	expectedLength := 86
@@ -160,7 +160,7 @@ func TestReadFrom(t *testing.T) {
 	qso.ReadFrom(strings.NewReader(testADIFSingleRecord))
 
 	expected := 32
-	if len(qso) != expected {
-		t.Errorf("Expected %d fields, got %d", expected, len(qso))
+	if qso.Count() != expected {
+		t.Errorf("Expected %d fields, got %d", expected, qso.Count())
 	}
 }

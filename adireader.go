@@ -78,7 +78,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 
 		switch field {
 		case adifield.EOH:
-			if len(result) > 0 {
+			if len(result.r) > 0 {
 				if !p.skipHeader {
 					return result, true, n, nil
 				}
@@ -89,9 +89,9 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 			}
 			continue
 		case adifield.EOR:
-			if len(result) > 0 {
-				if len(result) > p.preAllocateFields {
-					p.preAllocateFields = len(result)
+			if len(result.r) > 0 {
+				if len(result.r) > p.preAllocateFields {
+					p.preAllocateFields = len(result.r)
 				}
 				return result, false, n, nil
 			}
@@ -100,7 +100,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		result[field] = value
+		result.r[field] = value
 	}
 }
 
