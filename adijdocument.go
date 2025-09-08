@@ -6,7 +6,7 @@ import "github.com/hamradiolog-net/adif-spec/v6/adifield"
 // This may be used directly with the encoding/json package to marshal or unmarshal ADIJ data.
 type ADIJDocument struct {
 	// Header is nil when there is no header.
-	// Otherwise it will be a Record with header fields inside.
+	// Otherwise it is a Record with header fields inside.
 	Header map[adifield.ADIField]string `json:"HEADER,omitempty"`
 
 	// Records is a slice of Record.
