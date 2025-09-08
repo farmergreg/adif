@@ -3,12 +3,12 @@ package adif
 import "errors"
 
 // fakeFailWriter is a writer that fails after writing a certain number of bytes
-type fakeFailWriter struct {
+type mockFailWriter struct {
 	maxBytes int
 	written  int
 }
 
-func (fw *fakeFailWriter) Write(p []byte) (n int, err error) {
+func (fw *mockFailWriter) Write(p []byte) (n int, err error) {
 	if fw.written >= fw.maxBytes {
 		return 0, errors.New("write failed: max bytes exceeded")
 	}

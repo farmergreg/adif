@@ -65,7 +65,7 @@ func TestADIWriteWriterError(t *testing.T) {
 	qso2 := NewADIRecord()
 	qso2.Set(adifield.CALL, "W1AW")
 
-	fw := &fakeFailWriter{maxBytes: expectedBytes}
+	fw := &mockFailWriter{maxBytes: expectedBytes}
 	w := NewADIWriter(fw)
 
 	err := w.Write([]ADIFRecord{qso1, qso2})
@@ -101,7 +101,7 @@ func TestAppendAsADIPreCalculate(t *testing.T) {
 }
 
 func TestAppendAsAdifNoLength(t *testing.T) {
-	qso := &fakeADIFRecord{}
+	qso := &mockADIFRecord{}
 	len := appendADIFRecordAsADIPreCalculate(qso)
 	if len != 6 {
 		// <EOR>\n = 6 bytes
