@@ -9,14 +9,6 @@ import (
 	"github.com/hamradiolog-net/adif-spec/v6/spec"
 )
 
-func TestNewADIWriter(t *testing.T) {
-	sb := &strings.Builder{}
-	writer := NewADIWriter(sb)
-	if writer == nil {
-		t.Error("Expected non-nil writer")
-	}
-}
-
 func TestADIWriterWrite(t *testing.T) {
 	hdr := NewADIRecord()
 	hdr.SetIsHeader(true)
@@ -27,16 +19,16 @@ func TestADIWriterWrite(t *testing.T) {
 	qso := NewADIRecord()
 	qso.Set(adifield.CALL, "K9CTS")
 
-	qso2 := NewADIRecord()
+	qso1 := NewADIRecord()
 
 	sb := &strings.Builder{}
-	w := NewADIWriter(sb)
-	err := w.Write([]ADIFRecord{hdr, qso, qso2})
+	w := NewADIWriterWithPreamble(sb, "")
+	err := w.Write([]ADIFRecord{hdr, qso, qso1})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expectedADIF := adiHeaderPreamble + "<ADIF_VER:5>3.1.4<PROGRAMID:15>HamRadioLog.Net<PROGRAMVERSION:5>1.0.0<EOH>\n<CALL:5>K9CTS<EOR>\n"
+	expectedADIF := "\n<ADIF_VER:5>3.1.4<PROGRAMID:15>HamRadioLog.Net<PROGRAMVERSION:5>1.0.0<EOH>\n<CALL:5>K9CTS<EOR>\n"
 	if sb.String() != expectedADIF {
 		t.Errorf("Expected '%s', got '%s'", expectedADIF, sb.String())
 	}

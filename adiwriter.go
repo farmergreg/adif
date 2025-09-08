@@ -77,10 +77,10 @@ func NewADIWriter(w io.Writer) *adiWriter {
 }
 
 // NewADIWriterWithPreamble returns an ADIFRecordWriter that can write ADIF *.adi formatted records with a custom preamble for header records.
-func NewADIWriterWithPreamble(w io.Writer, eohPreamble string) *adiWriter {
+func NewADIWriterWithPreamble(w io.Writer, adiPreamble string) *adiWriter {
 	return &adiWriter{
 		w:              w,
-		headerPreamble: eohPreamble,
+		headerPreamble: adiPreamble,
 	}
 }
 
@@ -88,7 +88,7 @@ func (w *adiWriter) Write(r []ADIFRecord) error {
 	if len(r) > 0 && r[0].IsHeader() {
 		if w.headerPreamble == "" {
 			// preamble is mandatory per the ADIF specification.
-			w.w.Write([]byte{' '})
+			w.w.Write([]byte{'\n'})
 		} else {
 			w.w.Write([]byte(w.headerPreamble))
 		}
