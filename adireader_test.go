@@ -35,7 +35,7 @@ func TestVerifyRecordCount(t *testing.T) {
 			p := NewADIReader(reader, true)
 			count := 0
 			for {
-				_, _, err := p.Next()
+				_, err := p.Next()
 				if err == io.EOF {
 					break
 				}
@@ -90,7 +90,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			records := make([]ADIFRecord, 0, 10000)
 			for {
-				record, _, err := p.Next()
+				record, err := p.Next()
 				if err == io.EOF {
 					break
 				}
@@ -127,7 +127,7 @@ func TestParseWithMissingEOR(t *testing.T) {
 	raw := "<CaLL:5>W9PVA"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, _, err := p.Next()
+	qso, err := p.Next()
 
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
@@ -146,7 +146,7 @@ func TestParseWithMissingEOH(t *testing.T) {
 	raw := "<ADIF_VER:5>3.1.5"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, _, err := p.Next()
+	qso, err := p.Next()
 
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
@@ -164,7 +164,7 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, bytesRead, err := p.Next()
+	qso, err := p.Next()
 
 	if err != nil {
 		t.Fatal(err)
@@ -172,10 +172,6 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	val := qso.Get("APP_LOTW_2XQSL")
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
-	}
-	expectedBytesRead := int64(len(raw))
-	if bytesRead != expectedBytesRead {
-		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -185,7 +181,7 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	p := NewADIReader(strings.NewReader(raw), false)
 
 	// Act
-	qso, bytesRead, err := p.Next()
+	qso, err := p.Next()
 
 	// Assert
 	if err != io.EOF {
@@ -194,10 +190,6 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	val := qso.Get("APP_LOTW_EOF")
 	if val != "" {
 		t.Errorf("Expected empty string, got %s", val)
-	}
-	expectedBytesRead := int64(len(raw))
-	if bytesRead != expectedBytesRead {
-		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -250,7 +242,7 @@ func TestParseNoRecords(t *testing.T) {
 			p := NewADIReader(strings.NewReader(tt.data), false)
 
 			// Act
-			qso, _, err := p.Next()
+			qso, err := p.Next()
 
 			// Assert
 			if len(qso.Fields()) != 0 {
@@ -303,7 +295,7 @@ func TestParseSingleRecord(t *testing.T) {
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
 			p := NewADIReader(br, false)
 
-			qso, bytesRead, err := p.Next()
+			qso, err := p.Next()
 			if tt.isExpectEOF {
 				if err != io.EOF {
 					t.Errorf("Expected EOF error, got %v", err)
@@ -321,10 +313,6 @@ func TestParseSingleRecord(t *testing.T) {
 			if qso.IsHeader() != tt.isHeaderRecord {
 				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, qso.IsHeader())
 			}
-			expectedBytesRead := int64(len(tt.adifSource))
-			if bytesRead != expectedBytesRead {
-				t.Errorf("Expected %d bytes read, got %d", expectedBytesRead, bytesRead)
-			}
 		})
 	}
 }
@@ -335,7 +323,7 @@ func TestParseSkipHeader(t *testing.T) {
 	p := NewADIReader(strings.NewReader(adif), true)
 
 	// Act & Assert
-	record, _, err := p.Next()
+	record, err := p.Next()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -346,7 +334,7 @@ func TestParseSkipHeader(t *testing.T) {
 		t.Errorf("Expected COMMENT 'GOOD', got %s", record.Get(adifield.COMMENT))
 	}
 
-	recordTwo, _, errTwo := p.Next()
+	recordTwo, errTwo := p.Next()
 	if errTwo != io.EOF {
 		t.Errorf("Expected EOF error, got %v", errTwo)
 	}
@@ -364,8 +352,8 @@ func TestParseLongFieldName(t *testing.T) {
 	p := NewADIReader(strings.NewReader(adif), false)
 
 	// Act
-	record, _, err := p.Next()
-	_, _, _ = p.Next()
+	record, err := p.Next()
+	_, _ = p.Next()
 
 	// Assert
 	if err != nil {
@@ -381,8 +369,8 @@ func TestParseLargeData(t *testing.T) {
 	p := NewADIReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
 
 	// Act
-	record, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
+	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
+	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
 	if err != nil {
@@ -398,8 +386,8 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	p := NewADIReader(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
 
 	// Act
-	record, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
+	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
+	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
 	if err != ErrAdiReaderInvalidFieldLength {

@@ -42,7 +42,7 @@ func ExampleNewADIJReader() {
 
 	// Read all records and collect them
 	for {
-		record, _, err := reader.Next()
+		record, err := reader.Next()
 		if err != nil {
 			break // EOF or other error
 		}

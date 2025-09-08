@@ -25,7 +25,7 @@ func TestADIJReader(t *testing.T) {
 	}
 
 	// Read the first (and only) record
-	record, _, err := reader.Next()
+	record, err := reader.Next()
 	if err != nil {
 		t.Fatalf("Failed to read record: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestADIJReader(t *testing.T) {
 	}
 
 	// Verify EOF is returned when no more records
-	_, _, err = reader.Next()
+	_, err = reader.Next()
 	if err != io.EOF {
 		t.Error("Expected EOF error when no more records")
 	}
@@ -74,7 +74,7 @@ func TestADIJReaderWithHeader(t *testing.T) {
 	}
 
 	// Read the header record first
-	headerRecord, _, err := reader.Next()
+	headerRecord, err := reader.Next()
 	if err != nil {
 		t.Fatalf("Failed to read header record: %v", err)
 	}
@@ -91,7 +91,7 @@ func TestADIJReaderWithHeader(t *testing.T) {
 	}
 
 	// Read the QSO record
-	qsoRecord, _, err := reader.Next()
+	qsoRecord, err := reader.Next()
 	if err != nil {
 		t.Fatalf("Failed to read QSO record: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestADIJReaderWithHeader(t *testing.T) {
 	}
 
 	// Verify EOF is returned when no more records
-	_, _, err = reader.Next()
+	_, err = reader.Next()
 	if err != io.EOF {
 		t.Error("Expected EOF error when no more records")
 	}
@@ -132,7 +132,7 @@ func TestADIJReaderSkipHeader(t *testing.T) {
 	}
 
 	// Read the first record (should be QSO, not header)
-	record, _, err := reader.Next()
+	record, err := reader.Next()
 	if err != nil {
 		t.Fatalf("Failed to read record: %v", err)
 	}
@@ -146,7 +146,7 @@ func TestADIJReaderSkipHeader(t *testing.T) {
 	}
 
 	// Verify EOF is returned when no more records
-	_, _, err = reader.Next()
+	_, err = reader.Next()
 	if err != io.EOF {
 		t.Error("Expected EOF error when no more records")
 	}
@@ -161,7 +161,7 @@ func TestADIJReaderEmpty(t *testing.T) {
 	}
 
 	// Should immediately return EOF
-	_, _, err = reader.Next()
+	_, err = reader.Next()
 	if err != io.EOF {
 		t.Error("Expected EOF error when no records")
 	}

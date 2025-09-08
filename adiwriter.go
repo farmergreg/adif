@@ -84,30 +84,26 @@ func NewADIWriterWithPreamble(w io.Writer, eohPreamble string) *adiWriter {
 	}
 }
 
-func (w *adiWriter) Write(r []ADIFRecord) (int64, error) {
-	var totalWritten int64
+func (w *adiWriter) Write(r []ADIFRecord) error {
 	if len(r) > 0 && r[0].IsHeader() {
 		if w.headerPreamble == "" {
 			// preamble is mandatory per the ADIF specification.
 			w.w.Write([]byte{' '})
-			totalWritten += 1
 		} else {
 			w.w.Write([]byte(w.headerPreamble))
-			totalWritten += int64(len(w.headerPreamble))
 		}
 	}
 
 	for _, record := range r {
-		n, err := w.writeInternal(record)
-		totalWritten += n
+		err := w.writeInternal(record)
 		if err != nil {
-			return totalWritten, err
+			return err
 		}
 	}
-	return totalWritten, nil
+	return nil
 }
 
-func (w *adiWriter) writeInternal(r ADIFRecord) (int64, error) {
+func (w *adiWriter) writeInternal(r ADIFRecord) error {
 	adiLength := appendADIFRecordAsADIPreCalculate(r)
 	bufPtr := adiWriterBufferPool.Get().(*[]byte)
 	buf := *bufPtr
@@ -119,10 +115,10 @@ func (w *adiWriter) writeInternal(r ADIFRecord) (int64, error) {
 	buf = buf[:0]
 
 	buf = appendAsADI(r, buf)
-	n, err := w.w.Write(buf)
+	_, err := w.w.Write(buf)
 
 	adiWriterBufferPool.Put(bufPtr)
-	return int64(n), err
+	return err
 }
 
 // appendAsADI writes the ADI formatted QSO record to the provided buffer.

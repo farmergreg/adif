@@ -31,12 +31,9 @@ func TestADIWriterWrite(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIWriter(sb)
-	writtenBytes, err := w.Write([]ADIFRecord{hdr, qso, qso2})
+	err := w.Write([]ADIFRecord{hdr, qso, qso2})
 	if err != nil {
 		t.Fatal(err)
-	}
-	if writtenBytes != int64(len(sb.String())) {
-		t.Errorf("Expected written bytes %d, got %d", len(sb.String()), writtenBytes)
 	}
 
 	expectedADIF := adiHeaderPreamble + "<ADIF_VER:5>3.1.4<PROGRAMID:15>HamRadioLog.Net<PROGRAMVERSION:5>1.0.0<EOH>\n<CALL:5>K9CTS<EOR>\n"
@@ -53,7 +50,7 @@ func TestADIWrite_BigRecord(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIWriter(sb)
-	_, err := w.Write([]ADIFRecord{qso})
+	err := w.Write([]ADIFRecord{qso})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,16 +68,11 @@ func TestADIWriteWriterError(t *testing.T) {
 	fw := &fakeFailWriter{maxBytes: expectedBytes}
 	w := NewADIWriter(fw)
 
-	n, err := w.Write([]ADIFRecord{qso1, qso2})
+	err := w.Write([]ADIFRecord{qso1, qso2})
 	if err == nil {
 		t.Fatal("Expected error but got none")
 	}
 
-	if n != int64(expectedBytes) {
-		t.Error("Expected non-zero bytes written before error")
-	}
-
-	t.Logf("Bytes written before error: %d", n)
 	t.Logf("Error: %v", err)
 }
 

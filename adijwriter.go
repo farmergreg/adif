@@ -18,7 +18,7 @@ func NewADIJWriter(w io.Writer) *adijWriter {
 	return &adijWriter{w: w}
 }
 
-func (aw *adijWriter) Write(records []ADIFRecord) (n int64, err error) {
+func (aw *adijWriter) Write(records []ADIFRecord) error {
 	doc := &ADIJDocument{}
 	if len(records) > 0 && records[0].IsHeader() {
 		doc.Header = adijRecordToMap(records[0])
@@ -31,12 +31,12 @@ func (aw *adijWriter) Write(records []ADIFRecord) (n int64, err error) {
 
 	encoder := json.NewEncoder(aw.w)
 	encoder.SetIndent("", "  ")
-	err = encoder.Encode(doc)
+	err := encoder.Encode(doc)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	return nil
 }
 
 func adijRecordToMap(record ADIFRecord) map[adifield.ADIField]string {

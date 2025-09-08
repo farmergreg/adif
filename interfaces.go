@@ -16,11 +16,11 @@ type ADIFRecordReader interface {
 
 	// Next reads and returns the next Record in the input.
 	// It returns io.EOF when no more records are available.
-	Next() (record ADIFRecord, bytesRead int64, err error)
+	Next() (record ADIFRecord, err error)
 }
 
 // ADIFRecordWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
 type ADIFRecordWriter interface {
 	// Write writes a single ADIF record to the output.
-	Write(record []ADIFRecord) (bytesWritten int64, err error)
+	Write(record []ADIFRecord) error
 }
