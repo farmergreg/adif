@@ -102,7 +102,7 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 	}
 }
 
-// parseOneField reads the next field definition and returns the field name, value, and the number of bytes read.
+// parseOneField reads the next field definition and returns the field name and value
 //
 // It is heavily optimized for speed and memory use.
 // Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
@@ -170,7 +170,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	return field, "", nil
 }
 
-// readDataSpecifierVolatile reads and returns the next data specifier as a byte slice, the number of bytes read, and any error encountered.
+// readDataSpecifierVolatile reads and returns the next data specifier as a byte slice, and any error encountered.
 // The trailing '>' is removed from the returned byte slice.
 //
 // IMPORTANT:
@@ -213,7 +213,7 @@ func (p *adiReader) readDataSpecifierVolatile() (volatileSpecifier []byte, err e
 	return volatileSpecifier, nil
 }
 
-// discardUntilLessThan reads until it finds the '<' character, returning the number of bytes read
+// discardUntilLessThan reads until it finds the '<' character
 func (p *adiReader) discardUntilLessThan() (err error) {
 	for {
 		_, err = p.r.ReadSlice('<')
