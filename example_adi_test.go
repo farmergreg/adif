@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/hamradiolog-net/adif-spec/v6/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/enum/band"
+	"github.com/hamradiolog-net/adif-spec/v6/enum/mode"
 )
 
 func ExampleNewADIReader() {
@@ -45,9 +47,9 @@ func ExampleNewADIWriter() {
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
 
 	qso := NewADIRecord()
-	qso.Set(adifield.BAND, "20M")
 	qso.Set(adifield.CALL, "K9CTS")
-	qso.Set(adifield.MODE, "SSB")
+	qso.Set(adifield.BAND, band.Band20m.String())
+	qso.Set(adifield.MODE, mode.SSB.String())
 
 	writer.Write([]ADIFRecord{hdr, qso})
 
@@ -59,5 +61,5 @@ func ExampleNewADIWriter() {
 	// https://github.com/hamradiolog-net/adif-parser
 	//
 	// <CREATED_TIMESTAMP:15>20250907 212700<EOH>
-	// <BAND:3>20M<MODE:3>SSB<CALL:5>K9CTS<EOR>
+	// <BAND:3>20m<MODE:3>SSB<CALL:5>K9CTS<EOR>
 }

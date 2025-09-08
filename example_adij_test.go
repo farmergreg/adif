@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/hamradiolog-net/adif-spec/v6/adifield"
+	"github.com/hamradiolog-net/adif-spec/v6/enum/band"
+	"github.com/hamradiolog-net/adif-spec/v6/enum/mode"
 )
 
 // ExampleNewADIJReader demonstrates how to read ADIJ JSON document using NewADIJReader.
@@ -76,9 +78,9 @@ func ExampleNewADIJWriter() {
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
 
 	qso := NewADIRecord()
-	qso.Set(adifield.BAND, "20M")
 	qso.Set(adifield.CALL, "K9CTS")
-	qso.Set(adifield.MODE, "SSB")
+	qso.Set(adifield.BAND, band.Band20m.String())
+	qso.Set(adifield.MODE, mode.SSB.String())
 
 	writer.Write([]ADIFRecord{hdr, qso})
 
@@ -91,7 +93,7 @@ func ExampleNewADIJWriter() {
 	//   },
 	//   "RECORDS": [
 	//     {
-	//       "BAND": "20M",
+	//       "BAND": "20m",
 	//       "CALL": "K9CTS",
 	//       "MODE": "SSB"
 	//     }
