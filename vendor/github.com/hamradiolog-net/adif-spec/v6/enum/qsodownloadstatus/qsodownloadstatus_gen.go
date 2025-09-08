@@ -4,35 +4,73 @@
 // Package qsodownloadstatus provides code and constants as defined in ADIF 3.1.6 (Proposed)
 package qsodownloadstatus
 
+import "sync"
+
 const (
 	I QSODownloadStatus = "I" // I = ignore or invalid
 	N QSODownloadStatus = "N" // N = the QSO has not been downloaded from the online service
 	Y QSODownloadStatus = "Y" // Y = the QSO has been downloaded from the online service
 )
 
-// A map of all QSODownloadStatus specifications.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSODownloadStatusMap = map[QSODownloadStatus]Spec{
-	I: {IsImportOnly: false, Key: "I", Description: "ignore or invalid"},
-	N: {IsImportOnly: false, Key: "N", Description: "the QSO has not been downloaded from the online service"},
-	Y: {IsImportOnly: false, Key: "Y", Description: "the QSO has been downloaded from the online service"},
+var (
+	listActive     []Spec    // listActive is a cached copy of the active specifications (those not marked as import-only).
+	listActiveOnce sync.Once // listActive is lazy loaded instead of utilizing an init() function. This allows the compiler to remove unused data / variables.
+)
+
+// lookupList contains all known QSODownloadStatus specifications.
+var lookupList = []Spec{
+	{IsImportOnly: false, Key: "I", Description: "ignore or invalid"},
+	{IsImportOnly: false, Key: "N", Description: "the QSO has not been downloaded from the online service"},
+	{IsImportOnly: false, Key: "Y", Description: "the QSO has been downloaded from the online service"},
 }
 
-// All QSODownloadStatus specifications including deprecated and import only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSODownloadStatusListAll = []Spec{
-	QSODownloadStatusMap[I],
-	QSODownloadStatusMap[N],
-	QSODownloadStatusMap[Y],
+// lookupMap contains all known QSODownloadStatus specifications.
+var lookupMap = map[QSODownloadStatus]*Spec{
+	I: &lookupList[0],
+	N: &lookupList[1],
+	Y: &lookupList[2],
 }
 
-// All QSODownloadStatus specifications that are NOT marked import-only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSODownloadStatusListCurrent = []Spec{
-	QSODownloadStatusMap[I],
-	QSODownloadStatusMap[N],
-	QSODownloadStatusMap[Y],
+// Lookup returns the specification for the provided QSODownloadStatus.
+// ADIF 3.1.6
+func Lookup(qsodownloadstatus QSODownloadStatus) (Spec, bool) {
+	spec, ok := lookupMap[qsodownloadstatus]
+	if !ok {
+		return Spec{}, false
+	}
+	return *spec, true
+}
+
+// LookupByFilter returns all QSODownloadStatus specifications that match the provided filter function.
+// ADIF 3.1.6
+func LookupByFilter(filter func(Spec) bool) []Spec {
+	result := make([]Spec, 0, len(lookupList))
+	for _, v := range lookupList {
+		if filter(v) {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// List returns all QSODownloadStatus specifications.
+// This list includes those marked import-only.
+// ADIF 3.1.6
+func List() []Spec {
+	list := make([]Spec, len(lookupList))
+	copy(list, lookupList)
+	return list
+}
+
+// ListActive returns QSODownloadStatus specifications.
+// This list excludes those marked as import-only.
+// ADIF 3.1.6
+func ListActive() []Spec {
+	listActiveOnce.Do(func() {
+		listActive = LookupByFilter(func(spec Spec) bool { return !bool(spec.IsImportOnly) })
+	})
+
+	result := make([]Spec, len(listActive))
+	copy(result, listActive)
+	return result
 }

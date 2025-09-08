@@ -29,8 +29,8 @@ type Spec struct {
 	UpperFreqMHz MHz  `json:"Upper Freq (MHz)"`
 }
 
-func (s Spec) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForEnum {
-	return codegen.CodeGeneratorMetadataForEnum{
+func (s Spec) CodeGenMetadata() codegen.CodeGenEnumMetadata {
+	return codegen.CodeGenEnumMetadata{
 		ConstName:     codegen.ToGoIdentifier("Band" + string(s.Key)),
 		ConstValue:    strconv.QuoteToASCII(string(s.Key)),
 		ConstComments: fmt.Sprintf("%-6s = %12.4f MHz to %12.4f MHz", s.Key, s.LowerFreqMHz, s.UpperFreqMHz),
@@ -38,16 +38,16 @@ func (s Spec) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForEnum {
 	}
 }
 
-func (c SpecMapContainer) CodeGeneratorRecords() map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec {
-	result := make(map[codegen.CodeGeneratorEnumValue]codegen.CodeGenSpec, len(c.Records))
+func (c SpecMapContainer) CodeGenRecords() map[codegen.CodeGenKey]codegen.CodeGenSpec {
+	result := make(map[codegen.CodeGenKey]codegen.CodeGenSpec, len(c.Records))
 	for k, v := range c.Records {
 		result[k] = v
 	}
 	return result
 }
 
-func (c SpecMapContainer) CodeGeneratorMetadata() codegen.CodeGeneratorMetadataForContainer {
-	return codegen.CodeGeneratorMetadataForContainer{
+func (c SpecMapContainer) CodeGenMetadata() codegen.CodeGenContainerMetadata {
+	return codegen.CodeGenContainerMetadata{
 		PackageName: "band",
 		DataType:    "Band",
 	}
@@ -60,12 +60,12 @@ func (s *Spec) IsInBand(mhz float64) bool {
 
 // FindBandByMHz returns the band specification that contains the given MHz value, if any.
 func FindBandByMHz(mhz float64) (Spec, bool) {
-	for _, item := range BandListAll {
+	for _, item := range ListActive() {
 		if item.IsInBand(mhz) {
 			return item, true
 		}
 	}
-	return Spec{}, false // Not found.
+	return Spec{}, false
 }
 
 // Bandwidth returns the width of the frequency range in MHz
