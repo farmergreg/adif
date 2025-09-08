@@ -1,6 +1,11 @@
 package adif
 
-import "errors"
+import (
+	"errors"
+	"io"
+)
+
+var _ = (io.Writer)(&mockFailWriter{})
 
 // fakeFailWriter is a writer that fails after writing a certain number of bytes
 type mockFailWriter struct {

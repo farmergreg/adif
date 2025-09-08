@@ -397,3 +397,15 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 		t.Errorf("Expected empty string, got %s", record.Get(adifield.COMMENT))
 	}
 }
+
+func TestReadDataSpecifierVolatileRetunsError(t *testing.T) {
+	mockReader := &mockFailReader{
+		maxBytes:    5,
+		backingData: []byte("<COMMENT:10>" + strings.Repeat("1", 10) + "<EOR>"),
+	}
+	rdr := NewADIReader(mockReader, false)
+	_, err := rdr.Next()
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+}
