@@ -19,7 +19,7 @@ func NewADIJWriter(w io.Writer) *adijWriter {
 }
 
 func (aw *adijWriter) Write(records []ADIFRecord) error {
-	doc := &ADIJDocument{}
+	doc := &adifDocument{}
 	if len(records) > 0 && records[0].IsHeader() {
 		doc.Header = adijRecordToMap(records[0])
 		records = records[1:]

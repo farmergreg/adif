@@ -11,7 +11,7 @@ var _ ADIFRecordReader = (*adijReader)(nil)
 
 // adijReader implements ADIFRecordReader for reading ADIF records in ADIJ format.
 type adijReader struct {
-	document     *ADIJDocument
+	document     *adifDocument
 	currentIndex int
 	skipHeader   bool
 }
@@ -20,7 +20,7 @@ type adijReader struct {
 // If skipHeader is true, Next() will not return the header record if it exists.
 func NewADIJReader(r io.Reader, skipHeader bool) (*adijReader, error) {
 	decoder := json.NewDecoder(r)
-	var doc ADIJDocument
+	var doc adifDocument
 	err := decoder.Decode(&doc)
 	if err != nil {
 		return nil, err
