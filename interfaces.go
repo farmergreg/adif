@@ -21,6 +21,6 @@ type ADIFRecordReader interface {
 
 // ADIFRecordWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
 type ADIFRecordWriter interface {
-	// Write writes a single ADIF record to the output.
+	// Write writes ADIF records to the output.
 	Write(record []ADIFRecord) error
 }
