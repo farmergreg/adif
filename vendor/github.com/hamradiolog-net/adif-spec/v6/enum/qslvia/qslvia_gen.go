@@ -4,6 +4,8 @@
 // Package qslvia provides code and constants as defined in ADIF 3.1.6 (Proposed)
 package qslvia
 
+import "sync"
+
 const (
 	B QSLVia = "B" // B = bureau
 	D QSLVia = "D" // D = direct
@@ -11,31 +13,67 @@ const (
 	M QSLVia = "M" // Deprecated: M = manager
 )
 
-// A map of all QSLVia specifications.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSLViaMap = map[QSLVia]Spec{
-	B: {IsImportOnly: false, Key: "B", Description: "bureau"},
-	D: {IsImportOnly: false, Key: "D", Description: "direct"},
-	E: {IsImportOnly: false, Key: "E", Description: "electronic"},
-	M: {IsImportOnly: true, Key: "M", Description: "manager"},
+var (
+	listActive     []Spec    // listActive is a cached copy of the active specifications (those not marked as import-only).
+	listActiveOnce sync.Once // listActive is lazy loaded instead of utilizing an init() function. This allows the compiler to remove unused data / variables.
+)
+
+// lookupList contains all known QSLVia specifications.
+var lookupList = []Spec{
+	{IsImportOnly: false, Key: "B", Description: "bureau"},
+	{IsImportOnly: false, Key: "D", Description: "direct"},
+	{IsImportOnly: false, Key: "E", Description: "electronic"},
+	{IsImportOnly: true, Key: "M", Description: "manager"},
 }
 
-// All QSLVia specifications including deprecated and import only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSLViaListAll = []Spec{
-	QSLViaMap[B],
-	QSLViaMap[D],
-	QSLViaMap[E],
-	QSLViaMap[M],
+// lookupMap contains all known QSLVia specifications.
+var lookupMap = map[QSLVia]*Spec{
+	B: &lookupList[0],
+	D: &lookupList[1],
+	E: &lookupList[2],
+	M: &lookupList[3],
 }
 
-// All QSLVia specifications that are NOT marked import-only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var QSLViaListCurrent = []Spec{
-	QSLViaMap[B],
-	QSLViaMap[D],
-	QSLViaMap[E],
+// Lookup returns the specification for the provided QSLVia.
+// ADIF 3.1.6
+func Lookup(qslvia QSLVia) (Spec, bool) {
+	spec, ok := lookupMap[qslvia]
+	if !ok {
+		return Spec{}, false
+	}
+	return *spec, true
+}
+
+// LookupByFilter returns all QSLVia specifications that match the provided filter function.
+// ADIF 3.1.6
+func LookupByFilter(filter func(Spec) bool) []Spec {
+	result := make([]Spec, 0, len(lookupList))
+	for _, v := range lookupList {
+		if filter(v) {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// List returns all QSLVia specifications.
+// This list includes those marked import-only.
+// ADIF 3.1.6
+func List() []Spec {
+	list := make([]Spec, len(lookupList))
+	copy(list, lookupList)
+	return list
+}
+
+// ListActive returns QSLVia specifications.
+// This list excludes those marked as import-only.
+// ADIF 3.1.6
+func ListActive() []Spec {
+	listActiveOnce.Do(func() {
+		listActive = LookupByFilter(func(spec Spec) bool { return !bool(spec.IsImportOnly) })
+	})
+
+	result := make([]Spec, len(listActive))
+	copy(result, listActive)
+	return result
 }

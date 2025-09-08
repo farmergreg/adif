@@ -4,6 +4,8 @@
 // Package award provides code and constants as defined in ADIF 3.1.6 (Proposed)
 package award
 
+import "sync"
+
 const (
 	AJA         Award = "AJA"         // Deprecated: AJA
 	CQDX        Award = "CQDX"        // Deprecated: CQDX
@@ -36,77 +38,117 @@ const (
 	WAZ         Award = "WAZ"         // Deprecated: WAZ
 )
 
-// A map of all Award specifications.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var AwardMap = map[Award]Spec{
-	AJA:         {IsImportOnly: true, Key: "AJA"},
-	CQDX:        {IsImportOnly: true, Key: "CQDX"},
-	CQDXFIELD:   {IsImportOnly: true, Key: "CQDXFIELD"},
-	CQWAZ_160m:  {IsImportOnly: true, Key: "CQWAZ_160m"},
-	CQWAZ_CW:    {IsImportOnly: true, Key: "CQWAZ_CW"},
-	CQWAZ_MIXED: {IsImportOnly: true, Key: "CQWAZ_MIXED"},
-	CQWAZ_PHONE: {IsImportOnly: true, Key: "CQWAZ_PHONE"},
-	CQWAZ_RTTY:  {IsImportOnly: true, Key: "CQWAZ_RTTY"},
-	CQWPX:       {IsImportOnly: true, Key: "CQWPX"},
-	DARC_DOK:    {IsImportOnly: true, Key: "DARC_DOK"},
-	DXCC:        {IsImportOnly: true, Key: "DXCC"},
-	DXCC_CW:     {IsImportOnly: true, Key: "DXCC_CW"},
-	DXCC_MIXED:  {IsImportOnly: true, Key: "DXCC_MIXED"},
-	DXCC_PHONE:  {IsImportOnly: true, Key: "DXCC_PHONE"},
-	DXCC_RTTY:   {IsImportOnly: true, Key: "DXCC_RTTY"},
-	IOTA:        {IsImportOnly: true, Key: "IOTA"},
-	JCC:         {IsImportOnly: true, Key: "JCC"},
-	JCG:         {IsImportOnly: true, Key: "JCG"},
-	MARATHON:    {IsImportOnly: true, Key: "MARATHON"},
-	RDA:         {IsImportOnly: true, Key: "RDA"},
-	USACA:       {IsImportOnly: true, Key: "USACA"},
-	VUCC:        {IsImportOnly: true, Key: "VUCC"},
-	WAB:         {IsImportOnly: true, Key: "WAB"},
-	WAC:         {IsImportOnly: true, Key: "WAC"},
-	WAE:         {IsImportOnly: true, Key: "WAE"},
-	WAIP:        {IsImportOnly: true, Key: "WAIP"},
-	WAJA:        {IsImportOnly: true, Key: "WAJA"},
-	WAS:         {IsImportOnly: true, Key: "WAS"},
-	WAZ:         {IsImportOnly: true, Key: "WAZ"},
+var (
+	listActive     []Spec    // listActive is a cached copy of the active specifications (those not marked as import-only).
+	listActiveOnce sync.Once // listActive is lazy loaded instead of utilizing an init() function. This allows the compiler to remove unused data / variables.
+)
+
+// lookupList contains all known Award specifications.
+var lookupList = []Spec{
+	{IsImportOnly: true, Key: "AJA"},
+	{IsImportOnly: true, Key: "CQDX"},
+	{IsImportOnly: true, Key: "CQDXFIELD"},
+	{IsImportOnly: true, Key: "CQWAZ_160m"},
+	{IsImportOnly: true, Key: "CQWAZ_CW"},
+	{IsImportOnly: true, Key: "CQWAZ_MIXED"},
+	{IsImportOnly: true, Key: "CQWAZ_PHONE"},
+	{IsImportOnly: true, Key: "CQWAZ_RTTY"},
+	{IsImportOnly: true, Key: "CQWPX"},
+	{IsImportOnly: true, Key: "DARC_DOK"},
+	{IsImportOnly: true, Key: "DXCC"},
+	{IsImportOnly: true, Key: "DXCC_CW"},
+	{IsImportOnly: true, Key: "DXCC_MIXED"},
+	{IsImportOnly: true, Key: "DXCC_PHONE"},
+	{IsImportOnly: true, Key: "DXCC_RTTY"},
+	{IsImportOnly: true, Key: "IOTA"},
+	{IsImportOnly: true, Key: "JCC"},
+	{IsImportOnly: true, Key: "JCG"},
+	{IsImportOnly: true, Key: "MARATHON"},
+	{IsImportOnly: true, Key: "RDA"},
+	{IsImportOnly: true, Key: "USACA"},
+	{IsImportOnly: true, Key: "VUCC"},
+	{IsImportOnly: true, Key: "WAB"},
+	{IsImportOnly: true, Key: "WAC"},
+	{IsImportOnly: true, Key: "WAE"},
+	{IsImportOnly: true, Key: "WAIP"},
+	{IsImportOnly: true, Key: "WAJA"},
+	{IsImportOnly: true, Key: "WAS"},
+	{IsImportOnly: true, Key: "WAZ"},
 }
 
-// All Award specifications including deprecated and import only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var AwardListAll = []Spec{
-	AwardMap[AJA],
-	AwardMap[CQDX],
-	AwardMap[CQDXFIELD],
-	AwardMap[CQWAZ_160m],
-	AwardMap[CQWAZ_CW],
-	AwardMap[CQWAZ_MIXED],
-	AwardMap[CQWAZ_PHONE],
-	AwardMap[CQWAZ_RTTY],
-	AwardMap[CQWPX],
-	AwardMap[DARC_DOK],
-	AwardMap[DXCC],
-	AwardMap[DXCC_CW],
-	AwardMap[DXCC_MIXED],
-	AwardMap[DXCC_PHONE],
-	AwardMap[DXCC_RTTY],
-	AwardMap[IOTA],
-	AwardMap[JCC],
-	AwardMap[JCG],
-	AwardMap[MARATHON],
-	AwardMap[RDA],
-	AwardMap[USACA],
-	AwardMap[VUCC],
-	AwardMap[WAB],
-	AwardMap[WAC],
-	AwardMap[WAE],
-	AwardMap[WAIP],
-	AwardMap[WAJA],
-	AwardMap[WAS],
-	AwardMap[WAZ],
+// lookupMap contains all known Award specifications.
+var lookupMap = map[Award]*Spec{
+	AJA:         &lookupList[0],
+	CQDX:        &lookupList[1],
+	CQDXFIELD:   &lookupList[2],
+	CQWAZ_160m:  &lookupList[3],
+	CQWAZ_CW:    &lookupList[4],
+	CQWAZ_MIXED: &lookupList[5],
+	CQWAZ_PHONE: &lookupList[6],
+	CQWAZ_RTTY:  &lookupList[7],
+	CQWPX:       &lookupList[8],
+	DARC_DOK:    &lookupList[9],
+	DXCC:        &lookupList[10],
+	DXCC_CW:     &lookupList[11],
+	DXCC_MIXED:  &lookupList[12],
+	DXCC_PHONE:  &lookupList[13],
+	DXCC_RTTY:   &lookupList[14],
+	IOTA:        &lookupList[15],
+	JCC:         &lookupList[16],
+	JCG:         &lookupList[17],
+	MARATHON:    &lookupList[18],
+	RDA:         &lookupList[19],
+	USACA:       &lookupList[20],
+	VUCC:        &lookupList[21],
+	WAB:         &lookupList[22],
+	WAC:         &lookupList[23],
+	WAE:         &lookupList[24],
+	WAIP:        &lookupList[25],
+	WAJA:        &lookupList[26],
+	WAS:         &lookupList[27],
+	WAZ:         &lookupList[28],
 }
 
-// All Award specifications that are NOT marked import-only.
-// For convenience, this data is mutable.
-// If you require immutable data, please use the specdata package.
-var AwardListCurrent = []Spec{}
+// Lookup returns the specification for the provided Award.
+// ADIF 3.1.6
+func Lookup(award Award) (Spec, bool) {
+	spec, ok := lookupMap[award]
+	if !ok {
+		return Spec{}, false
+	}
+	return *spec, true
+}
+
+// LookupByFilter returns all Award specifications that match the provided filter function.
+// ADIF 3.1.6
+func LookupByFilter(filter func(Spec) bool) []Spec {
+	result := make([]Spec, 0, len(lookupList))
+	for _, v := range lookupList {
+		if filter(v) {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// List returns all Award specifications.
+// This list includes those marked import-only.
+// ADIF 3.1.6
+func List() []Spec {
+	list := make([]Spec, len(lookupList))
+	copy(list, lookupList)
+	return list
+}
+
+// ListActive returns Award specifications.
+// This list excludes those marked as import-only.
+// ADIF 3.1.6
+func ListActive() []Spec {
+	listActiveOnce.Do(func() {
+		listActive = LookupByFilter(func(spec Spec) bool { return !bool(spec.IsImportOnly) })
+	})
+
+	result := make([]Spec, len(listActive))
+	copy(result, listActive)
+	return result
+}
