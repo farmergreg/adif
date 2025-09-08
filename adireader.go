@@ -10,7 +10,7 @@ import (
 	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
-var _ ADIFReader = (*adiReader)(nil) // Implements ADIFReader
+var _ ADIFRecordReader = (*adiReader)(nil)
 
 const (
 	// 1MB - this is the maximum size of a field value that we will accept.
@@ -59,33 +59,34 @@ func NewADIReader(r io.Reader, skipHeader bool) *adiReader {
 
 // Next reads and returns the next Record.
 // It returns io.EOF when no more records are available.
-func (p *adiReader) Next() (Record, bool, int64, error) {
-	result := NewRecordWithCapacity(p.preAllocateFields)
+func (p *adiReader) Next() (ADIFRecord, int64, error) {
+	result := NewADIRecordWithCapacity(p.preAllocateFields)
 	var n int64
 	for {
 		// Find the start of the next adi field
 		c, err := p.discardUntilLessThan()
 		n += c
 		if err != nil {
-			return result, false, n, err
+			return result, n, err
 		}
 
 		field, value, c, err := p.parseOneField()
 		n += c
 		if err != nil {
-			return result, false, n, err
+			return result, n, err
 		}
 
 		switch field {
 		case adifield.EOH:
 			if len(result.r) > 0 {
 				if !p.skipHeader {
-					return result, true, n, nil
+					result.isHeader = true
+					return result, n, nil
 				}
 
 				// we are skipping returning the EOH record (if any)
 				// reset to prepare to read the next record
-				result.Reset()
+				clear(result.r)
 			}
 			continue
 		case adifield.EOR:
@@ -93,7 +94,7 @@ func (p *adiReader) Next() (Record, bool, int64, error) {
 				if len(result.r) > p.preAllocateFields {
 					p.preAllocateFields = len(result.r)
 				}
-				return result, false, n, nil
+				return result, n, nil
 			}
 			// we know record is empty... no need to reset it
 			continue
@@ -121,7 +122,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 	// Step 2: Parse Field Name
 	volatileField, volatileLength, foundFirstColon := bytes.Cut(volatileSpecifier, []byte(":"))
 	if len(volatileField) == 0 {
-		return "", "", n, ErrMalformedADI // field name is empty
+		return "", "", n, ErrAdiReaderMalformedADI // field name is empty
 	}
 
 	// Step 2.1: field name string interning - reduce memory allocations
@@ -167,7 +168,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, n in
 			n += int64(c)
 			value = string(p.bufValue[:c])
 			if err == io.EOF {
-				return field, value, n, ErrMalformedADI
+				return field, value, n, ErrAdiReaderMalformedADI
 			}
 			return field, value, n, err
 		}
@@ -211,7 +212,7 @@ func (p *adiReader) readDataSpecifierVolatile() (volatileSpecifier []byte, n int
 		}
 
 		if err == io.EOF {
-			return volatileSpecifier, n, ErrMalformedADI
+			return volatileSpecifier, n, ErrAdiReaderMalformedADI
 		}
 
 		return volatileSpecifier, n, err
@@ -241,12 +242,12 @@ func (p *adiReader) discardUntilLessThan() (n int64, err error) {
 // parseDataLength is an optimized replacement for strconv.Atoi.
 func parseDataLength(data []byte) (value int, err error) {
 	if len(data) == 0 {
-		return 0, ErrInvalidFieldLength
+		return 0, ErrAdiReaderInvalidFieldLength
 	}
 
 	for _, b := range data {
 		if b < '0' || b > '9' {
-			return 0, ErrInvalidFieldLength
+			return 0, ErrAdiReaderInvalidFieldLength
 		}
 
 		// Parse digit, avoiding string allocations
@@ -254,7 +255,7 @@ func parseDataLength(data []byte) (value int, err error) {
 
 		// Check for overflow or too big
 		if newVal < value || newVal > maxADIReaderDataSize {
-			return 0, ErrInvalidFieldLength
+			return 0, ErrAdiReaderInvalidFieldLength
 		}
 
 		value = newVal

@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	_ "embed"
-
-	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
 func BenchmarkAllTestFiles(b *testing.B) {
@@ -23,7 +21,7 @@ func BenchmarkAllTestFiles(b *testing.B) {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
 				p := NewADIReader(reader, true)
 				for {
-					_, _, _, err := p.Next()
+					_, _, err := p.Next()
 					if err == io.EOF {
 						break
 					}
@@ -38,11 +36,11 @@ func BenchmarkAllTestFiles(b *testing.B) {
 //go:embed testdata/N3FJP-AClogAdif.adi
 var benchmarkFile string
 
-func loadTestData() []Record {
-	var qsoListNative []Record
+func loadTestData() []ADIFRecord {
+	var qsoListNative []ADIFRecord
 	p := NewADIReader(strings.NewReader(benchmarkFile), false)
 	for {
-		record, _, _, err := p.Next()
+		record, _, err := p.Next()
 		if err == io.EOF {
 			break
 		}
@@ -52,13 +50,13 @@ func loadTestData() []Record {
 }
 
 func BenchmarkReadThisLibrary(b *testing.B) {
-	var qsoList []Record
+	var qsoList []ADIFRecord
 	b.ResetTimer()
 	for b.Loop() {
-		qsoList = make([]Record, 0, 10000)
+		qsoList = make([]ADIFRecord, 0, 10000)
 		p := NewADIReader(strings.NewReader(benchmarkFile), false)
 		for {
-			q, _, _, err := p.Next()
+			q, _, err := p.Next()
 			if err == io.EOF {
 				break
 			}
@@ -77,7 +75,7 @@ func BenchmarkReadJSON(b *testing.B) {
 	}
 	jsonString := string(jsonData)
 
-	var records []Record
+	var records []adiRecord
 	var readCountJSON int
 	b.ResetTimer()
 	for b.Loop() {
@@ -98,64 +96,13 @@ func BenchmarkReadJSON(b *testing.B) {
 
 func BenchmarkWriteThisLibrary(b *testing.B) {
 	qsoListNative := loadTestData()
-	var writeCountADI int
 
 	b.ResetTimer()
 	for b.Loop() {
 		var sb strings.Builder
-		writeCountADI = 0
-		for _, qso := range qsoListNative {
-			qso.WriteTo(&sb)
-			writeCountADI++
-		}
+		w := NewADIWriter(&sb)
+		w.Write(qsoListNative)
 		_ = sb.String()
 	}
 
-	if len(qsoListNative) != writeCountADI {
-		b.Errorf("Write count mismatch: ADI %d, expected %d", writeCountADI, len(qsoListNative))
-	}
-}
-
-func BenchmarkLoTWOneRecord(b *testing.B) {
-	const oneRecord = `<APP_LoTW_OWNCALL:5>K9CTS
-<STATION_CALLSIGN:5>K9CTS
-<MY_DXCC:3>291
-<MY_COUNTRY:24>UNITED STATES OF AMERICA
-<APP_LoTW_MY_DXCC_ENTITY_STATUS:7>Current
-<MY_GRIDSQUARE:6>EN34QU
-<MY_STATE:2>WI // Wisconsin
-<MY_CNTY:9>WI,PIERCE // Pierce
-<MY_CQ_ZONE:2>04
-<MY_ITU_ZONE:2>07
-<CALL:5>N5ILQ
-<BAND:3>20M
-<FREQ:8>14.06100
-<MODE:2>CW
-<APP_LoTW_MODEGROUP:2>CW
-<QSO_DATE:8>20220602
-<APP_LoTW_RXQSO:19>2022-06-02 18:24:14 // QSO record inserted/modified at LoTW
-<TIME_ON:6>182054
-<APP_LoTW_QSO_TIMESTAMP:20>2022-06-02T18:20:54Z // QSO Date & Time; ISO-8601
-<QSL_RCVD:1>Y
-<QSLRDATE:8>20220602
-<APP_LoTW_RXQSL:19>2022-06-02 23:31:22 // QSL record matched/modified at LoTW
-<DXCC:3>291
-<COUNTRY:24>UNITED STATES OF AMERICA
-<APP_LoTW_DXCC_ENTITY_STATUS:7>Current
-<PFX:2>N5
-<APP_LoTW_2xQSL:1>Y
-<GRIDSQUARE:4>EM15
-<STATE:2>OK // Oklahoma
-<CNTY:11>OK,OKLAHOMA // Oklahoma
-<CQZ:2>04
-<ITUZ:2>07
-<eor>`
-
-	record := NewRecord()
-
-	b.ResetTimer()
-	for b.Loop() {
-		record.ReadFrom(strings.NewReader(oneRecord))
-		_ = record.r[adifield.CALL]
-	}
 }
