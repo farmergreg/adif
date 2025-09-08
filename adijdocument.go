@@ -10,6 +10,6 @@ type ADIJDocument struct {
 	Header map[adifield.ADIField]string `json:"HEADER,omitempty"`
 
 	// Records is a slice of Record.
-	// It contains one or more QSO records.
+	// It contains zero or more QSO records.
 	Records []map[adifield.ADIField]string `json:"RECORDS"`
 }
