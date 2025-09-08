@@ -4,8 +4,8 @@ import (
 	"github.com/hamradiolog-net/adif-spec/v6/adifield"
 )
 
-// adifDocument represents an ADIJ (ADIF as JSON) document.
-// This is designed to work directly with the encoding/json package to marshal / unmarshal ADIJ data.
+// adifDocument represents an ADIF document.
+// This may be used directly with the encoding/json package to marshal or unmarshal ADIJ (ADIF as JSON) data.
 type adifDocument struct {
 	// Header is nil when there is no header.
 	// Otherwise it is a Record with header fields inside.
