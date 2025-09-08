@@ -12,6 +12,8 @@ import (
 
 var _ ADIFRecordWriter = (*adiWriter)(nil)
 
+const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n    https://github.com/hamradiolog-net/adif-parser\n\n"
+
 // adiWriterPriorityFieldOrder defines the order of priority fields when writing ADIF records.
 // These fields are written first, in this order.
 var adiWriterPriorityFieldOrder = [...]adifield.ADIField{
@@ -55,6 +57,11 @@ func init() {
 
 type adiWriter struct {
 	w io.Writer
+
+	// This text will be added to the start of a file if there is a header record.
+	// To satisfy the ADIF specification which states:
+	// If the first character in an ADI file is <, it contains no Header.
+	headerPreamble string
 }
 
 var adiWriterBufferPool = sync.Pool{
@@ -64,12 +71,32 @@ var adiWriterBufferPool = sync.Pool{
 	},
 }
 
+// NewADIWriter returns an ADIFRecordWriter that can write ADIF *.adi formatted records.
 func NewADIWriter(w io.Writer) *adiWriter {
-	return &adiWriter{w: w}
+	return NewADIWriterWithPreamble(w, adiHeaderPreamble)
+}
+
+// NewADIWriterWithPreamble returns an ADIFRecordWriter that can write ADIF *.adi formatted records with a custom preamble for header records.
+func NewADIWriterWithPreamble(w io.Writer, eohPreamble string) *adiWriter {
+	return &adiWriter{
+		w:              w,
+		headerPreamble: eohPreamble,
+	}
 }
 
 func (w *adiWriter) Write(r []ADIFRecord) (int64, error) {
 	var totalWritten int64
+	if len(r) > 0 && r[0].IsHeader() {
+		if w.headerPreamble == "" {
+			// preamble is mandatory per the ADIF specification.
+			w.w.Write([]byte{' '})
+			totalWritten += 1
+		} else {
+			w.w.Write([]byte(w.headerPreamble))
+			totalWritten += int64(len(w.headerPreamble))
+		}
+	}
+
 	for _, record := range r {
 		n, err := w.writeInternal(record)
 		totalWritten += n

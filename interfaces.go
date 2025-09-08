@@ -2,15 +2,6 @@ package adif
 
 import "github.com/hamradiolog-net/adif-spec/v6/adifield"
 
-/*
-TODO
-// ADIFDocument represents a complete ADIF document.
-type ADIFDocument interface {
-	Header() ADIFRecord    // Header returns the header record, or nil if there is no header.
-	Records() []ADIFRecord // Records returns a slice of all QSO records in the document.
-}
-*/
-
 // ADIFRecord represents a single ADIF record, which may be either a header or a QSO record.
 type ADIFRecord interface {
 	IsHeader() bool                            // IsHeader returns true if the record is a header record.

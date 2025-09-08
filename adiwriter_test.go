@@ -39,7 +39,7 @@ func TestADIWriterWrite(t *testing.T) {
 		t.Errorf("Expected written bytes %d, got %d", len(sb.String()), writtenBytes)
 	}
 
-	expectedADIF := "<ADIF_VER:5>3.1.4<PROGRAMID:15>HamRadioLog.Net<PROGRAMVERSION:5>1.0.0<EOH>\n<CALL:5>K9CTS<EOR>\n"
+	expectedADIF := adiHeaderPreamble + "<ADIF_VER:5>3.1.4<PROGRAMID:15>HamRadioLog.Net<PROGRAMVERSION:5>1.0.0<EOH>\n<CALL:5>K9CTS<EOR>\n"
 	if sb.String() != expectedADIF {
 		t.Errorf("Expected '%s', got '%s'", expectedADIF, sb.String())
 	}
