@@ -12,7 +12,7 @@ import (
 
 var _ ADIFRecordWriter = (*adiWriter)(nil)
 
-const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n    https://github.com/hamradiolog-net/adif-parser\n\n"
+const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\nhttps://github.com/hamradiolog-net/adif-parser\n\n"
 
 // adiWriterPriorityFieldOrder defines the order of priority fields when writing ADIF records.
 // These fields are written first, in this order.

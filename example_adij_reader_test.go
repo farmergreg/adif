@@ -25,7 +25,7 @@ func ExampleNewADIJReader() {
     },
     {
       "BAND": "40M",
-      "CALL": "N1ABC",
+      "CALL": "W9PVA",
       "MODE": "CW",
       "QSO_DATE": "20250907",
       "TIME_ON": "2130"
@@ -40,12 +40,12 @@ func ExampleNewADIJReader() {
 		return
 	}
 
-	// Read all records and collect them
 	for {
 		record, err := reader.Next()
 		if err != nil {
 			break // EOF or other error
 		}
+
 		fmt.Printf("Is Header: %v\n", record.IsHeader())
 		if record.IsHeader() {
 			fmt.Printf("Header CREATED_TIMESTAMP: %s\n", record.Get(adifield.CREATED_TIMESTAMP))
@@ -63,5 +63,5 @@ func ExampleNewADIJReader() {
 	// QSO CALL: K9CTS, BAND: 20M, MODE: SSB
 	//
 	// Is Header: false
-	// QSO CALL: N1ABC, BAND: 40M, MODE: CW
+	// QSO CALL: W9PVA, BAND: 40M, MODE: CW
 }
