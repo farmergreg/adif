@@ -16,7 +16,7 @@ var testFileFS embed.FS
 
 func TestVerifyRecordCount(t *testing.T) {
 	tests := map[string]int{
-		"ADIF_315_test_QSOs_2024_11_28.adi": 6156,
+		"ADIF_316_test_QSOs_2025_08_27.adi": 6191,
 		"Log4OM.adi":                        122,
 		"N3FJP-AClogAdif.adi":               438,
 		"lotwreport.adi":                    438,
@@ -35,12 +35,9 @@ func TestVerifyRecordCount(t *testing.T) {
 			p := NewADIReader(reader, true)
 			count := 0
 			for {
-				qso, _, _, err := p.Next()
+				_, err := p.Next()
 				if err == io.EOF {
 					break
-				}
-				if qso == nil {
-					t.Fatal("Expected non-nil QSO")
 				}
 				if err != nil {
 					t.Fatal(err)
@@ -91,9 +88,9 @@ func TestParseBasicFunctionality(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := NewADIReader(strings.NewReader(tt.data), false)
 
-			records := make([]Record, 0, 10000)
+			records := make([]ADIFRecord, 0, 10000)
 			for {
-				record, _, _, err := p.Next()
+				record, err := p.Next()
 				if err == io.EOF {
 					break
 				}
@@ -113,14 +110,14 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 			var index = 0
 			if tt.hasHeader {
-				if records[0][adifield.PROGRAMID] != "TEST" {
-					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0][adifield.PROGRAMID])
+				if records[0].Get(adifield.PROGRAMID) != "TEST" {
+					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0].Get(adifield.PROGRAMID))
 				}
 				index++
 			}
 
-			if records[index][adifield.CALL] != "W9PVA" {
-				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index][adifield.CALL])
+			if records[index].Get(adifield.CALL) != "W9PVA" {
+				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index].Get(adifield.CALL))
 			}
 		})
 	}
@@ -130,18 +127,18 @@ func TestParseWithMissingEOR(t *testing.T) {
 	raw := "<CaLL:5>W9PVA"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, _, _, err := p.Next()
+	qso, err := p.Next()
 
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
 
 	expectedFields := 1
-	if len(qso) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
+	if len(qso.Fields()) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.Fields()))
 	}
-	if qso[adifield.CALL] != "W9PVA" {
-		t.Errorf("Expected CALL 'W9PVA', got %s", qso[adifield.CALL])
+	if qso.Get(adifield.CALL) != "W9PVA" {
+		t.Errorf("Expected CALL 'W9PVA', got %s", qso.Get(adifield.CALL))
 	}
 }
 
@@ -149,17 +146,17 @@ func TestParseWithMissingEOH(t *testing.T) {
 	raw := "<ADIF_VER:5>3.1.5"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, _, _, err := p.Next()
+	qso, err := p.Next()
 
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
 	expectedFields := 1
-	if len(qso) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso))
+	if len(qso.Fields()) != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.Fields()))
 	}
-	if qso[adifield.ADIF_VER] != "3.1.5" {
-		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso[adifield.ADIF_VER])
+	if qso.Get(adifield.ADIF_VER) != "3.1.5" {
+		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.Get(adifield.ADIF_VER))
 	}
 }
 
@@ -167,18 +164,14 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
 	p := NewADIReader(strings.NewReader(raw), false)
 
-	qso, _, bytesRead, err := p.Next()
+	qso, err := p.Next()
 
 	if err != nil {
 		t.Fatal(err)
 	}
-	val := qso["APP_LOTW_2XQSL"]
+	val := qso.Get("APP_LOTW_2XQSL")
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
-	}
-	expectedBytesRead := int64(len(raw))
-	if bytesRead != expectedBytesRead {
-		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -188,19 +181,15 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	p := NewADIReader(strings.NewReader(raw), false)
 
 	// Act
-	qso, _, bytesRead, err := p.Next()
+	qso, err := p.Next()
 
 	// Assert
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
-	val := qso["APP_LOTW_EOF"]
+	val := qso.Get("APP_LOTW_EOF")
 	if val != "" {
 		t.Errorf("Expected empty string, got %s", val)
-	}
-	expectedBytesRead := int64(len(raw))
-	if bytesRead != expectedBytesRead {
-		t.Errorf("got %d bytes read, want %d", bytesRead, expectedBytesRead)
 	}
 }
 
@@ -253,10 +242,10 @@ func TestParseNoRecords(t *testing.T) {
 			p := NewADIReader(strings.NewReader(tt.data), false)
 
 			// Act
-			qso, _, _, err := p.Next()
+			qso, err := p.Next()
 
 			// Assert
-			if len(qso) != 0 {
+			if len(qso.Fields()) != 0 {
 				t.Errorf("Expected empty QSO, got %v", qso)
 			}
 
@@ -306,7 +295,7 @@ func TestParseSingleRecord(t *testing.T) {
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
 			p := NewADIReader(br, false)
 
-			qso, isHeader, bytesRead, err := p.Next()
+			qso, err := p.Next()
 			if tt.isExpectEOF {
 				if err != io.EOF {
 					t.Errorf("Expected EOF error, got %v", err)
@@ -317,16 +306,12 @@ func TestParseSingleRecord(t *testing.T) {
 				}
 			}
 
-			if qso[adifield.ADIField(tt.fieldName)] != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso[adifield.ADIField(tt.fieldName)])
+			if qso.Get(adifield.ADIField(tt.fieldName)) != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.ADIField(tt.fieldName)))
 			}
 
-			if isHeader != tt.isHeaderRecord {
-				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, isHeader)
-			}
-			expectedBytesRead := int64(len(tt.adifSource))
-			if bytesRead != expectedBytesRead {
-				t.Errorf("Expected %d bytes read, got %d", expectedBytesRead, bytesRead)
+			if qso.IsHeader() != tt.isHeaderRecord {
+				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, qso.IsHeader())
 			}
 		})
 	}
@@ -338,22 +323,22 @@ func TestParseSkipHeader(t *testing.T) {
 	p := NewADIReader(strings.NewReader(adif), true)
 
 	// Act & Assert
-	record, _, _, err := p.Next()
+	record, err := p.Next()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.PROGRAMID] != "" {
-		t.Errorf("Expected empty PROGRAMID, got %s", record[adifield.PROGRAMID])
+	if record.Get(adifield.PROGRAMID) != "" {
+		t.Errorf("Expected empty PROGRAMID, got %s", record.Get(adifield.PROGRAMID))
 	}
-	if record[adifield.COMMENT] != "GOOD" {
-		t.Errorf("Expected COMMENT 'GOOD', got %s", record[adifield.COMMENT])
+	if record.Get(adifield.COMMENT) != "GOOD" {
+		t.Errorf("Expected COMMENT 'GOOD', got %s", record.Get(adifield.COMMENT))
 	}
 
-	recordTwo, _, _, errTwo := p.Next()
+	recordTwo, errTwo := p.Next()
 	if errTwo != io.EOF {
 		t.Errorf("Expected EOF error, got %v", errTwo)
 	}
-	if len(recordTwo) != 0 {
+	if len(recordTwo.Fields()) != 0 {
 		t.Errorf("Expected empty record, got %v", recordTwo)
 	}
 }
@@ -367,15 +352,15 @@ func TestParseLongFieldName(t *testing.T) {
 	p := NewADIReader(strings.NewReader(adif), false)
 
 	// Act
-	record, _, _, err := p.Next()
-	_, _, _, _ = p.Next()
+	record, err := p.Next()
+	_, _ = p.Next()
 
 	// Assert
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.ADIField(fieldName)] != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record[adifield.ADIField(fieldName)])
+	if record.Get(adifield.ADIField(fieldName)) != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.ADIField(fieldName)))
 	}
 }
 
@@ -384,15 +369,15 @@ func TestParseLargeData(t *testing.T) {
 	p := NewADIReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
 
 	// Act
-	record, _, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
+	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
+	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record[adifield.COMMENT] != "0"+strings.Repeat("1", 1_000_000)+"0" {
-		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record[adifield.COMMENT])
+	if record.Get(adifield.COMMENT) != "0"+strings.Repeat("1", 1_000_000)+"0" {
+		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record.Get(adifield.COMMENT))
 	}
 }
 
@@ -401,14 +386,26 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	p := NewADIReader(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
 
 	// Act
-	record, _, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _, _, _ = p.Next()         // Force the buffer to be resized back to "normal"
+	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
+	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
 
 	// Assert
-	if err != ErrInvalidFieldLength {
+	if err != ErrAdiReaderInvalidFieldLength {
 		t.Errorf("Expected ErrInvalidFieldLength error, got %v", err)
 	}
-	if record[adifield.COMMENT] != "" {
-		t.Errorf("Expected empty string, got %s", record[adifield.COMMENT])
+	if record.Get(adifield.COMMENT) != "" {
+		t.Errorf("Expected empty string, got %s", record.Get(adifield.COMMENT))
+	}
+}
+
+func TestReadDataSpecifierVolatileRetunsError(t *testing.T) {
+	mockReader := &mockFailReader{
+		maxBytes:    5,
+		backingData: []byte("<COMMENT:10>" + strings.Repeat("1", 10) + "<EOR>"),
+	}
+	rdr := NewADIReader(mockReader, false)
+	_, err := rdr.Next()
+	if err == nil {
+		t.Errorf("Expected error, got nil")
 	}
 }
