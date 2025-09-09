@@ -16,7 +16,7 @@ var testFileFS embed.FS
 
 func TestVerifyRecordCount(t *testing.T) {
 	tests := map[string]int{
-		"ADIF_315_test_QSOs_2024_11_28.adi": 6156,
+		"ADIF_316_test_QSOs_2025_08_27.adi": 6191,
 		"Log4OM.adi":                        122,
 		"N3FJP-AClogAdif.adi":               438,
 		"lotwreport.adi":                    438,

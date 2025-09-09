@@ -18,6 +18,7 @@ type adijReader struct {
 
 // NewADIJReader returns an ADIFRecordReader that can parse ADIF records in ADIJ JSON format.
 // If skipHeader is true, Next() will not return the header record if it exists.
+// This implementation reads the entire JSON document into memory when this constructor is called.
 func NewADIJReader(r io.Reader, skipHeader bool) (*adijReader, error) {
 	var doc adifDocument
 	decoder := json.NewDecoder(r)

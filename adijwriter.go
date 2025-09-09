@@ -18,6 +18,7 @@ func NewADIJWriter(w io.Writer) *adijWriter {
 	return &adijWriter{w: w}
 }
 
+// Write implements ADIFRecordWriter.Write for writing ADIF records in ADIJ format.
 func (aw *adijWriter) Write(records []ADIFRecord) error {
 	doc := &adifDocument{}
 	if len(records) > 0 && records[0].IsHeader() {

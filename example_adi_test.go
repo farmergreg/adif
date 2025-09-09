@@ -15,8 +15,8 @@ func ExampleNewADIReader() {
 <ADIF_VERS:5>3.1.0
 <PROGRAMID:4>Test
 <EOH>
-<CALL:5>K9CTS<QSO_DATE:8>20230101<TIME_ON:4>1200<BAND:3>20M<MODE:3>SSB<eor>
-<CALL:5>W9PVA<QSO_DATE:8>20230102<TIME_ON:4>1300<BAND:3>40M<MODE:2>CW<eor>
+<CALL:5>K9CTS<QSO_DATE:8>20230101<TIME_ON:4>1200<BAND:3>20m<MODE:3>SSB<eor>
+<CALL:5>W9PVA<QSO_DATE:8>20230102<TIME_ON:4>1300<BAND:3>40m<MODE:2>CW<eor>
 `
 
 	reader := NewADIReader(strings.NewReader(adiData), true)
@@ -33,8 +33,8 @@ func ExampleNewADIReader() {
 			record.Get(adifield.MODE))
 	}
 	// Output:
-	// Call: K9CTS, Date: 20230101, Time: 1200, Band: 20M, Mode: SSB
-	// Call: W9PVA, Date: 20230102, Time: 1300, Band: 40M, Mode: CW
+	// Call: K9CTS, Date: 20230101, Time: 1200, Band: 20m, Mode: SSB
+	// Call: W9PVA, Date: 20230102, Time: 1300, Band: 40m, Mode: CW
 }
 
 // ExampleNewADIWriter demonstrates how to write an ADI document using NewADIWriter.
