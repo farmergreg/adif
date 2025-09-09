@@ -28,12 +28,12 @@ go get github.com/hamradiolog-net/adif@latest
 
 ## Benchmarks
 
-TLDR: The ADI parser is very fast, possibly the fastest in the world.
+TLDR: This ADI parser is very fast, possibly the fastest in the world.
 Please see the [Go ADIF Parser Benchmarks](https://github.com/hamradiolog-net/adif-benchmark) project for benchmarks.
 
 ## 🔧 Technical Deep Dive (ADI Parser)
 
-The ADI parser achieves high performance through the following optimizations:
+The ADI parser in this library achieves high performance through the following optimizations:
 
 ### Performance Optimizations
 
