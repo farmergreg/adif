@@ -1,6 +1,6 @@
 package adif
 
-import "github.com/hamradiolog-net/adif-spec/v6/adifield"
+import "github.com/hamradiolog-net/spec/v6/adifield"
 
 var _ ADIFRecord = (*mockADIFRecord)(nil)
 

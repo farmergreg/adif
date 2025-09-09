@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hamradiolog-net/adif-spec/v6/adifield"
-	"github.com/hamradiolog-net/adif-spec/v6/enum/band"
-	"github.com/hamradiolog-net/adif-spec/v6/enum/mode"
+	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/hamradiolog-net/spec/v6/enum/band"
+	"github.com/hamradiolog-net/spec/v6/enum/mode"
 )
 
 // ExampleNewADIJReader demonstrates how to read ADIJ JSON document using NewADIJReader.

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hamradiolog-net/adif-spec/v6/adifield"
-	"github.com/hamradiolog-net/adif-spec/v6/enum/band"
-	"github.com/hamradiolog-net/adif-spec/v6/enum/mode"
+	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/hamradiolog-net/spec/v6/enum/band"
+	"github.com/hamradiolog-net/spec/v6/enum/mode"
 )
 
 func ExampleNewADIReader() {
@@ -58,7 +58,7 @@ func ExampleNewADIWriter() {
 	// Output:
 	// AM✠DG
 	// K9CTS High Performance ADIF Processing Library
-	// https://github.com/hamradiolog-net/adif-parser
+	//    https://github.com/hamradiolog-net/adif
 	//
 	// <CREATED_TIMESTAMP:15>20250907 212700<EOH>
 	// <BAND:3>20m<MODE:3>SSB<CALL:5>K9CTS<EOR>

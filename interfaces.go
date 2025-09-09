@@ -1,6 +1,6 @@
 package adif
 
-import "github.com/hamradiolog-net/adif-spec/v6/adifield"
+import "github.com/hamradiolog-net/spec/v6/adifield"
 
 // ADIFRecord represents a single ADIF record, which may be either a header or a QSO record.
 type ADIFRecord interface {

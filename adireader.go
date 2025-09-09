@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/hamradiolog-net/adif-spec/v6/adifield"
+	"github.com/hamradiolog-net/spec/v6/adifield"
 )
 
 var _ ADIFRecordReader = (*adiReader)(nil)

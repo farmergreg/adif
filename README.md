@@ -23,8 +23,8 @@ go get github.com/hamradiolog-net/adif@latest
 ```
 
 1) [Example Processing ADI Files](./example_adi_test.go): If you're not sure, use this!
-2) [Example Processing ADIJ Files](./example_adij.go): ADIJ is a proposed ADI container that represents ADIF data as json.
-3) ADX XML Processing: Not implemented. PR(s) welcome!
+2) ADX XML Processing: Not implemented. PR(s) welcome!
+3) [Example Processing ADIJ Files](./example_adij.go): ADIJ is a proposed ADI container format that represents ADIF data as json.
 
 ## Benchmarks
 
@@ -54,7 +54,7 @@ The ADI parser achieves high performance through the following optimizations:
 If you found this library useful, you may also be interested in the following projects:
 
 - [Go ADIF Parser Benchmarks](https://github.com/hamradiolog-net/adif-benchmark)
-- [Go ADIF Specification](https://github.com/hamradiolog-net/adif-spec)
+- [Go ADIF Specification](https://github.com/hamradiolog-net/spec)
 - [g3zod/CreateADIFTestFiles](https://github.com/g3zod/CreateADIFTestFiles) ADI Test Files
 - [g3zod/CreateADIFExportFiles](https://github.com/g3zod/CreateADIFExportFiles) ADIF Workgroup Specification Export Tool
 
