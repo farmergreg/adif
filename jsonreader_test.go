@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestADIJReaderEmpty(t *testing.T) {
+func TestJSONRecordReaderEmpty(t *testing.T) {
 	jsonInput := `{}`
 
-	reader, err := NewADIJReader(strings.NewReader(jsonInput), false)
+	reader, err := NewJSONRecordReader(strings.NewReader(jsonInput), false)
 	if err != nil {
 		t.Fatalf("Failed to create ADIJ reader: %v", err)
 	}
@@ -21,11 +21,11 @@ func TestADIJReaderEmpty(t *testing.T) {
 	}
 }
 
-func TestADIJReaderInvalidJSON(t *testing.T) {
-	// Invalid JSON should cause NewADIJReader to return an error
+func TestJSONRecordReaderInvalidJSON(t *testing.T) {
+	// Invalid JSON should cause NewJSONRecordReader to return an error
 	invalidJSON := `{"invalid": json syntax`
 
-	_, err := NewADIJReader(strings.NewReader(invalidJSON), false)
+	_, err := NewJSONRecordReader(strings.NewReader(invalidJSON), false)
 	if err == nil {
 		t.Error("Expected error when parsing invalid JSON, but got nil")
 	}

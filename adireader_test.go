@@ -14,7 +14,7 @@ import (
 //go:embed testdata/*.adi
 var testFileFS embed.FS
 
-func TestVerifyRecordCount(t *testing.T) {
+func TestADIRecordReaderVerifyRecordCount(t *testing.T) {
 	tests := map[string]int{
 		"ADIF_316_test_QSOs_2025_08_27.adi": 6191,
 		"Log4OM.adi":                        122,
@@ -32,7 +32,7 @@ func TestVerifyRecordCount(t *testing.T) {
 			}
 			defer reader.Close()
 
-			p := NewADIReader(reader, true)
+			p := NewADIRecordReader(reader, true)
 			count := 0
 			for {
 				_, err := p.Next()
@@ -52,7 +52,7 @@ func TestVerifyRecordCount(t *testing.T) {
 	}
 }
 
-func TestParseBasicFunctionality(t *testing.T) {
+func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 	tests := []struct {
 		hasHeader   bool
 		recordCount int
@@ -86,7 +86,7 @@ func TestParseBasicFunctionality(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewADIReader(strings.NewReader(tt.data), false)
+			p := NewADIRecordReader(strings.NewReader(tt.data), false)
 
 			records := make([]ADIFRecord, 0, 10000)
 			for {
@@ -123,9 +123,9 @@ func TestParseBasicFunctionality(t *testing.T) {
 	}
 }
 
-func TestParseWithMissingEOR(t *testing.T) {
+func TestADIRecordReaderParseWithMissingEOR(t *testing.T) {
 	raw := "<CaLL:5>W9PVA"
-	p := NewADIReader(strings.NewReader(raw), false)
+	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
 
@@ -142,9 +142,9 @@ func TestParseWithMissingEOR(t *testing.T) {
 	}
 }
 
-func TestParseWithMissingEOH(t *testing.T) {
+func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
 	raw := "<ADIF_VER:5>3.1.5"
-	p := NewADIReader(strings.NewReader(raw), false)
+	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
 
@@ -160,9 +160,9 @@ func TestParseWithMissingEOH(t *testing.T) {
 	}
 }
 
-func TestParseWithNumbersInFieldName(t *testing.T) {
+func TestADIRecordReaderParseWithNumbersInFieldName(t *testing.T) {
 	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
-	p := NewADIReader(strings.NewReader(raw), false)
+	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
 
@@ -175,10 +175,10 @@ func TestParseWithNumbersInFieldName(t *testing.T) {
 	}
 }
 
-func TestParseWithMissingLengthField(t *testing.T) {
+func TestADIRecordReaderParseWithMissingLengthField(t *testing.T) {
 	// Arrange
 	raw := "<APP_LoTW_EOF>Y" // n.b. 'Y' is NOT part of the data. It is a comment...
-	p := NewADIReader(strings.NewReader(raw), false)
+	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	// Act
 	qso, err := p.Next()
@@ -193,7 +193,7 @@ func TestParseWithMissingLengthField(t *testing.T) {
 	}
 }
 
-func TestParseNoRecords(t *testing.T) {
+func TestADIRecordReaderParseNoRecords(t *testing.T) {
 	// Arrange
 	tests := []struct {
 		name                string
@@ -239,7 +239,7 @@ func TestParseNoRecords(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Arrange
-			p := NewADIReader(strings.NewReader(tt.data), false)
+			p := NewADIRecordReader(strings.NewReader(tt.data), false)
 
 			// Act
 			qso, err := p.Next()
@@ -264,7 +264,7 @@ func TestParseNoRecords(t *testing.T) {
 	}
 }
 
-func TestParseSingleRecord(t *testing.T) {
+func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 	tests := []struct {
 		name           string
 		adifSource     string
@@ -293,7 +293,7 @@ func TestParseSingleRecord(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Use small buffer to test ReadSlice / ErrBufferFull handling
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
-			p := NewADIReader(br, false)
+			p := NewADIRecordReader(br, false)
 
 			qso, err := p.Next()
 			if tt.isExpectEOF {
@@ -317,10 +317,10 @@ func TestParseSingleRecord(t *testing.T) {
 	}
 }
 
-func TestParseSkipHeader(t *testing.T) {
+func TestADIRecordReaderParseSkipHeader(t *testing.T) {
 	// Arrange
 	adif := "<PROGRAMID:7>MonoLog<EOH>\n<COMMENT:4>GOOD<EOR>"
-	p := NewADIReader(strings.NewReader(adif), true)
+	p := NewADIRecordReader(strings.NewReader(adif), true)
 
 	// Act & Assert
 	record, err := p.Next()
@@ -343,13 +343,13 @@ func TestParseSkipHeader(t *testing.T) {
 	}
 }
 
-func TestParseLongFieldName(t *testing.T) {
+func TestADIRecordReaderParseLongFieldName(t *testing.T) {
 	const len int = 2000
 	fieldName := "APP_K9CTS_" + strings.Repeat("X", len)
 
 	// Arrange
 	adif := fmt.Sprintf("<%s:4>TEST<EOR>", fieldName)
-	p := NewADIReader(strings.NewReader(adif), false)
+	p := NewADIRecordReader(strings.NewReader(adif), false)
 
 	// Act
 	record, err := p.Next()
@@ -364,9 +364,9 @@ func TestParseLongFieldName(t *testing.T) {
 	}
 }
 
-func TestParseLargeData(t *testing.T) {
+func TestADIRecordReaderParseLargeData(t *testing.T) {
 	// Arrange
-	p := NewADIReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
+	p := NewADIRecordReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
 
 	// Act
 	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
@@ -381,9 +381,9 @@ func TestParseLargeData(t *testing.T) {
 	}
 }
 
-func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
+func TestADIRecordReaderParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	// Arrange
-	p := NewADIReader(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
+	p := NewADIRecordReader(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
 
 	// Act
 	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
@@ -398,12 +398,12 @@ func TestParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 	}
 }
 
-func TestReadDataSpecifierVolatileRetunsError(t *testing.T) {
+func TestADIRecordReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
 	mockReader := &mockFailReader{
 		maxBytes:    5,
 		backingData: []byte("<COMMENT:10>" + strings.Repeat("1", 10) + "<EOR>"),
 	}
-	rdr := NewADIReader(mockReader, false)
+	rdr := NewADIRecordReader(mockReader, false)
 	_, err := rdr.Next()
 	if err == nil {
 		t.Errorf("Expected error, got nil")

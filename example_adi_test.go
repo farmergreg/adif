@@ -9,7 +9,7 @@ import (
 	"github.com/hamradiolog-net/spec/v6/enum/mode"
 )
 
-func ExampleNewADIReader() {
+func ExampleNewADIRecordReader() {
 	// Example ADI data
 	adiData := `
 <ADIF_VERS:5>3.1.0
@@ -19,7 +19,7 @@ func ExampleNewADIReader() {
 <CALL:5>W9PVA<QSO_DATE:8>20230102<TIME_ON:4>1300<BAND:3>40m<MODE:2>CW<eor>
 `
 
-	reader := NewADIReader(strings.NewReader(adiData), true)
+	reader := NewADIRecordReader(strings.NewReader(adiData), true)
 	for {
 		record, err := reader.Next()
 		if err != nil {
@@ -37,10 +37,10 @@ func ExampleNewADIReader() {
 	// Call: W9PVA, Date: 20230102, Time: 1300, Band: 40m, Mode: CW
 }
 
-// ExampleNewADIWriter demonstrates how to write an ADI document using NewADIWriter.
-func ExampleNewADIWriter() {
+// ExampleNewADIRecordWriter demonstrates how to write an ADI document using NewADIRecordWriter.
+func ExampleNewADIRecordWriter() {
 	var sb strings.Builder
-	writer := NewADIWriter(&sb)
+	writer := NewADIRecordWriter(&sb)
 
 	hdr := NewADIRecord()
 	hdr.SetIsHeader(true)

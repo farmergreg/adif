@@ -11,7 +11,7 @@ func BenchmarkADIWrite(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		var sb strings.Builder
-		w := NewADIWriter(&sb)
+		w := NewADIRecordWriter(&sb)
 		w.Write(qsoListNative)
 		_ = sb.String()
 	}
@@ -22,7 +22,7 @@ func BenchmarkADIJWrite(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		var sb strings.Builder
-		w := NewADIJWriter(&sb)
+		w := NewJSONRecordWriter(&sb)
 		w.Write(qsoListNative)
 		_ = sb.String()
 	}

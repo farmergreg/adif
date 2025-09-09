@@ -8,10 +8,10 @@ import (
 	"github.com/hamradiolog-net/spec/v6/enum/mode"
 )
 
-func TestADIJWriterWriteError(t *testing.T) {
+func TestJSONWriterWriteError(t *testing.T) {
 	// Create a writer that will cause json.Encoder.Encode to fail
 	mockW := &mockAlwaysErrorWriter{}
-	writer := &adijWriter{w: mockW}
+	writer := &jsonWriter{w: mockW}
 
 	qso := NewADIRecord()
 	qso.Set(adifield.CALL, "K9CTS")

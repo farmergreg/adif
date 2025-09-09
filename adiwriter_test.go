@@ -9,7 +9,7 @@ import (
 	"github.com/hamradiolog-net/spec/v6/spec"
 )
 
-func TestADIWriterWrite(t *testing.T) {
+func TestADIRecordWriterWrite(t *testing.T) {
 	hdr := NewADIRecord()
 	hdr.SetIsHeader(true)
 	hdr.Set(adifield.PROGRAMID, "HamRadioLog.Net")
@@ -22,7 +22,7 @@ func TestADIWriterWrite(t *testing.T) {
 	qso1 := NewADIRecord()
 
 	sb := &strings.Builder{}
-	w := NewADIWriterWithPreamble(sb, "")
+	w := NewADIRecordWriterWithPreamble(sb, "")
 	err := w.Write([]ADIFRecord{hdr, qso, qso1})
 	if err != nil {
 		t.Fatal(err)
@@ -34,21 +34,21 @@ func TestADIWriterWrite(t *testing.T) {
 	}
 }
 
-func TestADIWrite_BigRecord(t *testing.T) {
+func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 	// force re-allocation of the internal write buffer.
 	var size = rand.Intn(10000000) + (1024 * 50)
 	qso := NewADIRecord()
 	qso.Set(adifield.COMMENT, strings.Repeat("1", size))
 
 	sb := &strings.Builder{}
-	w := NewADIWriter(sb)
+	w := NewADIRecordWriter(sb)
 	err := w.Write([]ADIFRecord{qso})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestADIWriteWriterError(t *testing.T) {
+func TestADIRecordWriterWriteError(t *testing.T) {
 	expectedBytes := 20
 
 	qso1 := NewADIRecord()
@@ -58,7 +58,7 @@ func TestADIWriteWriterError(t *testing.T) {
 	qso2.Set(adifield.CALL, "W1AW")
 
 	fw := &mockFailWriter{maxBytes: expectedBytes}
-	w := NewADIWriter(fw)
+	w := NewADIRecordWriter(fw)
 
 	err := w.Write([]ADIFRecord{qso1, qso2})
 	if err == nil {
@@ -68,7 +68,7 @@ func TestADIWriteWriterError(t *testing.T) {
 	t.Logf("Error: %v", err)
 }
 
-func TestAppendAsADIPreCalculate(t *testing.T) {
+func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {
 	var size = rand.Intn(10000000) + (1024 * 50)
 	qso := NewADIRecord()
 	qso.SetIsHeader(true)

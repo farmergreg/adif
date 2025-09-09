@@ -24,7 +24,7 @@ go get github.com/hamradiolog-net/adif@latest
 
 1) [Example Processing ADI Files](./example_adi_test.go): If you're not sure, use this!
 2) ADX XML Processing: Not implemented. PR(s) welcome!
-3) [Example Processing ADIJ Files](./example_adij_test.go): ADIJ is a proposed ADI container format that represents ADIF data as json.
+3) [Example Processing ADIJ Files](./example_json_test.go): ADIJ is a proposed ADI container format that represents ADIF data as json.
 
 ## Benchmarks
 

@@ -9,8 +9,8 @@ import (
 	"github.com/hamradiolog-net/spec/v6/enum/mode"
 )
 
-// ExampleNewADIJReader demonstrates how to read ADIJ JSON document using NewADIJReader.
-func ExampleNewADIJReader() {
+// ExampleNewJSONRecordReader demonstrates how to read ADIJ JSON document using NewJSONRecordReader.
+func ExampleNewJSONRecordReader() {
 	jsonExample := `{
   "HEADER": {
     "CREATED_TIMESTAMP": "20250907 212700",
@@ -36,7 +36,7 @@ func ExampleNewADIJReader() {
 }`
 
 	// Create a reader from the ADIJ data
-	reader, err := NewADIJReader(strings.NewReader(jsonExample), false)
+	reader, err := NewJSONRecordReader(strings.NewReader(jsonExample), false)
 	if err != nil {
 		fmt.Printf("Error creating reader: %v\n", err)
 		return
@@ -68,10 +68,10 @@ func ExampleNewADIJReader() {
 	// QSO CALL: W9PVA, BAND: 40m, MODE: CW
 }
 
-// ExampleNewADIJWriter demonstrates how to write ADIJ JSON document using NewADIJWriter.
-func ExampleNewADIJWriter() {
+// ExampleNewJSONWriter demonstrates how to write ADIJ JSON document using NewJSONWriter.
+func ExampleNewJSONRecordWriter() {
 	var sb strings.Builder
-	writer := NewADIJWriter(&sb)
+	writer := NewJSONRecordWriter(&sb)
 
 	hdr := NewADIRecord()
 	hdr.SetIsHeader(true)
