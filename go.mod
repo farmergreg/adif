@@ -1,4 +1,4 @@
-module github.com/hamradiolog-net/adif/v5
+module github.com/hamradiolog-net/adif-parser/v5
 
 go 1.25
 
