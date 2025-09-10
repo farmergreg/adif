@@ -84,7 +84,7 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 
 				// we are skipping returning the EOH record (if any)
 				// reset to prepare to read the next record
-				clear(result.r)
+				result = NewADIRecordWithCapacity(p.preAllocateFields)
 			}
 			continue
 		case adifield.EOR:
