@@ -19,6 +19,12 @@ func (r *mockADIFRecord) Get(field adifield.ADIField) string {
 
 func (r *mockADIFRecord) Set(field adifield.ADIField, value string) {}
 
-func (r *mockADIFRecord) Fields() []adifield.ADIField {
-	return []adifield.ADIField{adifield.COMMENT}
+func (r *mockADIFRecord) All() func(func(adifield.ADIField, string) bool) {
+	return func(yield func(adifield.ADIField, string) bool) {
+		yield(adifield.COMMENT, "")
+	}
+}
+
+func (r *mockADIFRecord) Count() int {
+	return 1
 }

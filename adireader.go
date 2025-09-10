@@ -76,7 +76,7 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 
 		switch field {
 		case adifield.EOH:
-			if len(result.r) > 0 {
+			if result.Count() > 0 {
 				if !p.skipHeader {
 					result.isHeader = true
 					return result, nil
@@ -88,9 +88,9 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 			}
 			continue
 		case adifield.EOR:
-			if len(result.r) > 0 {
-				if len(result.r) > p.preAllocateFields {
-					p.preAllocateFields = len(result.r)
+			if result.Count() > 0 {
+				if result.Count() > p.preAllocateFields {
+					p.preAllocateFields = result.Count()
 				}
 				return result, nil
 			}
@@ -99,7 +99,7 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		result.r[field] = value
+		result.setDirect(field, value)
 	}
 }
 

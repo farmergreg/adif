@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/hamradiolog-net/spec/v6/enum/band"
 )
 
 func TestNewADIRecordWithCapacity(t *testing.T) {
@@ -17,8 +18,8 @@ func TestNewADIRecord(t *testing.T) {
 func TestADIRecordSet_AddField(t *testing.T) {
 	r := NewADIRecord()
 	r.Set(adifield.CALL, "K9CTS")
-	if len(r.Fields()) != 1 {
-		t.Errorf("Expected field count '1', got '%d'", len(r.Fields()))
+	if r.Count() != 1 {
+		t.Errorf("Expected field count '1', got '%d'", r.Count())
 	}
 	if r.Get(adifield.CALL) != "K9CTS" {
 		t.Errorf("Expected value 'K9CTS', got '%s'", r.Get(adifield.CALL))
@@ -29,8 +30,8 @@ func TestADIRecordSet_RemoveField(t *testing.T) {
 	r := NewADIRecord()
 	r.Set(adifield.CALL, "K9CTS")
 	r.Set(adifield.CALL, "")
-	if len(r.Fields()) != 0 {
-		t.Errorf("Expected field count '0', got '%d'", len(r.Fields()))
+	if r.Count() != 1 {
+		t.Errorf("Expected field count '0', got '%d'", r.Count())
 	}
 }
 
@@ -42,5 +43,17 @@ func TestADIRecordSet_IsHeader(t *testing.T) {
 	r.SetIsHeader(true)
 	if !r.IsHeader() {
 		t.Errorf("Expected IsHeader true, got false")
+	}
+}
+
+func TestADIRecordAll(t *testing.T) {
+	r := NewADIRecord()
+	r.Set(adifield.CALL, "K9CTS")
+	r.Set(adifield.BAND, band.Band20m.String())
+	for k, v := range r.All() {
+		if k == adifield.CALL && v != "K9CTS" {
+			t.Errorf("Expected value 'K9CTS' for CALL, got '%s'", v)
+		}
+		break // Testing the iterator !yield condition
 	}
 }

@@ -134,8 +134,8 @@ func TestADIRecordReaderParseWithMissingEOR(t *testing.T) {
 	}
 
 	expectedFields := 1
-	if len(qso.Fields()) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.Fields()))
+	if qso.Count() != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, qso.Count())
 	}
 	if qso.Get(adifield.CALL) != "W9PVA" {
 		t.Errorf("Expected CALL 'W9PVA', got %s", qso.Get(adifield.CALL))
@@ -152,8 +152,8 @@ func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
 	expectedFields := 1
-	if len(qso.Fields()) != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, len(qso.Fields()))
+	if qso.Count() != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, qso.Count())
 	}
 	if qso.Get(adifield.ADIF_VER) != "3.1.5" {
 		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.Get(adifield.ADIF_VER))
@@ -245,7 +245,7 @@ func TestADIRecordReaderParseNoRecords(t *testing.T) {
 			qso, err := p.Next()
 
 			// Assert
-			if len(qso.Fields()) != 0 {
+			if qso.Count() != 0 {
 				t.Errorf("Expected empty QSO, got %v", qso)
 			}
 
@@ -338,7 +338,7 @@ func TestADIRecordReaderParseSkipHeader(t *testing.T) {
 	if errTwo != io.EOF {
 		t.Errorf("Expected EOF error, got %v", errTwo)
 	}
-	if len(recordTwo.Fields()) != 0 {
+	if recordTwo.Count() != 0 {
 		t.Errorf("Expected empty record, got %v", recordTwo)
 	}
 }
