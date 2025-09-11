@@ -67,7 +67,7 @@ func loadTestData() []ADIFRecord {
 	return qsoListNative
 }
 
-func BenchmarkParseDataLength(b *testing.B) {
+func BenchmarkInternalParseDataLength(b *testing.B) {
 	testData := []struct {
 		input []byte
 	}{
