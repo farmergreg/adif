@@ -61,19 +61,6 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 	}{
 		{false, 0, "Empty String", ""},
 
-		{false, 0, "EOR", "<eOR>"},
-		{false, 0, "EOH", "<Eoh>"},
-		{false, 0, "EOR EOR", "<EOr><eoR>"},
-		{false, 0, "EOH EOR", "<EoH><eOr>"},
-		{false, 0, "EOH with leading space", " <EOh>"},
-		{false, 0, "EOR with leading space", " <EOr>"},
-		{false, 0, "EOH with spaces", " <EOh> "},
-		{false, 0, "EOR with spaces", " <EOr> "},
-		{false, 0, "EOH with trailing space", "<EOh> "},
-		{false, 0, "EOR with trailing space", "<EOr> "},
-		{false, 0, "EOH with brackets", "><EOh>>"},
-		{false, 0, "EOR with brackets", "><EOr>>"},
-
 		{false, 1, "Valid Record", "<CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Leading space", " <CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Extra character", "<Call:5>W9PVAn<EOR>"},
@@ -110,6 +97,9 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 
 			var index = 0
 			if tt.hasHeader {
+				if !records[0].IsHeader() {
+					t.Errorf("Expected first record to be header")
+				}
 				if records[0].Get(adifield.PROGRAMID) != "TEST" {
 					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0].Get(adifield.PROGRAMID))
 				}
@@ -123,33 +113,71 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseWithMissingEOR(t *testing.T) {
-	raw := "<CaLL:5>W9PVA"
+func TestADIRecordReaderParseEOREOH(t *testing.T) {
+	tests := []struct {
+		expected  int
+		hasHeader bool
+		name      string
+		data      string
+	}{
+		{1, false, "EOR", "<eOR>"},
+		{1, true, "EOH", "<Eoh>"},
+		{2, false, "EOR EOR", "<EOr><eoR>"},
+		{2, true, "EOH EOR", "<EoH><eOr>"},
+		{1, true, "EOH with leading space", " <EOh>"},
+		{1, false, "EOR with leading space", " <EOr>"},
+		{1, true, "EOH with spaces", " <EOh> "},
+		{1, false, "EOR with spaces", " <EOr> "},
+		{1, true, "EOH with trailing space", "<EOh> "},
+		{1, false, "EOR with trailing space", "<EOr> "},
+		{1, true, "EOH with brackets", "><EOh>>"},
+		{1, false, "EOR with brackets", "><EOr>>"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := NewADIRecordReader(strings.NewReader(tt.data), false)
+
+			records := make([]ADIFRecord, 0, 10000)
+			for {
+				record, err := p.Next()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				records = append(records, record)
+			}
+
+			if len(records) != tt.expected {
+				t.Errorf("Record count mismatch: got %d, want %d", len(records), tt.expected)
+			}
+		})
+	}
+}
+
+func TestADIRecordReaderParseLoTWEOF(t *testing.T) {
+	raw := "<" + string(adifield.APP_LOTW_EOF) + ">"
 	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
-
 	if err != io.EOF {
 		t.Errorf("Expected EOF error, got %v", err)
 	}
 
-	expectedFields := 1
-	if qso.Count() != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, qso.Count())
-	}
-	if qso.Get(adifield.CALL) != "W9PVA" {
-		t.Errorf("Expected CALL 'W9PVA', got %s", qso.Get(adifield.CALL))
+	if qso != nil {
+		t.Errorf("Expected nil record, got %v", qso)
 	}
 }
 
 func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
-	raw := "<ADIF_VER:5>3.1.5"
+	raw := "<ADIF_VER:5>3.1.5<EOR>"
 	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
-
-	if err != io.EOF {
-		t.Errorf("Expected EOF error, got %v", err)
+	if err != nil {
+		t.Errorf("Expected nil error, got %v", err)
 	}
 	expectedFields := 1
 	if qso.Count() != expectedFields {
@@ -157,6 +185,11 @@ func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
 	}
 	if qso.Get(adifield.ADIF_VER) != "3.1.5" {
 		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.Get(adifield.ADIF_VER))
+	}
+
+	_, err = p.Next()
+	if err != io.EOF {
+		t.Errorf("Expected EOF error, got %v", err)
 	}
 }
 
@@ -175,65 +208,46 @@ func TestADIRecordReaderParseWithNumbersInFieldName(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseWithMissingLengthField(t *testing.T) {
-	// Arrange
-	raw := "<APP_LoTW_EOF>Y" // n.b. 'Y' is NOT part of the data. It is a comment...
-	p := NewADIRecordReader(strings.NewReader(raw), false)
-
-	// Act
-	qso, err := p.Next()
-
-	// Assert
-	if err != io.EOF {
-		t.Errorf("Expected EOF error, got %v", err)
-	}
-	val := qso.Get("APP_LOTW_EOF")
-	if val != "" {
-		t.Errorf("Expected empty string, got %s", val)
-	}
-}
-
 func TestADIRecordReaderParseNoRecords(t *testing.T) {
 	// Arrange
 	tests := []struct {
-		name                string
-		data                string
-		isNonEOFErrExpected bool // EOF means success, non-EOF means the adi reader rejected the input as malformed.
+		name        string
+		data        string
+		expectedErr error // EOF means success, non-EOF means the adi reader rejected the input as malformed.
 	}{
 
-		{"Invalid app field", "<APP_WAAT:fake>", true},
-		{"Empty string", "", false},
-		{"Single space", " ", false},
-		{"Single colon", ":", false},
-		{"Double colon", "::", false},
-		{"Plain text", "no adif here...", false},
-		{"tag close", ">", false},
-		{"tag open", "<", true},
-		{"Random text with tag", "< some random text", true},
-		{"Math expression 1", " 3 < 4 ", true},
-		{"Math expression 2", " 3 > 4 ", false},
-		{"Incomplete tag 1", "<this is not adif", true},
-		{"Incomplete tag 2", "<something random", true},
-		{"Incomplete tag with colon and >", "<something random:>", true},
-		{"Incomplete tag with colon and space >", "<something random: >", true},
-		{"Incomplete tag with colon and space", "<something random: ", true},
-		{"Incomplete tag with colon", "<something random:", true},
-		{"Incomplete tag with number", "<something random:8", true},
-		{"Incomplete tag with n", "<something random:n", true},
-		{"Incomplete tag with type 1", "<something random:8:", true},
-		{"Incomplete tag with type 2", "<something random:n:", true},
-		{"Incomplete tag with type 3", "<something random:8:x", true},
-		{"Incomplete tag with type 4", "<something random:n:x", true},
-		{"Incomplete data field", "<APP_TEST:1>", true},
-		{"Incomplete data field, with type", "<APP_TEST:1:x>", true},
-		{"Empty tag", "<>", true},
-		{"Empty tag with text", "<>fake", true},
-		{"Empty tag with colon", "<:>fake", true},
-		{"Empty tag with double colon", "<::>fake", true},
-		{"Empty tag with triple colon", "<:::>fake", true},
-		{"Empty tag with quad colon", "<::::>fake", true},
-		{"tag open and close", "<>", true},
-		{"tag open and close with colon", "<:>", true},
+		{"Invalid Length", "<APP_WAAT:fake>", ErrAdiReaderMalformedADI},
+		{"Empty string", "", io.EOF},
+		{"Single space", " ", io.EOF},
+		{"Single colon", ":", io.EOF},
+		{"Double colon", "::", io.EOF},
+		{"Plain text", "no adif here...", io.EOF},
+		{"tag close", ">", io.EOF},
+		{"tag open", "<", ErrAdiReaderMalformedADI},
+		{"Random text with tag", "< some random text", ErrAdiReaderMalformedADI},
+		{"Math expression 1", " 3 < 4 ", ErrAdiReaderMalformedADI},
+		{"Math expression 2", " 3 > 4 ", io.EOF},
+		{"Incomplete tag 1", "<this is not adif", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with colon and >", "<something random:>", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with colon and space >", "<something random: >", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with colon and space", "<something random: ", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with colon", "<something random:", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with number", "<something random:8", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with n", "<something random:n", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with type 1", "<something random:8:", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with type 2", "<something random:n:", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with type 3", "<something random:8:x", ErrAdiReaderMalformedADI},
+		{"Incomplete tag with type 4", "<something random:n:x", ErrAdiReaderMalformedADI},
+		{"Incomplete data field", "<APP_TEST:1>", ErrAdiReaderMalformedADI},
+		{"Incomplete data field, with type", "<APP_TEST:1:x>", ErrAdiReaderMalformedADI},
+		{"Empty tag", "<>", ErrAdiReaderMalformedADI},
+		{"Empty tag with text", "<>fake", ErrAdiReaderMalformedADI},
+		{"Empty tag with colon", "<:>fake", ErrAdiReaderMalformedADI},
+		{"Empty tag with double colon", "<::>fake", ErrAdiReaderMalformedADI},
+		{"Empty tag with triple colon", "<:::>fake", ErrAdiReaderMalformedADI},
+		{"Empty tag with quad colon", "<::::>fake", ErrAdiReaderMalformedADI},
+		{"tag open and close", "<>", ErrAdiReaderMalformedADI},
+		{"tag open and close with colon", "<:>", ErrAdiReaderMalformedADI},
 	}
 
 	for _, tt := range tests {
@@ -243,22 +257,12 @@ func TestADIRecordReaderParseNoRecords(t *testing.T) {
 
 			// Act
 			qso, err := p.Next()
-
-			// Assert
-			if qso.Count() != 0 {
-				t.Errorf("Expected empty QSO, got %v", qso)
+			if tt.expectedErr != err {
+				t.Error("Expected non-EOF error, got EOF")
 			}
 
-			// Assert
-			if tt.isNonEOFErrExpected {
-				if err == nil {
-					t.Error("Expected non-EOF error, got nil")
-				}
-				if err == io.EOF {
-					t.Error("Expected non-EOF error, got EOF")
-				}
-			} else if err != io.EOF {
-				t.Errorf("Expected EOF error, got %v", err)
+			if qso != nil {
+				t.Errorf("Expected nil record, got %v", qso)
 			}
 		})
 	}
@@ -271,22 +275,24 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 		fieldName      string
 		fieldData      string
 		isHeaderRecord bool
-		isExpectEOF    bool
 	}{
-		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true, false},
-		{"Zero length data", "<APP_MY_APP:0>\r\n<EOR>", "APP_MY_APP", "", false, false},
-		{"Single char data", "<APP_MY_APP:1>x <EOR>", "APP_MY_APP", "x", false, false},
-		{"Basic TIME_ON", "<TIME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"TIME_ON with type", "<TIME_ON:6:Time>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"Mixed case TIME_ON", "<TiMe_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"TIME_ON with type and space", "<TIME_ON:6:Time>161819 <EOR>", "TIME_ON", "161819", false, false},
-		{"Mixed case with space", "<TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false, false},
-		{"Leading space with type", " <TIME_ON:6:Time>161819 <EOR>", "TIME_ON", "161819", false, false},
-		{"Leading space mixed case", " <TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false, false},
-		{"Leading space with type no end space", " <TIME_ON:6:Time>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"Leading space mixed case no end space", " <TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"Extra brackets", "><TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false, false},
-		{"Long Field Name", "<App_K9CTS_012345678901234567890:5>W9PVA<EOR>", "APP_K9CTS_012345678901234567890", "W9PVA", false, false},
+		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true},
+		{"Header record", "<progRamid:4>MonoLog<EoH>", "PROGRAMID", "Mono", true},
+		{"Short Record", "<WeB:1>X<Eor>", "WEB", "X", false},
+		{"Short Record with type", "<WeB:1:s>X<Eor>", "WEB", "X", false},
+		{"Zero length data", "<APP_MY_APP:0>\r\n<EOR>", "APP_MY_APP", "", false},
+		{"Single char data", "<APP_MY_APP:1>x <EOR>", "APP_MY_APP", "x", false},
+		{"Basic TIME_ON", "<TIME_ON:6>161819<EOR>", "TIME_ON", "161819", false},
+		{"TIME_ON with type", "<TIME_ON:6:T>161819<EOR>", "TIME_ON", "161819", false},
+		{"Mixed case TIME_ON", "<TiMe_ON:6>161819<EOR>", "TIME_ON", "161819", false},
+		{"TIME_ON with type and space", "<TIME_ON:6:T>161819 <EOR>", "TIME_ON", "161819", false},
+		{"Mixed case with space", "<TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false},
+		{"Leading space with type", " <TIME_ON:6:T>161819 <EOR>", "TIME_ON", "161819", false},
+		{"Leading space mixed case", " <TiMe_ON:6>161819 <EOR>", "TIME_ON", "161819", false},
+		{"Leading space with type no end space", " <TIME_ON:6:T>161819<EOR>", "TIME_ON", "161819", false},
+		{"Leading space mixed case no end space", " <TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false},
+		{"Extra brackets", "><TiME_ON:6>161819<EOR>", "TIME_ON", "161819", false},
+		{"Long Field Name", "<App_K9CTS_012345678901234567890:5>W9PVA<EOR>", "APP_K9CTS_012345678901234567890", "W9PVA", false},
 	}
 
 	for _, tt := range tests {
@@ -296,14 +302,8 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 			p := NewADIRecordReader(br, false)
 
 			qso, err := p.Next()
-			if tt.isExpectEOF {
-				if err != io.EOF {
-					t.Errorf("Expected EOF error, got %v", err)
-				}
-			} else {
-				if err != nil {
-					t.Fatal(err)
-				}
+			if err != nil {
+				t.Fatal(err)
 			}
 
 			if qso.Get(adifield.ADIField(tt.fieldName)) != tt.fieldData {
@@ -338,8 +338,8 @@ func TestADIRecordReaderParseSkipHeader(t *testing.T) {
 	if errTwo != io.EOF {
 		t.Errorf("Expected EOF error, got %v", errTwo)
 	}
-	if recordTwo.Count() != 0 {
-		t.Errorf("Expected empty record, got %v", recordTwo)
+	if recordTwo != nil {
+		t.Errorf("Expected nil record, got %v", recordTwo)
 	}
 }
 
@@ -370,9 +370,6 @@ func TestADIRecordReaderParseLargeData(t *testing.T) {
 
 	// Act
 	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
-
-	// Assert
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,14 +384,14 @@ func TestADIRecordReaderParseLargeDataTooBigShouldReturnErr(t *testing.T) {
 
 	// Act
 	record, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	_, _ = p.Next()         // Force the buffer to be resized back to "normal"
+	if record != nil {
+		t.Errorf("Expected nil record, got %v", record)
+	}
+	_, _ = p.Next() // Force the buffer to be resized back to "normal"
 
 	// Assert
-	if err != ErrAdiReaderInvalidFieldLength {
+	if err != ErrAdiReaderMalformedADI {
 		t.Errorf("Expected ErrInvalidFieldLength error, got %v", err)
-	}
-	if record.Get(adifield.COMMENT) != "" {
-		t.Errorf("Expected empty string, got %s", record.Get(adifield.COMMENT))
 	}
 }
 

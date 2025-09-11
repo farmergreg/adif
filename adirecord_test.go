@@ -17,11 +17,12 @@ func TestNewADIRecord(t *testing.T) {
 
 func TestADIRecordSet_AddField(t *testing.T) {
 	r := NewADIRecord()
-	r.Set(adifield.CALL, "K9CTS")
+	r.Set("CaLL", "K9CTS")
 	if r.Count() != 1 {
 		t.Errorf("Expected field count '1', got '%d'", r.Count())
 	}
-	if r.Get(adifield.CALL) != "K9CTS" {
+
+	if r.Get("call") != "K9CTS" {
 		t.Errorf("Expected value 'K9CTS', got '%s'", r.Get(adifield.CALL))
 	}
 }
@@ -30,7 +31,7 @@ func TestADIRecordSet_RemoveField(t *testing.T) {
 	r := NewADIRecord()
 	r.Set(adifield.CALL, "K9CTS")
 	r.Set(adifield.CALL, "")
-	if r.Count() != 1 {
+	if r.Count() != 0 {
 		t.Errorf("Expected field count '0', got '%d'", r.Count())
 	}
 }

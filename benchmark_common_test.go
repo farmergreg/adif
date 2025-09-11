@@ -66,3 +66,23 @@ func loadTestData() []ADIFRecord {
 	}
 	return qsoListNative
 }
+
+func BenchmarkParseDataLength(b *testing.B) {
+	testData := []struct {
+		input []byte
+	}{
+
+		{[]byte("001")},
+		{[]byte("012")},
+		{[]byte("123")},
+		{[]byte("XYZMORE")},
+	}
+
+	for _, td := range testData {
+		b.Run(string(td.input), func(b *testing.B) {
+			for b.Loop() {
+				_, _ = parseDataLength(td.input)
+			}
+		})
+	}
+}

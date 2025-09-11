@@ -32,6 +32,13 @@ func NewADIRecordWithCapacity(initialCapacity int) *adiRecord {
 	return &r
 }
 
+// reset clears the record for reuse.
+func (r *adiRecord) reset() {
+	clear(r.fields)
+	r.allCache = r.allCache[:0]
+	r.isHeader = false
+}
+
 // IsHeader implements ADIFRecord.IsHeader
 func (r *adiRecord) IsHeader() bool {
 	return r.isHeader
@@ -44,6 +51,7 @@ func (r *adiRecord) SetIsHeader(isHeader bool) {
 
 // Get implements ADIFRecord.Get
 func (r *adiRecord) Get(field adifield.ADIField) string {
+	field = adifield.ADIField(strings.ToUpper(string(field)))
 	return r.fields[field]
 }
 
@@ -53,14 +61,19 @@ func (r *adiRecord) Set(field adifield.ADIField, value string) {
 		r.allCache = nil
 		field = adifield.ADIField(strings.ToUpper(string(field)))
 	}
-	r.setDirect(field, value)
+
+	r.setInternal(field, value)
 }
 
-// setDirect sets the value for a field without modifying the field name or clearing the cache.
+// setInternal sets the value for a field without modifying the field name or clearing the cache.
 // It is used by the parser to avoid unnecessary allocations.
 // It assumes the field name is already normalized (UPPERCASE).
-func (r *adiRecord) setDirect(field adifield.ADIField, value string) {
-	r.fields[field] = value
+func (r *adiRecord) setInternal(field adifield.ADIField, value string) {
+	if value == "" {
+		delete(r.fields, field)
+	} else {
+		r.fields[field] = value
+	}
 }
 
 // All implements ADIFRecord.All
