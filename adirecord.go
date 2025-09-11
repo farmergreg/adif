@@ -57,6 +57,8 @@ func (r *adiRecord) Get(field adifield.ADIField) string {
 
 // Set implements ADIFRecord.Set
 func (r *adiRecord) Set(field adifield.ADIField, value string) {
+	// this avoids unnecessary allocations and string interning in the common case (already upper cased field name string).
+	// if the field is not found, we assume it is a new field, clear the cache and normalize it.
 	if _, ok := r.fields[field]; !ok {
 		r.allCache = nil
 		field = adifield.ADIField(strings.ToUpper(string(field)))
