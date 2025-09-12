@@ -218,7 +218,9 @@ func (p *adiReader) discardUntilLessThan() (err error) {
 
 // parseDataLength is an optimized replacement for strconv.Atoi.
 func parseDataLength(data []byte) (value int, err error) {
-	if len(data) == 0 {
+	// prevent overflow; int32 max is 2,147,483,647 (10 digits)
+	// we limit ourselves to 1,000,000,000 maximum
+	if count := len(data); count == 0 || count > 10 {
 		return 0, ErrAdiReaderMalformedADI
 	}
 
@@ -226,15 +228,11 @@ func parseDataLength(data []byte) (value int, err error) {
 		if b < '0' || b > '9' {
 			return 0, ErrAdiReaderMalformedADI
 		}
+		value = value*10 + int(b-'0') // Parse digit, avoiding string allocations
+	}
 
-		// Parse digit, avoiding string allocations
-		newVal := value*10 + int(b-'0')
-
-		// Check for overflow or too big
-		if newVal < value || newVal > maxADIReaderDataSize {
-			return 0, ErrAdiReaderMalformedADI
-		}
-		value = newVal
+	if value > maxADIReaderDataSize {
+		return 0, ErrAdiReaderMalformedADI
 	}
 
 	return value, nil

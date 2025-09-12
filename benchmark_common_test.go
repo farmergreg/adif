@@ -70,18 +70,25 @@ func loadTestData() []ADIFRecord {
 func BenchmarkInternalParseDataLength(b *testing.B) {
 	testData := []struct {
 		input []byte
+		want  int
 	}{
-
-		{[]byte("001")},
-		{[]byte("012")},
-		{[]byte("123")},
-		{[]byte("XYZMORE")},
+		{[]byte("1"), 1},
+		{[]byte("12"), 12},
+		{[]byte("123"), 123},
+		{[]byte("XYZMORE"), -1},
 	}
 
 	for _, td := range testData {
 		b.Run(string(td.input), func(b *testing.B) {
 			for b.Loop() {
-				_, _ = parseDataLength(td.input)
+				v, err := parseDataLength(td.input)
+				if td.want == -1 {
+					if err == nil {
+						b.Fatalf("Expected error for input '%s', got nil", td.input)
+					}
+				} else if v != td.want {
+					b.Fatalf("Expected %d, got %d", td.want, v)
+				}
 			}
 		})
 	}
