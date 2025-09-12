@@ -50,7 +50,7 @@ func TestADIRecordSet_IsHeader(t *testing.T) {
 func TestADIRecordAll(t *testing.T) {
 	r := NewADIRecord()
 	r.Set(adifield.CALL, "K9CTS")
-	r.Set(adifield.BAND, band.Band20m.String())
+	r.Set(adifield.BAND, band.BAND_20M.String())
 	for k, v := range r.All() {
 		if k == adifield.CALL && v != "K9CTS" {
 			t.Errorf("Expected value 'K9CTS' for CALL, got '%s'", v)

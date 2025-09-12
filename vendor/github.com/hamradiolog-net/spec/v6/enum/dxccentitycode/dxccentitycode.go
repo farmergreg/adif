@@ -18,6 +18,11 @@ func (d DXCCEntityCode) Int() int {
 	return int(d)
 }
 
+// Compare implements the Comparable interface.
+func (t DXCCEntityCode) Compare(other DXCCEntityCode) int {
+	return int(t) - int(other)
+}
+
 // String returns the string representation of the DXCCEntityCode.
 func (d DXCCEntityCode) String() string {
 	return strconv.Itoa(int(d))
