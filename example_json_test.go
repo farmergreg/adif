@@ -79,7 +79,7 @@ func ExampleNewJSONRecordWriter() {
 
 	qso := NewADIRecord()
 	qso.Set(adifield.CALL, "K9CTS")
-	qso.Set(adifield.BAND, band.Band20m.String())
+	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
 
 	writer.Write([]ADIFRecord{hdr, qso})
@@ -93,7 +93,7 @@ func ExampleNewJSONRecordWriter() {
 	//   },
 	//   "RECORDS": [
 	//     {
-	//       "BAND": "20m",
+	//       "BAND": "20M",
 	//       "CALL": "K9CTS",
 	//       "MODE": "SSB"
 	//     }

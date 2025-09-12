@@ -3,6 +3,7 @@ package region
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hamradiolog-net/spec/v6/enum/dxccentitycode"
 	"github.com/hamradiolog-net/spec/v6/internal/codegen"
@@ -37,6 +38,11 @@ type Spec struct {
 // RegionCode represents a region entity code.
 type RegionCode string
 
+// New creates a new RegionCode from the provided string.
+func New(value string) RegionCode {
+	return RegionCode(strings.ToUpper(value))
+}
+
 // String returns the string representation of the RegionCode.
 func (r RegionCode) String() string {
 	return string(r)
@@ -68,8 +74,8 @@ func (c SpecMapContainer) CodeGenRecords() map[codegen.CodeGenKey]codegen.CodeGe
 func (c SpecMapContainer) CodeGenMetadata() codegen.CodeGenContainerMetadata {
 	keyMap := make(map[string]string)
 	for _, v := range c.Records {
-
-		keyMap[string(v.Code)] = string(v.Code)
+		code := strings.ToUpper(string(v.Code))
+		keyMap[code] = code
 	}
 
 	return codegen.CodeGenContainerMetadata{

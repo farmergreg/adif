@@ -15,7 +15,7 @@ func TestJSONWriterWriteError(t *testing.T) {
 
 	qso := NewADIRecord()
 	qso.Set(adifield.CALL, "K9CTS")
-	qso.Set(adifield.BAND, band.Band20m.String())
+	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
 
 	// Write should return the error from the encoder
