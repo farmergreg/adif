@@ -54,6 +54,7 @@ func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
 		skipHeader: skipHeader,
 	}
 	p.appFieldMap = make(map[string]adifield.ADIField, 128)
+	p.bufValue = make([]byte, 4096)
 
 	return p
 }
