@@ -40,9 +40,14 @@ type Spec struct {
 // PrimaryAdministrativeSubdivisionCode is the Code portion of the composite key.
 type PrimaryAdministrativeSubdivisionCode string
 
+// New creates a new PrimaryAdministrativeSubdivisionCode from the provided string.
+func New(value string) PrimaryAdministrativeSubdivisionCode {
+	return PrimaryAdministrativeSubdivisionCode(strings.ToUpper(value))
+}
+
 // String returns the string representation of the PrimaryAdministrativeSubdivisionCode.
-func (c PrimaryAdministrativeSubdivisionCode) String() string {
-	return string(c)
+func (p PrimaryAdministrativeSubdivisionCode) String() string {
+	return string(p)
 }
 
 func (s Spec) CodeGenMetadata() codegen.CodeGenEnumMetadata {

@@ -11,13 +11,17 @@ type QSLRcvd string
 
 var _ codegen.CodeGenKey = QSLRcvd("")
 
+// New creates a new QSLRcvd from the provided string.
+func New(value string) QSLRcvd {
+	return QSLRcvd(strings.ToUpper(value))
+}
+
 // String returns the string representation of the QSLRcvd.
 func (q QSLRcvd) String() string {
 	return string(q)
 }
 
-// Compare implements the Comparable interface.
 // ADIF enums are case-insensitive.
-func (t QSLRcvd) Compare(other QSLRcvd) int {
-	return strings.Compare(strings.ToUpper(string(t)), strings.ToUpper(other.String()))
+func (q QSLRcvd) Compare(other QSLRcvd) int {
+	return strings.Compare(string(q), string(other))
 }
