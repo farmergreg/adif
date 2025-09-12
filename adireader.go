@@ -30,9 +30,6 @@ type adiReader struct {
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
 	appFieldMap map[string]adifield.ADIField
 
-	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
-	bufValue []byte
-
 	// preAllocateFields is the number of fields to allocate for each record.
 	preAllocateFields int
 
@@ -54,7 +51,6 @@ func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
 		skipHeader: skipHeader,
 	}
 	p.appFieldMap = make(map[string]adifield.ADIField, 128)
-	p.bufValue = make([]byte, 4096)
 
 	return p
 }
@@ -100,17 +96,17 @@ func (p *adiReader) Next() (ADIFRecord, error) {
 //
 // It is heavily optimized for speed and memory use.
 // Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
-func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err error) {
+func (p *adiReader) parseOneField() (field adifield.ADIField, value []byte, err error) {
 	// Step 1: Finish reading the data specifier "<fieldname:length:...>", removing the trailing '>'
 	volatileSpecifier, err := p.readDataSpecifierVolatile()
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 
 	// Step 2: Parse Field Name
 	volatileField, volatileLength, foundFirstColon := bytes.Cut(volatileSpecifier, []byte(":"))
 	if len(volatileField) == 0 {
-		return "", "", ErrAdiReaderMalformedADI // field name is empty
+		return "", nil, ErrAdiReaderMalformedADI // field name is empty
 	}
 
 	// Step 2.1: field name string interning
@@ -125,7 +121,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	if !foundFirstColon {
 		// EOH, EOR
 		// And, also, LoTW's deviation from the official spec: APP_LOTW_EOF
-		return field, "", nil
+		return field, nil, nil
 	}
 	// Step 3: Parse Field Length
 	if idx := len(volatileLength) - 2; idx > 0 && volatileLength[idx] == ':' {
@@ -136,25 +132,20 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	length, err := parseDataLength(volatileLength)
 	if err != nil {
 		// handle data length parsing errors
-		return "", "", err
+		return "", nil, err
 	}
 	if length < 1 {
-		return field, "", nil
+		return field, nil, nil
 	}
 
 	// Step 4: Read the field value
 	// ParseDataLength ensures that length is a reasonable value for us.
-	if cap(p.bufValue) < length {
-		p.bufValue = make([]byte, length)
-	}
-	p.bufValue = p.bufValue[:length]
-
-	var c int
-	c, err = io.ReadFull(p.r, p.bufValue) // this will overwrite all of the 'volatile' variables (see above)
+	value = make([]byte, length)
+	c, err := io.ReadFull(p.r, value) // this will overwrite all of the 'volatile' variables (see above)
 	if err == io.EOF {
-		return "", "", ErrAdiReaderMalformedADI
+		return "", nil, ErrAdiReaderMalformedADI
 	}
-	value = string(p.bufValue[:c])
+	value = value[:c]
 	return field, value, nil
 }
 

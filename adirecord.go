@@ -3,6 +3,7 @@ package adif
 import (
 	"slices"
 	"strings"
+	"unsafe"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
 )
@@ -11,7 +12,7 @@ var _ ADIFRecord = (*adiRecord)(nil)
 
 // adiRecord represents a single ADI record.
 type adiRecord struct {
-	fields   map[adifield.ADIField]string // map of all fields and their values
+	fields   map[adifield.ADIField][]byte // map of all fields and their values
 	allCache []adifield.ADIField          // all sorts the keys prior to iterating, this caches that work
 	isHeader bool                         // true if this record is a header
 }
@@ -27,7 +28,7 @@ func NewADIRecordWithCapacity(initialCapacity int) *adiRecord {
 		initialCapacity = 7
 	}
 	r := adiRecord{
-		fields: make(map[adifield.ADIField]string, initialCapacity),
+		fields: make(map[adifield.ADIField][]byte, initialCapacity),
 	}
 	return &r
 }
@@ -52,7 +53,11 @@ func (r *adiRecord) SetIsHeader(isHeader bool) {
 // Get implements ADIFRecord.Get
 func (r *adiRecord) Get(field adifield.ADIField) string {
 	field = adifield.ADIField(strings.ToUpper(string(field)))
-	return r.fields[field]
+	data := r.fields[field]
+	if data == nil {
+		return ""
+	}
+	return unsafe.String(&data[0], len(data)) // avoid allocation if possible
 }
 
 // Set implements ADIFRecord.Set
@@ -64,14 +69,14 @@ func (r *adiRecord) Set(field adifield.ADIField, value string) {
 		field = adifield.ADIField(strings.ToUpper(string(field)))
 	}
 
-	r.setInternal(field, value)
+	r.setInternal(field, []byte(value))
 }
 
 // setInternal sets the value for a field without modifying the field name or clearing the cache.
 // It is used by the parser to avoid unnecessary allocations.
 // It assumes the field name is already normalized (UPPERCASE).
-func (r *adiRecord) setInternal(field adifield.ADIField, value string) {
-	if value == "" {
+func (r *adiRecord) setInternal(field adifield.ADIField, value []byte) {
+	if len(value) == 0 {
 		delete(r.fields, field)
 	} else {
 		r.fields[field] = value
@@ -90,7 +95,8 @@ func (r *adiRecord) All() func(func(adifield.ADIField, string) bool) {
 
 	return func(yield func(adifield.ADIField, string) bool) {
 		for _, field := range r.allCache {
-			if !yield(field, r.fields[field]) {
+			data := r.fields[field]
+			if !yield(field, unsafe.String(&data[0], len(data))) {
 				return
 			}
 		}
