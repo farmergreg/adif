@@ -9,10 +9,10 @@ import (
 )
 
 func BenchmarkADIRead(b *testing.B) {
-	var qsoList []ADIFRecord
+	var qsoList []Record
 	b.ResetTimer()
 	for b.Loop() {
-		qsoList = make([]ADIFRecord, 0, 10000)
+		qsoList = make([]Record, 0, 10000)
 		p := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
 		for {
 			q, err := p.Next()
@@ -30,11 +30,11 @@ func BenchmarkADIRead(b *testing.B) {
 }
 
 func BenchmarkADIJRead(b *testing.B) {
-	var qsoList []ADIFRecord
+	var qsoList []Record
 	json := benchmarkFileAsJSON()
 	b.ResetTimer()
 	for b.Loop() {
-		qsoList = make([]ADIFRecord, 0, 10000)
+		qsoList = make([]Record, 0, 10000)
 		p, err := NewJSONRecordReader(bytes.NewReader(json), false)
 		if err != nil {
 			b.Fatal(err)

@@ -75,7 +75,7 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := NewADIRecordReader(strings.NewReader(tt.data), false)
 
-			records := make([]ADIFRecord, 0, 10000)
+			records := make([]Record, 0, 10000)
 			for {
 				record, err := p.Next()
 				if err == io.EOF {
@@ -138,7 +138,7 @@ func TestADIRecordReaderParseEOREOH(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := NewADIRecordReader(strings.NewReader(tt.data), false)
 
-			records := make([]ADIFRecord, 0, 10000)
+			records := make([]Record, 0, 10000)
 			for {
 				record, err := p.Next()
 				if err == io.EOF {

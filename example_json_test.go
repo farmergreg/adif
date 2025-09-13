@@ -82,7 +82,7 @@ func ExampleNewJSONRecordWriter() {
 	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
 
-	writer.Write([]ADIFRecord{hdr, qso})
+	writer.Write([]Record{hdr, qso})
 
 	fmt.Println(sb.String())
 

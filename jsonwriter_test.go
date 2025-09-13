@@ -19,7 +19,7 @@ func TestJSONWriterWriteError(t *testing.T) {
 	qso.Set(adifield.MODE, mode.SSB.String())
 
 	// Write should return the error from the encoder
-	err := writer.Write([]ADIFRecord{qso})
+	err := writer.Write([]Record{qso})
 	if err == nil {
 		t.Error("Expected error from Write, but got nil")
 	}

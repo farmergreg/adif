@@ -23,7 +23,7 @@ func TestADIRecordWriterWrite(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriterWithPreamble(sb, "")
-	err := w.Write([]ADIFRecord{hdr, qso, qso1})
+	err := w.Write([]Record{hdr, qso, qso1})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriter(sb)
-	err := w.Write([]ADIFRecord{qso})
+	err := w.Write([]Record{qso})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 	fw := &mockFailWriter{maxBytes: expectedBytes}
 	w := NewADIRecordWriter(fw)
 
-	err := w.Write([]ADIFRecord{qso1, qso2})
+	err := w.Write([]Record{qso1, qso2})
 	if err == nil {
 		t.Fatal("Expected error but got none")
 	}

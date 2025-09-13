@@ -2,7 +2,7 @@ package adif
 
 import "github.com/hamradiolog-net/spec/v6/adifield"
 
-var _ ADIFRecord = (*mockADIFRecord)(nil)
+var _ Record = (*mockADIFRecord)(nil)
 
 // mockADIFRecord is a fake ADIFRecord used for testing.
 type mockADIFRecord struct{}

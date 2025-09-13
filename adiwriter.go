@@ -83,7 +83,7 @@ func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) *adiWriter 
 	}
 }
 
-func (w *adiWriter) Write(r []ADIFRecord) error {
+func (w *adiWriter) Write(r []Record) error {
 	if len(r) > 0 && r[0].IsHeader() {
 		if w.headerPreamble == "" {
 			// preamble is mandatory per the ADIF specification.
@@ -102,7 +102,7 @@ func (w *adiWriter) Write(r []ADIFRecord) error {
 	return nil
 }
 
-func (w *adiWriter) writeInternal(r ADIFRecord) error {
+func (w *adiWriter) writeInternal(r Record) error {
 	adiLength := appendADIFRecordAsADIPreCalculate(r)
 	bufPtr := adiWriterBufferPool.Get().(*[]byte)
 	buf := *bufPtr
@@ -124,7 +124,7 @@ func (w *adiWriter) writeInternal(r ADIFRecord) error {
 // The buffer should have sufficient capacity to avoid reallocations.
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
-func appendAsADI(r ADIFRecord, buf []byte) []byte {
+func appendAsADI(r Record, buf []byte) []byte {
 	if r.Count() == 0 {
 		return buf
 	}
@@ -166,7 +166,7 @@ func appendADIFRecordAsADI(buf []byte, field adifield.ADIField, value string) []
 }
 
 // appendADIFRecordAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the AppendAsADI method.
-func appendADIFRecordAsADIPreCalculate(r ADIFRecord) (adiLength int) {
+func appendADIFRecordAsADIPreCalculate(r Record) (adiLength int) {
 	for field, value := range r.All() {
 		valueLength := len(value)
 		if valueLength == 0 {

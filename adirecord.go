@@ -6,7 +6,7 @@ import (
 	"github.com/hamradiolog-net/spec/v6/adifield"
 )
 
-var _ ADIFRecord = (*adiRecord)(nil)
+var _ Record = (*adiRecord)(nil)
 
 // adiRecord represents a single ADI record.
 type adiRecord struct {
