@@ -15,13 +15,13 @@ type adiRecord struct {
 	isHeader bool                         // true if this record is a header
 }
 
-// NewADIRecord creates a new adiRecord with the default initial capacity.
-func NewADIRecord() *adiRecord {
-	return NewADIRecordWithCapacity(-1)
+// NewRecord creates a new adiRecord with the default initial capacity.
+func NewRecord() Record {
+	return newRecordWithCapacity(-1)
 }
 
-// NewADIRecordWithCapacity creates a new adiRecord with a specific initial capacity.
-func NewADIRecordWithCapacity(initialCapacity int) *adiRecord {
+// newRecordWithCapacity creates a new adiRecord with a specific initial capacity.
+func newRecordWithCapacity(initialCapacity int) *adiRecord {
 	if initialCapacity < 1 {
 		initialCapacity = 7
 	}

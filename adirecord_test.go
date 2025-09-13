@@ -8,15 +8,15 @@ import (
 )
 
 func TestNewADIRecordWithCapacity(t *testing.T) {
-	_ = NewADIRecordWithCapacity(10)
+	_ = newRecordWithCapacity(10)
 }
 
 func TestNewADIRecord(t *testing.T) {
-	_ = NewADIRecord()
+	_ = NewRecord()
 }
 
 func TestADIRecordSet_AddField(t *testing.T) {
-	r := NewADIRecord()
+	r := NewRecord()
 	r.Set(adifield.CALL, "K9CTS")
 	if r.Count() != 1 {
 		t.Errorf("Expected field count '1', got '%d'", r.Count())
@@ -28,7 +28,7 @@ func TestADIRecordSet_AddField(t *testing.T) {
 }
 
 func TestADIRecordSet_RemoveField(t *testing.T) {
-	r := NewADIRecord()
+	r := NewRecord()
 	r.Set(adifield.CALL, "K9CTS")
 	r.Set(adifield.CALL, "")
 	if r.Count() != 0 {
@@ -37,7 +37,7 @@ func TestADIRecordSet_RemoveField(t *testing.T) {
 }
 
 func TestADIRecordSet_IsHeader(t *testing.T) {
-	r := NewADIRecord()
+	r := NewRecord()
 	if r.IsHeader() {
 		t.Errorf("Expected IsHeader false, got true")
 	}
@@ -48,7 +48,7 @@ func TestADIRecordSet_IsHeader(t *testing.T) {
 }
 
 func TestADIRecordAll(t *testing.T) {
-	r := NewADIRecord()
+	r := NewRecord()
 	r.Set(adifield.CALL, "K9CTS")
 	r.Set(adifield.BAND, band.BAND_20M.String())
 	for k, v := range r.All() {

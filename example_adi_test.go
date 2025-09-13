@@ -42,11 +42,11 @@ func ExampleNewADIRecordWriter() {
 	var sb strings.Builder
 	writer := NewADIRecordWriter(&sb)
 
-	hdr := NewADIRecord()
+	hdr := NewRecord()
 	hdr.SetIsHeader(true)
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
 
-	qso := NewADIRecord()
+	qso := NewRecord()
 	qso.Set(adifield.CALL, "K9CTS")
 	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())

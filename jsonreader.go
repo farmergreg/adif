@@ -61,7 +61,7 @@ func (r *jsonReader) Next() (Record, error) {
 
 // mapToADIRecord converts a map of ADIField to string into an ADIFRecord
 func (r *jsonReader) mapToADIRecord(fieldMap map[adifield.ADIField]string) Record {
-	record := NewADIRecord()
+	record := NewRecord()
 	for field, value := range fieldMap {
 		record.Set(field, value)
 	}

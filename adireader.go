@@ -62,7 +62,7 @@ func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
 // Next reads and returns the next Record.
 // It returns io.EOF when no more records are available.
 func (p *adiReader) Next() (Record, error) {
-	result := NewADIRecordWithCapacity(p.preAllocateFields)
+	result := newRecordWithCapacity(p.preAllocateFields)
 	for {
 		// Find the start of the next adi field
 		err := p.discardUntilLessThan()

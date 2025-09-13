@@ -10,16 +10,16 @@ import (
 )
 
 func TestADIRecordWriterWrite(t *testing.T) {
-	hdr := NewADIRecord()
+	hdr := NewRecord()
 	hdr.SetIsHeader(true)
 	hdr.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	hdr.Set(adifield.PROGRAMVERSION, "1.0.0")
 	hdr.Set(adifield.ADIF_VER, "3.1.4")
 
-	qso := NewADIRecord()
+	qso := NewRecord()
 	qso.Set(adifield.CALL, "K9CTS")
 
-	qso1 := NewADIRecord()
+	qso1 := NewRecord()
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriterWithPreamble(sb, "")
@@ -37,7 +37,7 @@ func TestADIRecordWriterWrite(t *testing.T) {
 func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 	// force re-allocation of the internal write buffer.
 	var size = rand.Intn(10000000) + (1024 * 50)
-	qso := NewADIRecord()
+	qso := NewRecord()
 	qso.Set(adifield.COMMENT, strings.Repeat("1", size))
 
 	sb := &strings.Builder{}
@@ -51,10 +51,10 @@ func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 func TestADIRecordWriterWriteError(t *testing.T) {
 	expectedBytes := 20
 
-	qso1 := NewADIRecord()
+	qso1 := NewRecord()
 	qso1.Set(adifield.CALL, "K9CTS")
 
-	qso2 := NewADIRecord()
+	qso2 := NewRecord()
 	qso2.Set(adifield.CALL, "W1AW")
 
 	fw := &mockFailWriter{maxBytes: expectedBytes}
@@ -70,7 +70,7 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 
 func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {
 	var size = rand.Intn(10000000) + (1024 * 50)
-	qso := NewADIRecord()
+	qso := NewRecord()
 	qso.SetIsHeader(true)
 	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
