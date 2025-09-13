@@ -20,7 +20,14 @@ func (s SecondaryAdministrativeSubdivisionAlt) String() string {
 	return string(s)
 }
 
+// Compare returns an integer comparing two SecondaryAdministrativeSubdivisionAlt values lexicographically.
 // ADIF enums are case-insensitive.
 func (t SecondaryAdministrativeSubdivisionAlt) Compare(other SecondaryAdministrativeSubdivisionAlt) int {
-	return strings.Compare(string(t), string(other))
+	return strings.Compare(strings.ToUpper(string(t)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this SecondaryAdministrativeSubdivisionAlt equals the other SecondaryAdministrativeSubdivisionAlt.
+// ADIF enums are case-insensitive.
+func (t SecondaryAdministrativeSubdivisionAlt) Equals(other SecondaryAdministrativeSubdivisionAlt) bool {
+	return strings.EqualFold(string(t), string(other))
 }

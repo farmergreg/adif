@@ -23,7 +23,14 @@ func (f ADIField) String() string {
 	return string(f)
 }
 
+// Compare returns an integer comparing two ADIField values lexicographically.
 // ADIF enums are case-insensitive.
 func (f ADIField) Compare(other ADIField) int {
-	return strings.Compare(string(f), string(other))
+	return strings.Compare(strings.ToUpper(string(f)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this ADIField equals the other ADIField.
+// ADIF enums are case-insensitive.
+func (f ADIField) Equals(other ADIField) bool {
+	return strings.EqualFold(string(f), string(other))
 }

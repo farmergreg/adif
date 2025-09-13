@@ -21,7 +21,14 @@ func (m Mode) String() string {
 	return string(m)
 }
 
+// Compare returns an integer comparing two Mode values lexicographically.
 // ADIF enums are case-insensitive.
 func (m Mode) Compare(other Mode) int {
-	return strings.Compare(string(m), string(other))
+	return strings.Compare(strings.ToUpper(string(m)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this Mode equals the other Mode.
+// ADIF enums are case-insensitive.
+func (m Mode) Equals(other Mode) bool {
+	return strings.EqualFold(string(m), string(other))
 }

@@ -21,7 +21,14 @@ func (q QSOUploadStatus) String() string {
 	return string(q)
 }
 
+// Compare returns an integer comparing two QSOUploadStatus values lexicographically.
 // ADIF enums are case-insensitive.
 func (q QSOUploadStatus) Compare(other QSOUploadStatus) int {
-	return strings.Compare(string(q), string(other))
+	return strings.Compare(strings.ToUpper(string(q)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this QSOUploadStatus equals the other QSOUploadStatus.
+// ADIF enums are case-insensitive.
+func (q QSOUploadStatus) Equals(other QSOUploadStatus) bool {
+	return strings.EqualFold(string(q), string(other))
 }

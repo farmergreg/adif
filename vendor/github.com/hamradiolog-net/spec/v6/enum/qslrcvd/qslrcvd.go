@@ -21,7 +21,14 @@ func (q QSLRcvd) String() string {
 	return string(q)
 }
 
+// Compare returns an integer comparing two QSLRcvd values lexicographically.
 // ADIF enums are case-insensitive.
 func (q QSLRcvd) Compare(other QSLRcvd) int {
-	return strings.Compare(string(q), string(other))
+	return strings.Compare(strings.ToUpper(string(q)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this QSLRcvd equals the other QSLRcvd.
+// ADIF enums are case-insensitive.
+func (q QSLRcvd) Equals(other QSLRcvd) bool {
+	return strings.EqualFold(string(q), string(other))
 }

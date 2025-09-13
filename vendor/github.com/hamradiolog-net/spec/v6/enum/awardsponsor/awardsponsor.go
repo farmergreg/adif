@@ -21,7 +21,14 @@ func (a AwardSponsorPrefix) String() string {
 	return string(a)
 }
 
+// Compare returns an integer comparing two AwardSponsorPrefix values lexicographically.
 // ADIF enums are case-insensitive.
 func (t AwardSponsorPrefix) Compare(other AwardSponsorPrefix) int {
-	return strings.Compare(string(t), string(other))
+	return strings.Compare(strings.ToUpper(string(t)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this AwardSponsorPrefix equals the other AwardSponsorPrefix.
+// ADIF enums are case-insensitive.
+func (t AwardSponsorPrefix) Equals(other AwardSponsorPrefix) bool {
+	return strings.EqualFold(string(t), string(other))
 }

@@ -21,7 +21,14 @@ func (c Credit) String() string {
 	return string(c)
 }
 
+// Compare returns an integer comparing two Credit values lexicographically.
 // ADIF enums are case-insensitive.
 func (c Credit) Compare(other Credit) int {
-	return strings.Compare(string(c), string(other))
+	return strings.Compare(strings.ToUpper(string(c)), strings.ToUpper(string(other)))
+}
+
+// Equals returns true if this Credit equals the other Credit.
+// ADIF enums are case-insensitive.
+func (c Credit) Equals(other Credit) bool {
+	return strings.EqualFold(string(c), string(other))
 }
