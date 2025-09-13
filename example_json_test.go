@@ -19,14 +19,14 @@ func ExampleNewJSONRecordReader() {
   },
   "RECORDS": [
     {
-      "BAND": "20m",
+      "BAND": "20M",
       "CALL": "K9CTS",
       "MODE": "SSB",
       "QSO_DATE": "20250907",
       "TIME_ON": "2127"
     },
     {
-      "BAND": "40m",
+      "BAND": "40M",
       "CALL": "W9PVA",
       "MODE": "CW",
       "QSO_DATE": "20250907",
@@ -62,10 +62,10 @@ func ExampleNewJSONRecordReader() {
 	// Header CREATED_TIMESTAMP: 20250907 212700
 	//
 	// Is Header: false
-	// QSO CALL: K9CTS, BAND: 20m, MODE: SSB
+	// QSO CALL: K9CTS, BAND: 20M, MODE: SSB
 	//
 	// Is Header: false
-	// QSO CALL: W9PVA, BAND: 40m, MODE: CW
+	// QSO CALL: W9PVA, BAND: 40M, MODE: CW
 }
 
 // ExampleNewJSONWriter demonstrates how to write ADIJ JSON document using NewJSONWriter.
