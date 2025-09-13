@@ -2,7 +2,6 @@ package adif
 
 import (
 	"slices"
-	"strings"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
 )
@@ -51,19 +50,12 @@ func (r *adiRecord) SetIsHeader(isHeader bool) {
 
 // Get implements ADIFRecord.Get
 func (r *adiRecord) Get(field adifield.ADIField) string {
-	field = adifield.ADIField(strings.ToUpper(string(field)))
 	return r.fields[field]
 }
 
 // Set implements ADIFRecord.Set
 func (r *adiRecord) Set(field adifield.ADIField, value string) {
-	// this avoids unnecessary allocations and string interning in the common case (already upper cased field name string).
-	// if the field is not found, we assume it is a new field, clear the cache and normalize it.
-	if _, ok := r.fields[field]; !ok {
-		r.allCache = nil
-		field = adifield.ADIField(strings.ToUpper(string(field)))
-	}
-
+	r.allCache = nil
 	r.setInternal(field, value)
 }
 
