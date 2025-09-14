@@ -7,9 +7,11 @@ import "github.com/hamradiolog-net/spec/v6/adifield"
 type Record interface {
 	IsHeader() bool                                  // IsHeader returns true if the record is a header record.
 	SetIsHeader(isHeader bool)                       // SetIsHeader sets whether the record is a header record.
-	Get(field adifield.ADIField) string              // Get is case-insensitive. It returns the value for the specified field, or an empty string if the field is not present.
-	Set(field adifield.ADIField, value string)       // Set sets the value for the specified field.
-	All() func(func(adifield.ADIField, string) bool) // All returns an iterator that yields field-value pairs for all fields in the record.
+	Get(field adifield.Field) string                 // Get is case-insensitive. It returns the value for the specified field, or an empty string if the field is not present.
+	Set(field adifield.Field, value string)          // Set sets the value for the specified field.
+	GetDataType(field adifield.Field) rune           // GetDataType returns the data type for the specified field, or an empty string if the field is not recognized.
+	SetDataType(field adifield.Field, dataType rune) // SetDataType sets the data type for the specified field.
+	All() func(func(adifield.Field, string) bool)    // All returns an iterator that yields field-value pairs for all fields in the record.
 	Count() int                                      // Count returns the number of fields in the record.
 }
 

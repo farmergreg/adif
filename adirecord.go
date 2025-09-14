@@ -2,17 +2,23 @@ package adif
 
 import (
 	"slices"
+	"unicode"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
 )
 
 var _ Record = (*adiRecord)(nil)
 
+type adiField struct {
+	value              string
+	fieldTypeIndicator rune
+}
+
 // adiRecord represents a single ADI record.
 type adiRecord struct {
-	fields   map[adifield.ADIField]string // map of all fields and their values
-	allCache []adifield.ADIField          // all sorts the keys prior to iterating, this caches that work
-	isHeader bool                         // true if this record is a header
+	fields   map[adifield.Field]adiField // map of all fields and their values
+	allCache []adifield.Field            // all sorts the keys prior to iterating, this caches that work
+	isHeader bool                        // true if this record is a header
 }
 
 // NewRecord creates a new adiRecord with the default initial capacity.
@@ -26,7 +32,7 @@ func newRecordWithCapacity(initialCapacity int) *adiRecord {
 		initialCapacity = 7
 	}
 	r := adiRecord{
-		fields: make(map[adifield.ADIField]string, initialCapacity),
+		fields: make(map[adifield.Field]adiField, initialCapacity),
 	}
 	return &r
 }
@@ -49,40 +55,63 @@ func (r *adiRecord) SetIsHeader(isHeader bool) {
 }
 
 // Get implements ADIFRecord.Get
-func (r *adiRecord) Get(field adifield.ADIField) string {
-	return r.fields[field]
+func (r *adiRecord) Get(field adifield.Field) string {
+	return r.fields[field].value
 }
 
 // Set implements ADIFRecord.Set
-func (r *adiRecord) Set(field adifield.ADIField, value string) {
+func (r *adiRecord) Set(field adifield.Field, value string) {
 	r.allCache = nil
-	r.setInternal(field, value)
+	r.setInternal(field, 0, value)
 }
 
 // setInternal sets the value for a field without modifying the field name or clearing the cache.
 // It is used by the parser to avoid unnecessary allocations.
 // It assumes the field name is already normalized (UPPERCASE).
-func (r *adiRecord) setInternal(field adifield.ADIField, value string) {
+func (r *adiRecord) setInternal(field adifield.Field, fieldTypeIndicator rune, value string) {
 	if value == "" {
 		delete(r.fields, field)
 	} else {
-		r.fields[field] = value
+		f := r.fields[field]
+		f.value = value
+		f.fieldTypeIndicator = fieldTypeIndicator
+		r.fields[field] = f
 	}
 }
 
+// GetDataType implements ADIFRecord.GetDataType
+func (r *adiRecord) GetDataType(field adifield.Field) rune {
+	if f, ok := r.fields[field]; ok && f.fieldTypeIndicator != 0 {
+		return f.fieldTypeIndicator
+	}
+	if info, ok := adifield.Lookup(field); ok {
+		for _, r := range info.DataType {
+			return unicode.ToUpper(r)
+		}
+	}
+	return 'S'
+}
+
+// SetDataType implements ADIFRecord.SetDataType
+func (r *adiRecord) SetDataType(field adifield.Field, dataTypeSpecifier rune) {
+	f := r.fields[field]
+	f.fieldTypeIndicator = dataTypeSpecifier
+	r.fields[field] = f
+}
+
 // All implements ADIFRecord.All
-func (r *adiRecord) All() func(func(adifield.ADIField, string) bool) {
+func (r *adiRecord) All() func(func(adifield.Field, string) bool) {
 	if r.allCache == nil {
-		r.allCache = make([]adifield.ADIField, 0, len(r.fields))
+		r.allCache = make([]adifield.Field, 0, len(r.fields))
 		for field := range r.fields {
 			r.allCache = append(r.allCache, field)
 		}
 		slices.Sort(r.allCache)
 	}
 
-	return func(yield func(adifield.ADIField, string) bool) {
+	return func(yield func(adifield.Field, string) bool) {
 		for _, field := range r.allCache {
-			if !yield(field, r.fields[field]) {
+			if !yield(field, r.fields[field].value) {
 				return
 			}
 		}

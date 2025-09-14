@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"io"
 	"strings"
+	"unicode"
 	"unsafe"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
@@ -28,7 +29,7 @@ type adiReader struct {
 	r *bufio.Reader
 
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
-	appFieldMap map[string]adifield.ADIField
+	appFieldMap map[string]adifield.Field
 
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
@@ -53,7 +54,7 @@ func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
 		r:          br,
 		skipHeader: skipHeader,
 	}
-	p.appFieldMap = make(map[string]adifield.ADIField, 128)
+	p.appFieldMap = make(map[string]adifield.Field, 128)
 	p.bufValue = make([]byte, 4096)
 
 	return p
@@ -70,7 +71,7 @@ func (p *adiReader) Next() (Record, error) {
 			return nil, err
 		}
 
-		field, value, err := p.parseOneField()
+		field, dataTypeIndicator, value, err := p.parseOneField()
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +93,7 @@ func (p *adiReader) Next() (Record, error) {
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value
-		result.setInternal(field, value)
+		result.setInternal(field, dataTypeIndicator, value)
 	}
 }
 
@@ -100,17 +101,17 @@ func (p *adiReader) Next() (Record, error) {
 //
 // It is heavily optimized for speed and memory use.
 // Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
-func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err error) {
+func (p *adiReader) parseOneField() (field adifield.Field, dataTypeSpecifier rune, value string, err error) {
 	// Step 1: Finish reading the data specifier "<fieldname:length:...>", removing the trailing '>'
 	volatileSpecifier, err := p.readDataSpecifierVolatile()
 	if err != nil {
-		return "", "", err
+		return "", 0, "", err
 	}
 
 	// Step 2: Parse Field Name
 	volatileField, volatileLength, foundFirstColon := bytes.Cut(volatileSpecifier, []byte(":"))
 	if len(volatileField) == 0 {
-		return "", "", ErrAdiReaderMalformedADI // field name is empty
+		return "", 0, "", ErrAdiReaderMalformedADI // field name is empty
 	}
 
 	// Step 2.1: field name string interning
@@ -118,28 +119,29 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
 	if field, ok = p.appFieldMap[fieldStringUnsafe]; !ok {
 		fieldStringSafe := strings.Clone(fieldStringUnsafe)
-		field = adifield.ADIField(strings.ToUpper(fieldStringSafe))
+		field = adifield.Field(strings.ToUpper(fieldStringSafe))
 		p.appFieldMap[fieldStringSafe] = field
 	}
 
 	if !foundFirstColon {
 		// EOH, EOR
 		// And, also, LoTW's deviation from the official spec: APP_LOTW_EOF
-		return field, "", nil
+		return field, dataTypeSpecifier, "", nil
 	}
 	// Step 3: Parse Field Length
 	if idx := len(volatileLength) - 2; idx > 0 && volatileLength[idx] == ':' {
 		// We assume that data type indicators are exactly 1 character long.
+		dataTypeSpecifier = unicode.ToUpper(rune(volatileLength[idx+1]))
 		volatileLength = volatileLength[:idx]
 	}
 
 	length, err := parseDataLength(volatileLength)
 	if err != nil {
 		// handle data length parsing errors
-		return "", "", err
+		return "", 0, "", err
 	}
 	if length < 1 {
-		return field, "", nil
+		return field, dataTypeSpecifier, "", nil
 	}
 
 	// Step 4: Read the field value
@@ -152,10 +154,10 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	var c int
 	c, err = io.ReadFull(p.r, p.bufValue) // this will overwrite all of the 'volatile' variables (see above)
 	if err == io.EOF {
-		return "", "", ErrAdiReaderMalformedADI
+		return "", 0, "", ErrAdiReaderMalformedADI
 	}
 	value = string(p.bufValue[:c])
-	return field, value, nil
+	return field, dataTypeSpecifier, value, nil
 }
 
 // readDataSpecifierVolatile reads and returns the next data specifier as a byte slice, and any error encountered.

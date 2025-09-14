@@ -15,7 +15,7 @@ const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance A
 
 // adiWriterPriorityFieldOrder defines the order of priority fields when writing ADIF records.
 // These fields are written first, in this order.
-var adiWriterPriorityFieldOrder = [...]adifield.ADIField{
+var adiWriterPriorityFieldOrder = [...]adifield.Field{
 
 	// Minimum "required" fields:
 	// https://www.adif.org/315/ADIF_315_Resources.htm#ADIFImplementationNotesMinimumFields
@@ -46,7 +46,7 @@ var adiWriterPriorityFieldOrder = [...]adifield.ADIField{
 }
 
 // adiWriterPriorityFieldMap is used for quick lookups to determine if a field is a priority field
-var adiWriterPriorityFieldMap = make(map[adifield.ADIField]struct{}, len(adiWriterPriorityFieldOrder))
+var adiWriterPriorityFieldMap = make(map[adifield.Field]struct{}, len(adiWriterPriorityFieldOrder))
 
 func init() {
 	for _, field := range adiWriterPriorityFieldOrder {
@@ -152,7 +152,7 @@ func appendAsADI(r Record, buf []byte) []byte {
 }
 
 // appendADIFRecordAsADI adds a single ADIF field to the buffer
-func appendADIFRecordAsADI(buf []byte, field adifield.ADIField, value string) []byte {
+func appendADIFRecordAsADI(buf []byte, field adifield.Field, value string) []byte {
 	if value == "" {
 		return buf
 	}
