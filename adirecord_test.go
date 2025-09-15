@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/hamradiolog-net/spec/v6/aditype"
 	"github.com/hamradiolog-net/spec/v6/enum/band"
 )
 
@@ -56,5 +57,47 @@ func TestADIRecordAll(t *testing.T) {
 			t.Errorf("Expected value 'K9CTS' for CALL, got '%s'", v)
 		}
 		break // Testing the iterator !yield condition
+	}
+}
+
+func TestSetDataTypeOnKnownFieldNotPossible(t *testing.T) {
+	r := NewRecord()
+	f := adifield.CALL
+	r.SetDataType(f, aditype.NewDataTypeIndicator('M'))
+	if r.GetDataType(f) != aditype.NewDataTypeIndicator('S') {
+		t.Errorf("Expected data type 'S', got '%s'", r.GetDataType(f))
+	}
+}
+
+func TestGetDataTypeForAPP_(t *testing.T) {
+	r := NewRecord()
+	f := adifield.New("APP_TEST")
+	if r.GetDataType(f) != aditype.NewDataTypeIndicator('M') {
+		t.Errorf("Expected data type 'M', got '%s'", r.GetDataType(f))
+	}
+}
+
+func TestSetGetDataTypeForAPP_(t *testing.T) {
+	r := NewRecord()
+	f := adifield.New("APP_TEST")
+	r.SetDataType(f, aditype.NewDataTypeIndicator('S'))
+	if r.GetDataType(f) != aditype.NewDataTypeIndicator('S') {
+		t.Errorf("Expected data type 'S', got '%s'", r.GetDataType(f))
+	}
+}
+
+func TestGetDataTypeForKnownField(t *testing.T) {
+	r := NewRecord()
+	f := adifield.BAND
+	if r.GetDataType(f) != aditype.NewDataTypeIndicator('E') {
+		t.Errorf("Expected data type 'E', got '%s'", r.GetDataType(f))
+	}
+}
+
+func TestGetDataTypeForUnKnownField(t *testing.T) {
+	r := NewRecord()
+	f := adifield.New("__fake_future_adif_specification_field__")
+	if r.GetDataType(f) != aditype.NewDataTypeIndicator(0) {
+		t.Errorf("Expected data type '', got '%s'", r.GetDataType(f))
 	}
 }
