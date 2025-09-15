@@ -13,14 +13,14 @@ func (r *mockADIFRecord) IsHeader() bool {
 
 func (r *mockADIFRecord) SetIsHeader(isHeader bool) {}
 
-func (r *mockADIFRecord) Get(field adifield.ADIField) string {
+func (r *mockADIFRecord) Get(field adifield.Field) string {
 	return ""
 }
 
-func (r *mockADIFRecord) Set(field adifield.ADIField, value string) {}
+func (r *mockADIFRecord) Set(field adifield.Field, value string) {}
 
-func (r *mockADIFRecord) All() func(func(adifield.ADIField, string) bool) {
-	return func(yield func(adifield.ADIField, string) bool) {
+func (r *mockADIFRecord) All() func(func(adifield.Field, string) bool) {
+	return func(yield func(adifield.Field, string) bool) {
 		yield(adifield.COMMENT, "")
 	}
 }

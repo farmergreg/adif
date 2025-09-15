@@ -28,7 +28,7 @@ type adiReader struct {
 	r *bufio.Reader
 
 	// appFieldMap is a map of field names used to reduce allocations via string interning.
-	appFieldMap map[string]adifield.ADIField
+	appFieldMap map[string]adifield.Field
 
 	// bufValue is a reusable buffer used to temporarily store the VALUE of the current field.
 	bufValue []byte
@@ -53,7 +53,7 @@ func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
 		r:          br,
 		skipHeader: skipHeader,
 	}
-	p.appFieldMap = make(map[string]adifield.ADIField, 128)
+	p.appFieldMap = make(map[string]adifield.Field, 128)
 	p.bufValue = make([]byte, 4096)
 
 	return p
@@ -100,7 +100,7 @@ func (p *adiReader) Next() (Record, error) {
 //
 // It is heavily optimized for speed and memory use.
 // Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
-func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err error) {
+func (p *adiReader) parseOneField() (field adifield.Field, value string, err error) {
 	// Step 1: Finish reading the data specifier "<fieldname:length:...>", removing the trailing '>'
 	volatileSpecifier, err := p.readDataSpecifierVolatile()
 	if err != nil {
@@ -118,7 +118,7 @@ func (p *adiReader) parseOneField() (field adifield.ADIField, value string, err 
 	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
 	if field, ok = p.appFieldMap[fieldStringUnsafe]; !ok {
 		fieldStringSafe := strings.Clone(fieldStringUnsafe)
-		field = adifield.ADIField(strings.ToUpper(fieldStringSafe))
+		field = adifield.Field(strings.ToUpper(fieldStringSafe))
 		p.appFieldMap[fieldStringSafe] = field
 	}
 
