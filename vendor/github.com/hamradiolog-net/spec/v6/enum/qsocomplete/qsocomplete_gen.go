@@ -36,8 +36,8 @@ var lookupMap = map[QSOComplete]*Spec{
 
 // Lookup returns the specification for the provided QSOComplete.
 // ADIF 3.1.6
-func Lookup(q QSOComplete) (Spec, bool) {
-	spec, ok := lookupMap[q]
+func Lookup(qsocomplete QSOComplete) (Spec, bool) {
+	spec, ok := lookupMap[qsocomplete]
 	if !ok {
 		return Spec{}, false
 	}

@@ -306,8 +306,8 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if qso.Get(adifield.Field(tt.fieldName)) != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.Field(tt.fieldName)))
+			if qso.Get(adifield.ADIField(tt.fieldName)) != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.ADIField(tt.fieldName)))
 			}
 
 			if qso.IsHeader() != tt.isHeaderRecord {
@@ -359,8 +359,8 @@ func TestADIRecordReaderParseLongFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record.Get(adifield.Field(fieldName)) != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.Field(fieldName)))
+	if record.Get(adifield.ADIField(fieldName)) != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.ADIField(fieldName)))
 	}
 }
 

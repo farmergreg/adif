@@ -243,8 +243,8 @@ var lookupMap = map[SecondaryAdministrativeSubdivisionAlt]*Spec{
 
 // Lookup returns the specification for the provided SecondaryAdministrativeSubdivisionAlt.
 // ADIF 3.1.6
-func Lookup(s SecondaryAdministrativeSubdivisionAlt) (Spec, bool) {
-	spec, ok := lookupMap[s]
+func Lookup(secondaryadministrativesubdivisionalt SecondaryAdministrativeSubdivisionAlt) (Spec, bool) {
+	spec, ok := lookupMap[secondaryadministrativesubdivisionalt]
 	if !ok {
 		return Spec{}, false
 	}

@@ -36,8 +36,8 @@ var lookupMap = map[QSLVia]*Spec{
 
 // Lookup returns the specification for the provided QSLVia.
 // ADIF 3.1.6
-func Lookup(q QSLVia) (Spec, bool) {
-	spec, ok := lookupMap[q]
+func Lookup(qslvia QSLVia) (Spec, bool) {
+	spec, ok := lookupMap[qslvia]
 	if !ok {
 		return Spec{}, false
 	}

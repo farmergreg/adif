@@ -792,8 +792,8 @@ var lookupMap = map[Contest]*Spec{
 
 // Lookup returns the specification for the provided Contest.
 // ADIF 3.1.6
-func Lookup(c Contest) (Spec, bool) {
-	spec, ok := lookupMap[c]
+func Lookup(contest Contest) (Spec, bool) {
+	spec, ok := lookupMap[contest]
 	if !ok {
 		return Spec{}, false
 	}

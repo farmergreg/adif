@@ -40,8 +40,8 @@ func (aw *jsonWriter) Write(records []Record) error {
 	return nil
 }
 
-func adijRecordToMap(record Record) map[adifield.Field]string {
-	result := make(map[adifield.Field]string)
+func adijRecordToMap(record Record) map[adifield.ADIField]string {
+	result := make(map[adifield.ADIField]string)
 	for field, value := range record.All() {
 		if value != "" {
 			result[field] = value

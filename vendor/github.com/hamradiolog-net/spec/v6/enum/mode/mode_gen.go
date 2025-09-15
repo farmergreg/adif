@@ -298,8 +298,8 @@ var lookupMap = map[Mode]*Spec{
 
 // Lookup returns the specification for the provided Mode.
 // ADIF 3.1.6
-func Lookup(m Mode) (Spec, bool) {
-	spec, ok := lookupMap[m]
+func Lookup(mode Mode) (Spec, bool) {
+	spec, ok := lookupMap[mode]
 	if !ok {
 		return Spec{}, false
 	}

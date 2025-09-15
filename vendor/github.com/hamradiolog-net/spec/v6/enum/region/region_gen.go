@@ -61,8 +61,8 @@ var lookupMap = map[RegionCompositeKey]*Spec{
 
 // Lookup returns the specification for the provided RegionCompositeKey.
 // ADIF 3.1.6
-func Lookup(r RegionCompositeKey) (Spec, bool) {
-	spec, ok := lookupMap[r]
+func Lookup(regioncompositekey RegionCompositeKey) (Spec, bool) {
+	spec, ok := lookupMap[regioncompositekey]
 	if !ok {
 		return Spec{}, false
 	}

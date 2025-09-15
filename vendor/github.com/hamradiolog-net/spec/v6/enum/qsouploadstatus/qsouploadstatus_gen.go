@@ -33,8 +33,8 @@ var lookupMap = map[QSOUploadStatus]*Spec{
 
 // Lookup returns the specification for the provided QSOUploadStatus.
 // ADIF 3.1.6
-func Lookup(q QSOUploadStatus) (Spec, bool) {
-	spec, ok := lookupMap[q]
+func Lookup(qsouploadstatus QSOUploadStatus) (Spec, bool) {
+	spec, ok := lookupMap[qsouploadstatus]
 	if !ok {
 		return Spec{}, false
 	}

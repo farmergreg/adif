@@ -573,8 +573,8 @@ var lookupMap = map[SubMode]*Spec{
 
 // Lookup returns the specification for the provided SubMode.
 // ADIF 3.1.6
-func Lookup(s SubMode) (Spec, bool) {
-	spec, ok := lookupMap[s]
+func Lookup(submode SubMode) (Spec, bool) {
+	spec, ok := lookupMap[submode]
 	if !ok {
 		return Spec{}, false
 	}
