@@ -28,7 +28,7 @@
     "forwardPorts": [],
     "remoteUser": "1000",
     "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
-    "workspaceFolder": "/app",
+    "workspaceFolder": "/app"
     /*
     Cursor does not like these.
     See also: Dockerfile
