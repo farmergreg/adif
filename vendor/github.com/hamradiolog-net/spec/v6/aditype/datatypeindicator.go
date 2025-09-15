@@ -18,16 +18,12 @@ func (t *DataTypeIndicator) UnmarshalJSON(p []byte) error {
 	return nil
 }
 
-func NewDataTypeIndicator(value rune) DataTypeIndicator {
-	return DataTypeIndicator(unicode.ToUpper(value))
-}
-
 func (t DataTypeIndicator) String() string {
 	return string(t)
 }
 
 func (t DataTypeIndicator) Compare(other DataTypeIndicator) int {
-	return int(unicode.ToUpper(rune(t))) - int(unicode.ToUpper(rune(other)))
+	return int(t) - int(other)
 }
 
 func (t DataTypeIndicator) Equals(other DataTypeIndicator) bool {

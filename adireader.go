@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"io"
 	"strings"
+	"unicode"
 	"unsafe"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
-	"github.com/hamradiolog-net/spec/v6/aditype"
 )
 
 var _ ADIFRecordReader = (*adiReader)(nil)
@@ -101,7 +101,7 @@ func (p *adiReader) Next() (Record, error) {
 //
 // It is heavily optimized for speed and memory use.
 // Currently, It can tripple the speed of go's stdlib JSON marshaling for similar data.
-func (p *adiReader) parseOneField() (field adifield.Field, dataTypeSpecifier aditype.DataTypeIndicator, value string, err error) {
+func (p *adiReader) parseOneField() (field adifield.Field, dataTypeSpecifier rune, value string, err error) {
 	// Step 1: Finish reading the data specifier "<fieldname:length:...>", removing the trailing '>'
 	volatileSpecifier, err := p.readDataSpecifierVolatile()
 	if err != nil {
@@ -131,7 +131,7 @@ func (p *adiReader) parseOneField() (field adifield.Field, dataTypeSpecifier adi
 	// Step 3: Parse Field Length
 	if idx := len(volatileLength) - 2; idx > 0 && volatileLength[idx] == ':' {
 		// We assume that data type indicators are exactly 1 character long.
-		dataTypeSpecifier = aditype.NewDataTypeIndicator(rune(volatileLength[idx+1]))
+		dataTypeSpecifier = unicode.ToUpper(rune(volatileLength[idx+1]))
 		volatileLength = volatileLength[:idx]
 	}
 

@@ -1,9 +1,6 @@
 package adif
 
-import (
-	"github.com/hamradiolog-net/spec/v6/adifield"
-	"github.com/hamradiolog-net/spec/v6/aditype"
-)
+import "github.com/hamradiolog-net/spec/v6/adifield"
 
 var _ Record = (*mockADIFRecord)(nil)
 
@@ -32,8 +29,8 @@ func (r *mockADIFRecord) Count() int {
 	return 1
 }
 
-func (r *mockADIFRecord) GetDataType(field adifield.Field) aditype.DataTypeIndicator {
+func (r *mockADIFRecord) GetDataType(field adifield.Field) rune {
 	return 'S'
 }
 
-func (r *mockADIFRecord) SetDataType(field adifield.Field, dataType aditype.DataTypeIndicator) {}
+func (r *mockADIFRecord) SetDataType(field adifield.Field, dataType rune) {}

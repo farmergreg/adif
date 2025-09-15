@@ -5,14 +5,13 @@ import (
 	"unicode"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
-	"github.com/hamradiolog-net/spec/v6/aditype"
 )
 
 var _ Record = (*adiRecord)(nil)
 
 type adiField struct {
-	value             string
-	dataTypeIndicator aditype.DataTypeIndicator
+	value              string
+	fieldTypeIndicator rune
 }
 
 // adiRecord represents a single ADI record.
@@ -69,34 +68,34 @@ func (r *adiRecord) Set(field adifield.Field, value string) {
 // setInternal sets the value for a field without modifying the field name or clearing the cache.
 // It is used by the parser to avoid unnecessary allocations.
 // It assumes the field name is already normalized (UPPERCASE).
-func (r *adiRecord) setInternal(field adifield.Field, dataTypeIndicator aditype.DataTypeIndicator, value string) {
+func (r *adiRecord) setInternal(field adifield.Field, fieldTypeIndicator rune, value string) {
 	if value == "" {
 		delete(r.fields, field)
 	} else {
 		f := r.fields[field]
 		f.value = value
-		f.dataTypeIndicator = dataTypeIndicator
+		f.fieldTypeIndicator = fieldTypeIndicator
 		r.fields[field] = f
 	}
 }
 
 // GetDataType implements ADIFRecord.GetDataType
-func (r *adiRecord) GetDataType(field adifield.Field) aditype.DataTypeIndicator {
-	if f, ok := r.fields[field]; ok && f.dataTypeIndicator != 0 {
-		return f.dataTypeIndicator
+func (r *adiRecord) GetDataType(field adifield.Field) rune {
+	if f, ok := r.fields[field]; ok && f.fieldTypeIndicator != 0 {
+		return f.fieldTypeIndicator
 	}
-	if fieldSpec, ok := adifield.Lookup(field); ok {
-		if dti, ok := aditype.Lookup(fieldSpec.DataType); ok {
-			return aditype.DataTypeIndicator(unicode.ToUpper(rune(dti.DataTypeIndicator)))
+	if info, ok := adifield.Lookup(field); ok {
+		for _, r := range info.DataType {
+			return unicode.ToUpper(r)
 		}
 	}
-	return aditype.NewDataTypeIndicator('S')
+	return 'S'
 }
 
 // SetDataType implements ADIFRecord.SetDataType
-func (r *adiRecord) SetDataType(field adifield.Field, dataTypeIndicator aditype.DataTypeIndicator) {
+func (r *adiRecord) SetDataType(field adifield.Field, dataTypeSpecifier rune) {
 	f := r.fields[field]
-	f.dataTypeIndicator = dataTypeIndicator
+	f.fieldTypeIndicator = dataTypeSpecifier
 	r.fields[field] = f
 }
 
