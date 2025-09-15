@@ -2,7 +2,7 @@ package adif
 
 import (
 	"slices"
-	"strings"
+	"unicode"
 
 	"github.com/hamradiolog-net/spec/v6/adifield"
 	"github.com/hamradiolog-net/spec/v6/aditype"
@@ -82,26 +82,15 @@ func (r *adiRecord) setInternal(field adifield.Field, dataTypeIndicator aditype.
 
 // GetDataType implements ADIFRecord.GetDataType
 func (r *adiRecord) GetDataType(field adifield.Field) aditype.DataTypeIndicator {
-	// ADIF Spec takes precedence over any calls to SetDataType
-	if fieldSpec, ok := adifield.Lookup(field); ok {
-		if dti, ok := aditype.Lookup(fieldSpec.DataType); ok {
-			return dti.DataTypeIndicator
-		}
-	}
-
-	// Custom SetDataType that was set intentionally by the user of this library.
 	if f, ok := r.fields[field]; ok && f.dataTypeIndicator != 0 {
 		return f.dataTypeIndicator
 	}
-
-	if strings.HasPrefix(string(field), "APP_") {
-		// Per specification for APP_ fields:
-		// If a Data type Indicator is not included, the field contents must conform to the MultilineString data type.
-		return aditype.NewDataTypeIndicator('M')
+	if fieldSpec, ok := adifield.Lookup(field); ok {
+		if dti, ok := aditype.Lookup(fieldSpec.DataType); ok {
+			return aditype.DataTypeIndicator(unicode.ToUpper(rune(dti.DataTypeIndicator)))
+		}
 	}
-
-	// Don't know, won't guess.
-	return 0
+	return aditype.NewDataTypeIndicator('S')
 }
 
 // SetDataType implements ADIFRecord.SetDataType

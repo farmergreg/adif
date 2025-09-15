@@ -1,27 +1,21 @@
 package aditype
 
 import (
-	"encoding/json"
 	"errors"
 	"unicode"
+	"unicode/utf8"
 )
 
 // DataTypeIndicator is a single character that represents the ADIF Data Type Indicator that precedes the data field in an ADI record.
 type DataTypeIndicator rune
 
-func (t *DataTypeIndicator) UnmarshalJSON(data []byte) error {
-	var val string
-	err := json.Unmarshal(data, &val)
-	if err != nil {
-		return err
+func (t *DataTypeIndicator) UnmarshalJSON(p []byte) error {
+	r, c := utf8.DecodeRune(p)
+	if r == utf8.RuneError && c == 0 {
+		return errors.New("invalid rune")
 	}
-
-	for _, r := range val {
-		*t = DataTypeIndicator(unicode.ToUpper(r))
-		return nil
-	}
-
-	return errors.New("invalid DataTypeIndicator: empty string")
+	*t = DataTypeIndicator(r)
+	return nil
 }
 
 func NewDataTypeIndicator(value rune) DataTypeIndicator {
