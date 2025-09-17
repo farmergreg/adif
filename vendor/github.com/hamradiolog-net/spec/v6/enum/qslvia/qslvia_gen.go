@@ -1,16 +1,16 @@
 // DO NOT EDIT; GENERATED CODE
 // run `go generate ./...` from the project root to rebuild this file.
 
-// Package qslvia provides code and constants as defined in ADIF 3.1.6 (Proposed)
+// Package qslvia provides code and constants as defined in ADIF 3.1.6 (Released)
 package qslvia
 
 import "sync"
 
 const (
-	B QSLVia = "B" // B = bureau
-	D QSLVia = "D" // D = direct
-	E QSLVia = "E" // E = electronic
-	M QSLVia = "M" // Deprecated: M = manager
+	B QSLVia = "b" // b = bureau
+	D QSLVia = "d" // d = direct
+	E QSLVia = "e" // e = electronic
+	M QSLVia = "m" // Deprecated: m = manager
 )
 
 var (
@@ -20,10 +20,10 @@ var (
 
 // lookupList contains all known QSLVia specifications.
 var lookupList = []Spec{
-	{IsImportOnly: false, Key: "B", Description: "bureau"},
-	{IsImportOnly: false, Key: "D", Description: "direct"},
-	{IsImportOnly: false, Key: "E", Description: "electronic"},
-	{IsImportOnly: true, Key: "M", Description: "manager"},
+	{IsImportOnly: false, Key: "b", Description: "bureau"},
+	{IsImportOnly: false, Key: "d", Description: "direct"},
+	{IsImportOnly: false, Key: "e", Description: "electronic"},
+	{IsImportOnly: true, Key: "m", Description: "manager"},
 }
 
 // lookupMap contains all known QSLVia specifications.

@@ -1,15 +1,15 @@
 // DO NOT EDIT; GENERATED CODE
 // run `go generate ./...` from the project root to rebuild this file.
 
-// Package qslmedium provides code and constants as defined in ADIF 3.1.6 (Proposed)
+// Package qslmedium provides code and constants as defined in ADIF 3.1.6 (Released)
 package qslmedium
 
 import "sync"
 
 const (
-	CARD QSLMedium = "CARD" // CARD = QSO confirmation via paper QSL card
-	EQSL QSLMedium = "EQSL" // EQSL = QSO confirmation via eQSL.cc
-	LOTW QSLMedium = "LOTW" // LOTW = QSO confirmation via ARRL Logbook of the World
+	CARD QSLMedium = "card" // card = QSO confirmation via paper QSL card
+	EQSL QSLMedium = "eqsl" // eqsl = QSO confirmation via eQSL.cc
+	LOTW QSLMedium = "lotw" // lotw = QSO confirmation via ARRL Logbook of the World
 )
 
 var (
@@ -19,9 +19,9 @@ var (
 
 // lookupList contains all known QSLMedium specifications.
 var lookupList = []Spec{
-	{IsImportOnly: false, Key: "CARD", Description: "QSO confirmation via paper QSL card"},
-	{IsImportOnly: false, Key: "EQSL", Description: "QSO confirmation via eQSL.cc"},
-	{IsImportOnly: false, Key: "LOTW", Description: "QSO confirmation via ARRL Logbook of the World"},
+	{IsImportOnly: false, Key: "card", Description: "QSO confirmation via paper QSL card"},
+	{IsImportOnly: false, Key: "eqsl", Description: "QSO confirmation via eQSL.cc"},
+	{IsImportOnly: false, Key: "lotw", Description: "QSO confirmation via ARRL Logbook of the World"},
 }
 
 // lookupMap contains all known QSLMedium specifications.

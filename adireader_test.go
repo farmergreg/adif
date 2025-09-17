@@ -202,7 +202,7 @@ func TestADIRecordReaderParseWithNumbersInFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	val := qso.Get("APP_LOTW_2XQSL")
+	val := qso.Get(adifield.New("app_lotw_2xqsl"))
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
 	}
@@ -306,8 +306,8 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if qso.Get(adifield.Field(tt.fieldName)) != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.Field(tt.fieldName)))
+			if qso.Get(adifield.New(tt.fieldName)) != tt.fieldData {
+				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.New(tt.fieldName)))
 			}
 
 			if qso.IsHeader() != tt.isHeaderRecord {
@@ -345,10 +345,10 @@ func TestADIRecordReaderParseSkipHeader(t *testing.T) {
 
 func TestADIRecordReaderParseLongFieldName(t *testing.T) {
 	const len int = 2000
-	fieldName := "APP_K9CTS_" + strings.Repeat("X", len)
+	fieldName := "app_k9cts_" + strings.Repeat("X", len)
 
 	// Arrange
-	adif := fmt.Sprintf("<%s:4>TEST<EOR>", fieldName)
+	adif := fmt.Sprintf("<%s:4>TEST<eor>", fieldName)
 	p := NewADIRecordReader(strings.NewReader(adif), false)
 
 	// Act
@@ -359,8 +359,8 @@ func TestADIRecordReaderParseLongFieldName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record.Get(adifield.Field(fieldName)) != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.Field(fieldName)))
+	if record.Get(adifield.New(fieldName)) != "TEST" {
+		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.New(fieldName)))
 	}
 }
 

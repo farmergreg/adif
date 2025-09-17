@@ -1,16 +1,16 @@
 // DO NOT EDIT; GENERATED CODE
 // run `go generate ./...` from the project root to rebuild this file.
 
-// Package qsocomplete provides code and constants as defined in ADIF 3.1.6 (Proposed)
+// Package qsocomplete provides code and constants as defined in ADIF 3.1.6 (Released)
 package qsocomplete
 
 import "sync"
 
 const (
-	Uncertain QSOComplete = "?"   // ?    = uncertain
-	N         QSOComplete = "N"   // N    = no
-	NIL       QSOComplete = "NIL" // NIL  = not heard
-	Y         QSOComplete = "Y"   // Y    = yes
+	UNCERTAIN QSOComplete = "?"   // ?    = uncertain
+	N         QSOComplete = "n"   // n    = no
+	NIL       QSOComplete = "nil" // nil  = not heard
+	Y         QSOComplete = "y"   // y    = yes
 )
 
 var (
@@ -21,14 +21,14 @@ var (
 // lookupList contains all known QSOComplete specifications.
 var lookupList = []Spec{
 	{IsImportOnly: false, Key: "?", Description: "uncertain"},
-	{IsImportOnly: false, Key: "N", Description: "no"},
-	{IsImportOnly: false, Key: "NIL", Description: "not heard"},
-	{IsImportOnly: false, Key: "Y", Description: "yes"},
+	{IsImportOnly: false, Key: "n", Description: "no"},
+	{IsImportOnly: false, Key: "nil", Description: "not heard"},
+	{IsImportOnly: false, Key: "y", Description: "yes"},
 }
 
 // lookupMap contains all known QSOComplete specifications.
 var lookupMap = map[QSOComplete]*Spec{
-	Uncertain: &lookupList[0],
+	UNCERTAIN: &lookupList[0],
 	N:         &lookupList[1],
 	NIL:       &lookupList[2],
 	Y:         &lookupList[3],

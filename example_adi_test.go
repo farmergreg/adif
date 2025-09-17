@@ -60,6 +60,6 @@ func ExampleNewADIRecordWriter() {
 	// K9CTS High Performance ADIF Processing Library
 	//    https://github.com/hamradiolog-net/adif
 	//
-	// <CREATED_TIMESTAMP:15>20250907 212700<EOH>
-	// <BAND:3>20M<MODE:3>SSB<CALL:5>K9CTS<EOR>
+	// <created_timestamp:15>20250907 212700<eoh>
+	// <band:3>20m<mode:3>ssb<call:5>K9CTS<eor>
 }

@@ -12,25 +12,25 @@ import (
 // ExampleNewJSONRecordReader demonstrates how to read ADIJ JSON document using NewJSONRecordReader.
 func ExampleNewJSONRecordReader() {
 	jsonExample := `{
-  "HEADER": {
-    "CREATED_TIMESTAMP": "20250907 212700",
-    "PROGRAMID": "ExampleProgram",
-    "PROGRAMVERSION": "1.0"
+  "header": {
+    "created_timestamp": "20250907 212700",
+    "programid": "ExampleProgram",
+    "programversion": "1.0"
   },
-  "RECORDS": [
+  "records": [
     {
-      "BAND": "20M",
-      "CALL": "K9CTS",
-      "MODE": "SSB",
-      "QSO_DATE": "20250907",
-      "TIME_ON": "2127"
+      "band": "20M",
+      "call": "K9CTS",
+      "mode": "SSB",
+      "qso_date": "20250907",
+      "time_on": "2127"
     },
     {
-      "BAND": "40M",
-      "CALL": "W9PVA",
-      "MODE": "CW",
-      "QSO_DATE": "20250907",
-      "TIME_ON": "2130"
+      "band": "40M",
+      "call": "W9PVA",
+      "mode": "CW",
+      "qso_date": "20250907",
+      "time_on": "2130"
     }
   ]
 }`
@@ -88,14 +88,14 @@ func ExampleNewJSONRecordWriter() {
 
 	// Output:
 	// {
-	//   "HEADER": {
-	//     "CREATED_TIMESTAMP": "20250907 212700"
+	//   "header": {
+	//     "created_timestamp": "20250907 212700"
 	//   },
-	//   "RECORDS": [
+	//   "records": [
 	//     {
-	//       "BAND": "20M",
-	//       "CALL": "K9CTS",
-	//       "MODE": "SSB"
+	//       "band": "20m",
+	//       "call": "K9CTS",
+	//       "mode": "ssb"
 	//     }
 	//   ]
 	// }

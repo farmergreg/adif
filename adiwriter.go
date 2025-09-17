@@ -143,9 +143,9 @@ func appendAsADI(r Record, buf []byte) []byte {
 	}
 
 	if r.IsHeader() {
-		buf = append(buf, "<EOH>\n"...)
+		buf = append(buf, "<eoh>\n"...)
 	} else {
-		buf = append(buf, "<EOR>\n"...)
+		buf = append(buf, "<eor>\n"...)
 	}
 
 	return buf
