@@ -191,5 +191,5 @@ func appendADIFRecordAsADIPreCalculate(r Record) (adiLength int) {
 		}
 	}
 
-	return adiLength + 6 // "<EOR>\n" / "<EOH>\n"
+	return adiLength + 6 // "<eor>\n" / "<eoh>\n"
 }

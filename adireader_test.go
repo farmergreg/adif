@@ -61,8 +61,8 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 	}{
 		{false, 0, "Empty String", ""},
 
-		{false, 1, "Valid Record", "<CaLL:5>W9PVA<EOR>"},
-		{false, 1, "Leading space", " <CaLL:5>W9PVA<EOR>"},
+		{false, 1, "Valid Record", "<CaLL:5>W9PVA<EOr>"},
+		{false, 1, "Leading space", " <CaLL:5>W9PVA<eor>"},
 		{false, 1, "Extra character", "<Call:5>W9PVAn<EOR>"},
 		{false, 1, "Extra characters around EOR", "<Call:5>W9PVAa<EoR>b"},
 
@@ -172,7 +172,7 @@ func TestADIRecordReaderParseLoTWEOF(t *testing.T) {
 }
 
 func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
-	raw := "<ADIF_VER:5>3.1.5<EOR>"
+	raw := "<ADIF_VER:5>3.1.5<eor>"
 	p := NewADIRecordReader(strings.NewReader(raw), false)
 
 	qso, err := p.Next()
