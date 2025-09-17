@@ -50,6 +50,7 @@ func ExampleNewADIRecordWriter() {
 	qso.Set(adifield.CALL, "K9CTS")
 	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
+	qso.Set(adifield.New("APP_Example"), "Example")
 
 	writer.Write([]Record{hdr, qso})
 
@@ -61,5 +62,5 @@ func ExampleNewADIRecordWriter() {
 	//    https://github.com/hamradiolog-net/adif
 	//
 	// <created_timestamp:15>20250907 212700<eoh>
-	// <band:3>20m<mode:3>ssb<call:5>K9CTS<eor>
+	// <band:3>20m<mode:3>ssb<call:5>K9CTS<app_example:7>Example<eor>
 }

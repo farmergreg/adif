@@ -64,7 +64,7 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 		{false, 1, "Valid Record", "<CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Leading space", " <CaLL:5>W9PVA<EOR>"},
 		{false, 1, "Extra character", "<Call:5>W9PVAn<EOR>"},
-		{false, 1, "Extra characters around EOR", "<Call:5>W9PVAa<EOR>b"},
+		{false, 1, "Extra characters around EOR", "<Call:5>W9PVAa<EoR>b"},
 
 		{true, 2, "With header", "<PROGRAMID:4>TEST<EOH><Call:5>W9PVAa<EOR>b"},
 		{true, 2, "With header and extra chars", "<PROGRAMID:4>TESTing<EOH><Call:5>W9PVAa<EOR>b"},
