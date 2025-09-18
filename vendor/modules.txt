@@ -1,4 +1,4 @@
-# github.com/farmergreg/spec/v6 v6.0.0-beta.27
+# github.com/farmergreg/spec/v6 v6.0.0-beta.29
 ## explicit; go 1.25
 github.com/farmergreg/spec/v6/adifield
 github.com/farmergreg/spec/v6/aditype
@@ -30,5 +30,3 @@ github.com/farmergreg/spec/v6/enum/submode
 github.com/farmergreg/spec/v6/internal/codegen
 github.com/farmergreg/spec/v6/spec
 github.com/farmergreg/spec/v6/spectype
-# github.com/hamradiolog-net/spec/v6 v6.0.0-beta.26
-## explicit; go 1.25
