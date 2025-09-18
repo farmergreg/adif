@@ -52,7 +52,10 @@ func ExampleNewADIRecordWriter() {
 	qso.Set(adifield.MODE, mode.SSB.String())
 	qso.Set(adifield.New("APP_Example"), "Example")
 
-	writer.Write([]Record{hdr, qso})
+	records := []Record{hdr, qso}
+	for _, r := range records {
+		writer.Write(r)
+	}
 
 	fmt.Println(sb.String())
 

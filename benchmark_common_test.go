@@ -1,7 +1,6 @@
 package adif
 
 import (
-	"bytes"
 	_ "embed"
 	"io"
 	"strings"
@@ -33,25 +32,6 @@ func BenchmarkParseAllADIFiles(b *testing.B) {
 		})
 
 	}
-}
-
-func benchmarkFileAsJSON() []byte {
-	var buffer bytes.Buffer
-	src := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
-	dst := NewJSONRecordWriter(&buffer)
-	srcRecords := make([]Record, 0, 10000)
-	for {
-		record, err := src.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-		srcRecords = append(srcRecords, record)
-	}
-	dst.Write(srcRecords)
-	return buffer.Bytes()
 }
 
 func loadTestData() []Record {

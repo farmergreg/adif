@@ -83,8 +83,8 @@ func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) *adiWriter 
 	}
 }
 
-func (w *adiWriter) Write(r []Record) error {
-	if len(r) > 0 && r[0].IsHeader() {
+func (w *adiWriter) Write(r Record) error {
+	if r.IsHeader() {
 		if w.headerPreamble == "" {
 			// preamble is mandatory per the ADIF specification.
 			w.w.Write([]byte{'\n'})
@@ -93,12 +93,11 @@ func (w *adiWriter) Write(r []Record) error {
 		}
 	}
 
-	for _, record := range r {
-		err := w.writeInternal(record)
-		if err != nil {
-			return err
-		}
+	err := w.writeInternal(r)
+	if err != nil {
+		return err
 	}
+
 	return nil
 }
 

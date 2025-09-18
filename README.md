@@ -3,33 +3,31 @@
 This library provides high-performance processing of [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used for ham radio logs.
 It's idiomatic, developer-friendly API seamlessly integrates with your codebase and the go standard library.
 
-[![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
-[![Go Reference](https://pkg.go.dev/badge/github.com/hamradiolog-net/adif.svg)](https://pkg.go.dev/github.com/hamradiolog-net/adif)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/go.mod)
-[![License](https://img.shields.io/github/license/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/LICENSE)
+[![Tests](https://github.com/farmergreg/adif/actions/workflows/test.yml/badge.svg)](https://github.com/farmergreg/adif/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/farmergreg/adif)](https://goreportcard.com/report/github.com/farmergreg/adif)
+[![Go Reference](https://pkg.go.dev/badge/github.com/farmergreg/adif.svg)](https://pkg.go.dev/github.com/farmergreg/adif)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/farmergreg/adif)](https://github.com/farmergreg/adif/blob/main/go.mod)
+[![License](https://img.shields.io/github/license/farmergreg/adif)](https://github.com/farmergreg/adif/blob/main/LICENSE)
 
 ## ✨ Features
 
 - 🔧 **Developer Friendly**: Clean, idiomatic, mock friendly interfaces
-- 🚀 **Blazing Fast**: 3-20x faster than other ADI libraries; more than 2x faster than Go's native JSON marshaling!
+- 🚀 **Blazing Fast**: 2x-20x faster than other ADI libraries
 - 💡 **Memory Efficient**: Up to 1400x fewer memory allocations than alternatives
 - 🔬 **Tested**: This library has 100% test coverage!
 
 ## 🚀 Quick Start
 
 ```bash
-go get github.com/hamradiolog-net/adif@latest
+go get github.com/farmergreg/adif@latest
 ```
 
 1) [Example Processing ADI Files](./example_adi_test.go): If you're not sure, use this!
 2) ADX XML Processing: Not implemented. PR(s) welcome!
-3) [Example Processing ADIJ Files](./example_json_test.go): ADIJ is a proposed ADI container format that represents ADIF data as json.
 
 ## Benchmarks
 
-TLDR: This ADI parser is very fast, possibly the fastest in the world.
-Please see the [Go ADIF Parser Benchmarks](https://github.com/hamradiolog-net/adif-benchmark) project for benchmarks.
+Please see the [Go ADIF Parser Benchmarks](https://github.com/farmergreg/adif-benchmark) project for benchmarks.
 
 ## 🔧 Technical Deep Dive (ADI Parser)
 
@@ -44,7 +42,7 @@ The ADI parser in this library achieves high performance through the following o
 ### Memory Management
 
 - Zero-copy techniques minimize memory operations
-- String interning of repeated field names greatly reduces both allocations and memory use
+- String interning of repeated field names greatly reduces copying, allocations, and memory use
 - Minimal temporary allocations during field parsing
 - Dynamic buffer sizing based on learned field counts
 - Buffer pooling
@@ -53,8 +51,8 @@ The ADI parser in this library achieves high performance through the following o
 
 If you found this library useful, you may also be interested in the following projects:
 
-- [Go ADIF Parser Benchmarks](https://github.com/hamradiolog-net/adif-benchmark)
-- [Go ADIF Specification](https://github.com/hamradiolog-net/spec)
+- [Go ADIF Parser Benchmarks](https://github.com/farmergreg/adif-benchmark)
+- [Go ADIF Specification](https://github.com/farmergreg/spec)
 - [g3zod/CreateADIFTestFiles](https://github.com/g3zod/CreateADIFTestFiles) ADI Test Files
 - [g3zod/CreateADIFExportFiles](https://github.com/g3zod/CreateADIFExportFiles) ADIF Workgroup Specification Export Tool
 

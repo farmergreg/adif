@@ -23,9 +23,13 @@ func TestADIRecordWriterWrite(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriterWithPreamble(sb, "")
-	err := w.Write([]Record{hdr, qso, qso1})
-	if err != nil {
-		t.Fatal(err)
+
+	records := []Record{hdr, qso, qso1}
+	for _, r := range records {
+		err := w.Write(r)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	expectedADIF := "\n<adif_ver:5>3.1.4<programid:15>HamRadioLog.Net<programversion:5>1.0.0<eoh>\n<call:5>K9CTS<eor>\n"
@@ -42,7 +46,7 @@ func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriter(sb)
-	err := w.Write([]Record{qso})
+	err := w.Write(qso)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +64,12 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 	fw := &mockFailWriter{maxBytes: expectedBytes}
 	w := NewADIRecordWriter(fw)
 
-	err := w.Write([]Record{qso1, qso2})
+	err := w.Write(qso1)
+	if err != nil {
+		t.Fatalf("Expected nil error but got %v", err)
+	}
+
+	err = w.Write(qso2)
 	if err == nil {
 		t.Fatal("Expected error but got none")
 	}
