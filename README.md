@@ -13,7 +13,7 @@ It's idiomatic, developer-friendly API seamlessly integrates with your codebase 
 
 - 🔧 **Developer Friendly**: Clean, idiomatic, mock friendly interfaces
 - 🚀 **Blazing Fast**: 2x-20x faster than other ADI libraries
-- 💡 **Memory Efficient**: Up to 1400x fewer memory allocations than alternatives
+- 💡 **Memory Efficient**: Uses 2x less memory and makes 1400x fewer allocations than other libraries.
 - 🔬 **Tested**: This library has 100% test coverage!
 
 ## 🚀 Quick Start
