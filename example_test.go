@@ -24,9 +24,11 @@ func ExampleNewADIRecordReader() {
 	for {
 		record, err := reader.Next()
 		if err == io.EOF {
+			// The end of the ADI data has been reached.
 			break
 		}
 		if err != nil {
+			// Handle any other errors as you would normally.
 			panic(err)
 		}
 		fmt.Printf("Call: %s, Date: %s, Time: %s, Band: %s, Mode: %s\n",
