@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hamradiolog-net/spec/v6/adifield"
-	"github.com/hamradiolog-net/spec/v6/spec"
+	"github.com/farmergreg/spec/v6/adifield"
+	"github.com/farmergreg/spec/v6/spec"
 )
 
 func TestADIRecordWriterWrite(t *testing.T) {

@@ -1,6 +1,6 @@
 package adif
 
-import "github.com/hamradiolog-net/spec/v6/adifield"
+import "github.com/farmergreg/spec/v6/adifield"
 
 // Record represents a single ADIF record.
 // It may be either a Header, or a QSO.

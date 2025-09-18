@@ -1,0 +1,34 @@
+package qsocomplete
+
+import (
+	"strings"
+
+	"github.com/farmergreg/spec/v6/internal/codegen"
+)
+
+// QSOComplete represents the completion status of a QSO
+type QSOComplete string
+
+var _ codegen.CodeGenKey = QSOComplete("")
+
+// New creates a new QSOComplete from the provided string.
+func New(value string) QSOComplete {
+	return QSOComplete(strings.ToLower(value))
+}
+
+// String returns the string representation of the QSOComplete.
+func (q QSOComplete) String() string {
+	return string(q)
+}
+
+// Compare returns an integer comparing two QSOComplete values lexicographically.
+// ADIF enums are case-insensitive.
+func (q QSOComplete) Compare(other QSOComplete) int {
+	return strings.Compare(strings.ToLower(string(q)), strings.ToLower(string(other)))
+}
+
+// Equals returns true if this QSOComplete equals the other QSOComplete.
+// ADIF enums are case-insensitive.
+func (q QSOComplete) Equals(other QSOComplete) bool {
+	return strings.EqualFold(string(q), string(other))
+}

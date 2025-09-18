@@ -1,2 +1,5 @@
-github.com/hamradiolog-net/spec/v6 v6.0.0-beta.26 h1:g4HFEZIY1dV/0tS6mfWg95zxRcUy5j+M14v6f4Q/JvQ=
+github.com/farmergreg/spec/v6 v6.0.0-beta.26 h1:g4HFEZIY1dV/0tS6mfWg95zxRcUy5j+M14v6f4Q/JvQ=
+github.com/farmergreg/spec/v6 v6.0.0-beta.27 h1:h4KheYmsiT7glxM8//yiwipiXrfgfNcCcOmyK0z4wTk=
+github.com/farmergreg/spec/v6 v6.0.0-beta.27/go.mod h1:SPPWP5cXZtz1f4y/Ui6R5K1ZEMgJkcVA0AEt7/IfH+I=
+github.com/farmergreg/v6 v6.0.0-beta.27/go.mod h1:SPPWP5cXZtz1f4y/Ui6R5K1ZEMgJkcVA0AEt7/IfH+I=
 github.com/hamradiolog-net/spec/v6 v6.0.0-beta.26/go.mod h1:pVgHeVUKWLo733V1E6FdOHjtfVk39/TSzBL51Dcv1YY=

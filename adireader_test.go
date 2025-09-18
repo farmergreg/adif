@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/farmergreg/spec/v6/adifield"
 )
 
 //go:embed testdata/*.adi

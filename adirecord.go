@@ -3,7 +3,7 @@ package adif
 import (
 	"slices"
 
-	"github.com/hamradiolog-net/spec/v6/adifield"
+	"github.com/farmergreg/spec/v6/adifield"
 )
 
 var _ Record = (*adiRecord)(nil)

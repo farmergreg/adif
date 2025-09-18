@@ -3,8 +3,8 @@ package adif
 import (
 	"testing"
 
-	"github.com/hamradiolog-net/spec/v6/adifield"
-	"github.com/hamradiolog-net/spec/v6/enum/band"
+	"github.com/farmergreg/spec/v6/adifield"
+	"github.com/farmergreg/spec/v6/enum/band"
 )
 
 func TestNewADIRecordWithCapacity(t *testing.T) {
