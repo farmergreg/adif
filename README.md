@@ -22,7 +22,7 @@ It's idiomatic, developer-friendly API seamlessly integrates with your codebase 
 go get github.com/farmergreg/adif@latest
 ```
 
-1) [Example Processing ADI Files](./example_adi_test.go): If you're not sure, use this!
+1) [Example Processing ADI Files](./example_test.go): If you're not sure, use this!
 2) ADX XML Processing: Not implemented. PR(s) welcome!
 
 ## Benchmarks
