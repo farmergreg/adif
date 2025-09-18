@@ -2,6 +2,7 @@ package adif
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/farmergreg/spec/v6/adifield"
@@ -22,8 +23,11 @@ func ExampleNewADIRecordReader() {
 	reader := NewADIRecordReader(strings.NewReader(adiData), true)
 	for {
 		record, err := reader.Next()
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
-			break // EOF or other error
+			panic(err)
 		}
 		fmt.Printf("Call: %s, Date: %s, Time: %s, Band: %s, Mode: %s\n",
 			record.Get(adifield.CALL),
