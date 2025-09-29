@@ -9,10 +9,10 @@ import (
 var _ Record = (*adiRecord)(nil)
 
 // adiRecord represents a single ADI record.
+// It may be either a Header, or a QSO.
 type adiRecord struct {
 	fields   map[adifield.Field]string // map of all fields and their values
 	allCache []adifield.Field          // all sorts the keys prior to iterating, this caches that work
-	isHeader bool                      // true if this record is a header
 }
 
 // NewRecord creates a new adiRecord with the default initial capacity.
@@ -35,17 +35,6 @@ func newRecordWithCapacity(initialCapacity int) *adiRecord {
 func (r *adiRecord) reset() {
 	clear(r.fields)
 	r.allCache = r.allCache[:0]
-	r.isHeader = false
-}
-
-// IsHeader implements ADIFRecord.IsHeader
-func (r *adiRecord) IsHeader() bool {
-	return r.isHeader
-}
-
-// SetIsHeader implements ADIFRecord.SetIsHeader
-func (r *adiRecord) SetIsHeader(isHeader bool) {
-	r.isHeader = isHeader
 }
 
 // Get implements ADIFRecord.Get

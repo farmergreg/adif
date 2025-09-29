@@ -22,7 +22,7 @@ func BenchmarkParseAllADIFiles(b *testing.B) {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
 				p := NewADIRecordReader(reader, true)
 				for {
-					_, err := p.Next()
+					_, _, err := p.Next()
 					if err == io.EOF {
 						break
 					}
@@ -38,7 +38,7 @@ func loadTestData() []Record {
 	var qsoListNative []Record
 	p := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
 	for {
-		record, err := p.Next()
+		record, _, err := p.Next()
 		if err == io.EOF {
 			break
 		}

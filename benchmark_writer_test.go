@@ -12,7 +12,7 @@ func BenchmarkADIWrite(b *testing.B) {
 		var sb strings.Builder
 		w := NewADIRecordWriter(&sb)
 		for _, r := range qsoListNative {
-			w.Write(r)
+			w.Write(r, false)
 		}
 		_ = sb.String()
 	}

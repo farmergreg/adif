@@ -36,17 +36,6 @@ func TestADIRecordSet_RemoveField(t *testing.T) {
 	}
 }
 
-func TestADIRecordSet_IsHeader(t *testing.T) {
-	r := NewRecord()
-	if r.IsHeader() {
-		t.Errorf("Expected IsHeader false, got true")
-	}
-	r.SetIsHeader(true)
-	if !r.IsHeader() {
-		t.Errorf("Expected IsHeader true, got false")
-	}
-}
-
 func TestADIRecordAll(t *testing.T) {
 	r := NewRecord()
 	r.Set(adifield.CALL, "K9CTS")

@@ -22,7 +22,7 @@ func ExampleNewADIRecordReader() {
 
 	reader := NewADIRecordReader(strings.NewReader(adiData), true)
 	for {
-		record, err := reader.Next()
+		record, _, err := reader.Next()
 		if err == io.EOF {
 			// The end of the ADI data has been reached.
 			break
@@ -49,19 +49,15 @@ func ExampleNewADIRecordWriter() {
 	writer := NewADIRecordWriter(&sb)
 
 	hdr := NewRecord()
-	hdr.SetIsHeader(true)
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
+	writer.Write(hdr, true)
 
 	qso := NewRecord()
 	qso.Set(adifield.CALL, "K9CTS")
 	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
 	qso.Set(adifield.New("APP_Example"), "Example")
-
-	records := []Record{hdr, qso}
-	for _, r := range records {
-		writer.Write(r)
-	}
+	writer.Write(qso, false)
 
 	fmt.Println(sb.String())
 

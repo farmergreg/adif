@@ -11,7 +11,6 @@ import (
 
 func TestADIRecordWriterWrite(t *testing.T) {
 	hdr := NewRecord()
-	hdr.SetIsHeader(true)
 	hdr.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	hdr.Set(adifield.PROGRAMVERSION, "1.0.0")
 	hdr.Set(adifield.ADIF_VER, "3.1.4")
@@ -24,12 +23,14 @@ func TestADIRecordWriterWrite(t *testing.T) {
 	sb := &strings.Builder{}
 	w := NewADIRecordWriterWithPreamble(sb, "")
 
+	isHeader := true
 	records := []Record{hdr, qso, qso1}
 	for _, r := range records {
-		err := w.Write(r)
+		err := w.Write(r, isHeader)
 		if err != nil {
 			t.Fatal(err)
 		}
+		isHeader = false
 	}
 
 	expectedADIF := "\n<adif_ver:5>3.1.4<programid:15>HamRadioLog.Net<programversion:5>1.0.0<eoh>\n<call:5>K9CTS<eor>\n"
@@ -46,7 +47,7 @@ func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 
 	sb := &strings.Builder{}
 	w := NewADIRecordWriter(sb)
-	err := w.Write(qso)
+	err := w.Write(qso, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,12 +65,12 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 	fw := &mockFailWriter{maxBytes: expectedBytes}
 	w := NewADIRecordWriter(fw)
 
-	err := w.Write(qso1)
+	err := w.Write(qso1, false)
 	if err != nil {
 		t.Fatalf("Expected nil error but got %v", err)
 	}
 
-	err = w.Write(qso2)
+	err = w.Write(qso2, false)
 	if err == nil {
 		t.Fatal("Expected error but got none")
 	}
@@ -80,7 +81,6 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {
 	var size = rand.Intn(10000000) + (1024 * 50)
 	qso := NewRecord()
-	qso.SetIsHeader(true)
 	qso.Set(adifield.PROGRAMID, "HamRadioLog.Net")
 	qso.Set(adifield.PROGRAMVERSION, strings.Repeat("1", size))
 	qso.Set(adifield.ADIF_VER, spec.ADIF_VER)
@@ -93,7 +93,7 @@ func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {
 	preCalculateLength := appendADIFRecordAsADIPreCalculate(qso)
 	buf := make([]byte, 0, preCalculateLength)
 
-	buf = appendAsADI(qso, buf)
+	buf = appendAsADI(qso, false, buf)
 	actualLength := len(buf)
 
 	if preCalculateLength != actualLength {

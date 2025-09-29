@@ -83,8 +83,8 @@ func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) *adiWriter 
 	}
 }
 
-func (w *adiWriter) Write(r Record) error {
-	if r.IsHeader() {
+func (w *adiWriter) Write(r Record, isHeader bool) error {
+	if isHeader {
 		if w.headerPreamble == "" {
 			// preamble is mandatory per the ADIF specification.
 			w.w.Write([]byte{'\n'})
@@ -93,7 +93,7 @@ func (w *adiWriter) Write(r Record) error {
 		}
 	}
 
-	err := w.writeInternal(r)
+	err := w.writeInternal(r, isHeader)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (w *adiWriter) Write(r Record) error {
 	return nil
 }
 
-func (w *adiWriter) writeInternal(r Record) error {
+func (w *adiWriter) writeInternal(r Record, isHeader bool) error {
 	adiLength := appendADIFRecordAsADIPreCalculate(r)
 	bufPtr := adiWriterBufferPool.Get().(*[]byte)
 	buf := *bufPtr
@@ -112,7 +112,7 @@ func (w *adiWriter) writeInternal(r Record) error {
 	}
 	buf = buf[:0]
 
-	buf = appendAsADI(r, buf)
+	buf = appendAsADI(r, isHeader, buf)
 	_, err := w.w.Write(buf)
 
 	adiWriterBufferPool.Put(bufPtr)
@@ -123,7 +123,7 @@ func (w *adiWriter) writeInternal(r Record) error {
 // The buffer should have sufficient capacity to avoid reallocations.
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
-func appendAsADI(r Record, buf []byte) []byte {
+func appendAsADI(r Record, isHeader bool, buf []byte) []byte {
 	if r.Count() == 0 {
 		return buf
 	}
@@ -141,7 +141,7 @@ func appendAsADI(r Record, buf []byte) []byte {
 		buf = appendADIFRecordAsADI(buf, field, value)
 	}
 
-	if r.IsHeader() {
+	if isHeader {
 		buf = append(buf, "<eoh>\n"...)
 	} else {
 		buf = append(buf, "<eor>\n"...)

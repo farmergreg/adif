@@ -13,7 +13,7 @@ func BenchmarkADIRead(b *testing.B) {
 		qsoList = make([]Record, 0, 10000)
 		p := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
 		for {
-			q, err := p.Next()
+			q, _, err := p.Next()
 			if err == io.EOF {
 				break
 			}
