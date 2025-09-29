@@ -17,11 +17,14 @@ type ADIFRecordReader interface {
 
 	// Next reads and returns the next Record in the input.
 	// It returns io.EOF when no more records are available.
+	// isHeader indicates if the record is a header record.
 	Next() (record Record, isHeader bool, err error)
 }
 
 // ADIFRecordWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
 type ADIFRecordWriter interface {
 	// Write writes ADIF record(s) to the output.
+	// isHeader indicates if the record is a header record.
+	// If writing a header record, it must be the first record written.
 	Write(record Record, isHeader bool) error
 }
