@@ -164,7 +164,7 @@ func appendADIFRecordAsADI(buf []byte, field adifield.Field, value string) []byt
 	return buf
 }
 
-// appendADIFRecordAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the AppendAsADI method.
+// appendADIFRecordAsADIPreCalculate returns the length of the record in bytes when exported to ADI format by the appendAsADI method.
 func appendADIFRecordAsADIPreCalculate(r Record) (adiLength int) {
 	for field, value := range r.All() {
 		valueLength := len(value)
