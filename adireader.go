@@ -172,7 +172,7 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, err err
 //	<F:L:T>
 func (p *adiReader) readDataSpecifierVolatile() (volatileSpecifier []byte, err error) {
 	// If ReadSlice returns bufio.ErrBufferFull, accumulator will contain ALL of the bytes read.
-	// In most cases, accumulator will be null because we won't hit the bufio.ErrBufferFull condition.
+	// In most cases, accumulator will be nil because we won't hit the bufio.ErrBufferFull condition.
 	var accumulator []byte
 	for {
 		volatileSpecifier, err = p.r.ReadSlice('>')
