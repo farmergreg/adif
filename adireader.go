@@ -202,7 +202,7 @@ func (p *adiReader) readDataSpecifierVolatile() (volatileSpecifier []byte, err e
 
 // discardUntilLessThan reads until it finds the '<' character
 func (p *adiReader) discardUntilLessThan() (err error) {
-	err = bufio.ErrBufferFull
+	_, err = p.r.ReadSlice('<')
 	for err == bufio.ErrBufferFull {
 		_, err = p.r.ReadSlice('<')
 	}
