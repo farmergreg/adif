@@ -9,7 +9,7 @@ import (
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
-var _ ADIFRecordWriter = (*adiWriter)(nil)
+var _ RecordWriter = (*adiWriter)(nil)
 
 const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n   https://github.com/farmergreg/adif\n\n"
 
@@ -71,12 +71,12 @@ var adiWriterBufferPool = sync.Pool{
 }
 
 // NewADIRecordWriter returns an ADIFRecordWriter that can write ADIF *.adi formatted records.
-func NewADIRecordWriter(w io.Writer) *adiWriter {
+func NewADIRecordWriter(w io.Writer) RecordWriter {
 	return NewADIRecordWriterWithPreamble(w, adiHeaderPreamble)
 }
 
 // NewADIRecordWriterWithPreamble returns an ADIFRecordWriter that can write ADIF *.adi formatted records with a custom preamble for header records.
-func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) *adiWriter {
+func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) RecordWriter {
 	return &adiWriter{
 		w:              w,
 		headerPreamble: adiPreamble,

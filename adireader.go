@@ -10,7 +10,7 @@ import (
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
-var _ ADIFRecordReader = (*adiReader)(nil)
+var _ RecordReader = (*adiReader)(nil)
 
 const (
 	// 1MB - this is the maximum size of a field value that we will accept.
