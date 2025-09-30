@@ -22,9 +22,9 @@ It's idiomatic, developer-friendly API seamlessly integrates with your codebase 
 go get github.com/farmergreg/adif/v5
 ```
 
-1) [Example for ADI File Processing](./example_adi_test.go)
+1) [ADI Processing Example](./example_adi_test.go)
 2) ADX XML Processing: Not implemented. PR(s) welcome!
-3) [JSON Processing](./example_json_test.go): Experimental. Not optimized; not part of the ADIF Specification.
+3) [JSON Processing Example](./example_json_test.go): Experimental. Not optimized; not part of the ADIF Specification.
 
 ## Benchmarks
 
