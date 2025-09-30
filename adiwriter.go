@@ -60,7 +60,8 @@ type adiWriter struct {
 	// This text will be added to the start of a file if there is a header record.
 	// To satisfy the ADIF specification which states:
 	// If the first character in an ADI file is <, it contains no Header.
-	headerPreamble string
+	headerPreamble  string
+	isHeaderWritten bool
 }
 
 var adiWriterBufferPool = sync.Pool{
@@ -83,22 +84,23 @@ func NewADIRecordWriterWithPreamble(w io.Writer, adiPreamble string) RecordWrite
 	}
 }
 
-func (w *adiWriter) Write(r Record, isHeader bool) error {
-	if isHeader {
-		if w.headerPreamble == "" {
-			// preamble is mandatory per the ADIF specification.
-			w.w.Write([]byte{'\n'})
-		} else {
-			w.w.Write([]byte(w.headerPreamble))
-		}
+func (w *adiWriter) WriteHeader(r Record) error {
+	if w.isHeaderWritten {
+		return ErrHeaderAlreadyWritten
 	}
+	w.isHeaderWritten = true
 
-	err := w.writeInternal(r, isHeader)
-	if err != nil {
-		return err
+	if w.headerPreamble == "" {
+		// preamble is mandatory per the ADIF specification.
+		w.w.Write([]byte{'\n'})
+	} else {
+		w.w.Write([]byte(w.headerPreamble))
 	}
+	return w.writeInternal(r, true)
+}
 
-	return nil
+func (w *adiWriter) WriteRecord(r Record) error {
+	return w.writeInternal(r, false)
 }
 
 func (w *adiWriter) writeInternal(r Record, isHeader bool) error {

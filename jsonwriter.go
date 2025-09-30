@@ -28,16 +28,18 @@ func NewJSONRecordWriter(w io.Writer, indent string) RecordWriteFlusher {
 	}
 }
 
-// Write implements ADIFRecordWriter.Write for writing ADIF records in ADIJ format.
-func (j *jsonWriter) Write(record Record, isHeader bool) error {
-	r := maps.Collect(record.All())
-	if isHeader {
-		if j.doc.Header != nil {
-			return ErrHeaderAlreadyWritten
-		}
-		j.doc.Header = r
-		return nil
+// WriteHeader implements ADIFRecordWriter.WriteHeader for writing ADIF headers in ADIJ format.
+func (j *jsonWriter) WriteHeader(record Record) error {
+	if j.doc.Header != nil {
+		return ErrHeaderAlreadyWritten
 	}
+	j.doc.Header = maps.Collect(record.All())
+	return nil
+}
+
+// WriteRecord implements ADIFRecordWriter.WriteRecord for writing ADIF records in ADIJ format.
+func (j *jsonWriter) WriteRecord(record Record) error {
+	r := maps.Collect(record.All())
 	j.doc.Records = append(j.doc.Records, r)
 	return nil
 }

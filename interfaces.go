@@ -25,10 +25,15 @@ type RecordReader interface {
 
 // RecordWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
 type RecordWriter interface {
-	// Write writes ADIF record(s) to the output.
+	// WriteHeader writes the ADIF header record to the output.
+	// It MUST be called before writing records.
+	// If WriteHeader is called more than once, it returns an error.
+	WriteHeader(record Record) error
+
+	// WriteRecord writes ADIF record(s) to the output.
 	// isHeader indicates if the record is a header record.
 	// When writing a header record, it MUST be the first record written.
-	Write(record Record, isHeader bool) error
+	WriteRecord(record Record) error
 }
 
 // RecordWriteFlusher writes Amateur Data Interchange Format (ADIF) records sequentially.

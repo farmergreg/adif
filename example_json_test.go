@@ -76,13 +76,13 @@ func ExampleNewJSONRecordWriter() {
 
 	hdr := NewRecord()
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
-	writer.Write(hdr, true)
+	writer.WriteHeader(hdr)
 
 	qso := NewRecord()
 	qso.Set(adifield.CALL, "K9CTS")
 	qso.Set(adifield.BAND, band.BAND_20M.String())
 	qso.Set(adifield.MODE, mode.SSB.String())
-	writer.Write(qso, false)
+	writer.WriteRecord(qso)
 
 	writer.Flush()
 	fmt.Println(sb.String())

@@ -21,7 +21,7 @@ func TestJSONWriterEncodeFail(t *testing.T) {
 	qso.Set(adifield.MODE, mode.SSB.String())
 
 	// Write should return the error from the encoder
-	err := writer.Write(qso, false)
+	err := writer.WriteRecord(qso)
 	if err != nil {
 		t.Error("Unexpected error from Write:", err)
 	}
@@ -44,12 +44,12 @@ func TestJSONWriterDuplicateHeader(t *testing.T) {
 	qso := NewRecord()
 	qso.Set(adifield.ADIF_VER, spec.ADIF_VER)
 
-	err := writer.Write(qso, true)
+	err := writer.WriteHeader(qso)
 	if err != nil {
 		t.Error("Unexpected error from Write:", err)
 	}
 
-	err = writer.Write(qso, true)
+	err = writer.WriteHeader(qso)
 	if err != ErrHeaderAlreadyWritten {
 		t.Error("Unexpected error from Write:", err)
 	}
