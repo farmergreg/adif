@@ -12,17 +12,6 @@ import (
 
 var _ RecordReader = (*adiReader)(nil)
 
-const (
-	// 1MB - this is the maximum size of a field value that we will accept.
-	// This is intended to be a generous limit for most applications while providing some protection against malformed and/or malicious input.
-	//
-	// The data is part of the ADIF "Data-Specifier."
-	// Per the ADIF spec:
-	//   ADI-exporting applications can place as much data in a Data-Specifier as they choose.
-	//   ADI-importing applications can import as much data from a Data-Specifier as they choose.
-	maxADIReaderDataSize = 1024 * 1024 * 1
-)
-
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
 type adiReader struct {
 	r *bufio.Reader
@@ -212,19 +201,17 @@ func (p *adiReader) discardUntilLessThan() (err error) {
 // parseDataLength is an optimized replacement for strconv.Atoi.
 func parseDataLength(data []byte) (value int, err error) {
 	// prevent overflow; int32 max is 2,147,483,647 (10 digits)
-	// we limit ourselves to 1,000,000,000 maximum
-	if count := len(data); count == 0 || count > 10 {
+	// we limit ourselves to 999,999,999 maximum
+	if count := len(data); count == 0 || count > 9 {
 		return 0, ErrAdiReaderMalformedADI
 	}
 
+	hasValidDigits := true
 	for _, b := range data {
-		if b < '0' || b > '9' {
-			return 0, ErrAdiReaderMalformedADI
-		}
+		hasValidDigits = hasValidDigits && b >= '0' && b <= '9'
 		value = value*10 + int(b-'0') // Parse digit, avoiding string allocations
 	}
-
-	if value > maxADIReaderDataSize {
+	if !hasValidDigits {
 		return 0, ErrAdiReaderMalformedADI
 	}
 

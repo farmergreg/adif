@@ -380,23 +380,6 @@ func TestADIRecordReaderParseLargeData(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseLargeDataTooBigShouldReturnErr(t *testing.T) {
-	// Arrange
-	p := NewADIRecordReader(strings.NewReader("<COMMENT:10000002>0"+strings.Repeat("1", 10_000_000)+"01"), false)
-
-	// Act
-	record, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	if record != nil {
-		t.Errorf("Expected nil record, got %v", record)
-	}
-	_, _, _ = p.Next() // Force the buffer to be resized back to "normal"
-
-	// Assert
-	if err != ErrAdiReaderMalformedADI {
-		t.Errorf("Expected ErrInvalidFieldLength error, got %v", err)
-	}
-}
-
 func TestADIRecordReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
 	mockReader := &mockFailReader{
 		maxBytes:    5,
