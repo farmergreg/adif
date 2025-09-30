@@ -1,7 +1,9 @@
 package adif
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/farmergreg/spec/v6/adifield"
@@ -41,12 +43,8 @@ func ExampleNewJSONRecordReader() {
 		return
 	}
 
-	for {
-		record, isHeader, err := reader.Next()
-		if err != nil {
-			break // EOF or other error
-		}
-
+	record, isHeader, err := reader.Next()
+	for err == nil {
 		fmt.Printf("Is Header: %v\n", isHeader)
 		if isHeader {
 			fmt.Printf("created_timestamp: %s\n", record.Get(adifield.CREATED_TIMESTAMP))
@@ -54,6 +52,10 @@ func ExampleNewJSONRecordReader() {
 			fmt.Printf("call: %s, band: %s, mode: %s\n", record.Get(adifield.CALL), record.Get(adifield.BAND), record.Get(adifield.MODE))
 		}
 		fmt.Println()
+		record, isHeader, err = reader.Next()
+	}
+	if !errors.Is(err, io.EOF) {
+		panic(err)
 	}
 
 	// Output:

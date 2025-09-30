@@ -1,6 +1,7 @@
 package adif
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -21,23 +22,21 @@ func ExampleNewADIRecordReader() {
 `
 
 	reader := NewADIRecordReader(strings.NewReader(adiData), true)
-	for {
-		record, _, err := reader.Next()
-		if err == io.EOF {
-			// The end of the ADI data has been reached.
-			break
-		}
-		if err != nil {
-			// Handle any other errors as you would normally.
-			panic(err)
-		}
+	record, _, err := reader.Next()
+	for err == nil {
 		fmt.Printf("Call: %s, Date: %s, Time: %s, Band: %s, Mode: %s\n",
 			record.Get(adifield.CALL),
 			record.Get(adifield.QSO_DATE),
 			record.Get(adifield.TIME_ON),
 			record.Get(adifield.BAND),
 			record.Get(adifield.MODE))
+
+		record, _, err = reader.Next()
 	}
+	if !errors.Is(err, io.EOF) {
+		panic(err)
+	}
+
 	// Output:
 	// Call: K9CTS, Date: 20230101, Time: 1200, Band: 20M, Mode: SSB
 	// Call: W9PVA, Date: 20230102, Time: 1300, Band: 40M, Mode: CW
