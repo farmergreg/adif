@@ -9,7 +9,7 @@ import (
 	"github.com/farmergreg/spec/v6/enum/mode"
 )
 
-func ExampleNewADIJReader() {
+func ExampleNewJSONRecordReader() {
 	jsonExample := `{
   "header": {
     "created_timestamp": "20250907 212700",
@@ -68,7 +68,7 @@ func ExampleNewADIJReader() {
 }
 
 // ExampleNewADIJWriter demonstrates how to write ADIJ JSON document using NewADIJWriter.
-func ExampleNewJSONWriter() {
+func ExampleNewJSONRecordWriter() {
 	var sb strings.Builder
 	writer := NewJSONRecordWriter(&sb, "  ")
 
