@@ -15,9 +15,9 @@ type jsonReader struct {
 	skipHeader   bool
 }
 
-// NewADIJReader returns an ADIFRecordReader that can parse ADIF records in ADIJ JSON format.
+// NewJSONRecordReader returns an ADIFRecordReader that can parse ADIF records in ADIJ JSON format.
 // If skipHeader is true, Next() will not return the header record if it exists.
-func NewADIJReader(r io.Reader, skipHeader bool) (RecordReader, error) {
+func NewJSONRecordReader(r io.Reader, skipHeader bool) (RecordReader, error) {
 	var doc jsonDocument
 	decoder := json.NewDecoder(r)
 	err := decoder.Decode(&doc)

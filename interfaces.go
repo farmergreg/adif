@@ -1,8 +1,6 @@
 package adif
 
 import (
-	"io"
-
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
@@ -33,9 +31,9 @@ type RecordWriter interface {
 	Write(record Record, isHeader bool) error
 }
 
-// RecordWriteCloser writes Amateur Data Interchange Format (ADIF) records sequentially.
+// RecordWriteFlusher writes Amateur Data Interchange Format (ADIF) records sequentially.
 // When all records are written, Close() MUST be called.
-type RecordWriteCloser interface {
+type RecordWriteFlusher interface {
 	RecordWriter
-	io.Closer
+	Flush() error // Flush flushes buffered data to the underlying writer.
 }

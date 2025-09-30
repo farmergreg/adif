@@ -26,7 +26,7 @@ func TestJSONWriterEncodeFail(t *testing.T) {
 		t.Error("Unexpected error from Write:", err)
 	}
 
-	err = writer.Close()
+	err = writer.Flush()
 	if err == nil {
 		t.Error("Expected error from Close, but got nil")
 	}
@@ -39,7 +39,7 @@ func TestJSONWriterEncodeFail(t *testing.T) {
 func TestJSONWriterDuplicateHeader(t *testing.T) {
 	// Create a writer that will cause json.Encoder.Encode to fail
 	sb := &strings.Builder{}
-	writer := NewJSONWriter(sb, "  ")
+	writer := NewJSONRecordWriter(sb, "  ")
 
 	qso := NewRecord()
 	qso.Set(adifield.ADIF_VER, spec.ADIF_VER)

@@ -35,7 +35,7 @@ func ExampleNewADIJReader() {
 }`
 
 	// Create a reader from the ADIJ data
-	reader, err := NewADIJReader(strings.NewReader(jsonExample), false)
+	reader, err := NewJSONRecordReader(strings.NewReader(jsonExample), false)
 	if err != nil {
 		fmt.Printf("Error creating reader: %v\n", err)
 		return
@@ -70,7 +70,7 @@ func ExampleNewADIJReader() {
 // ExampleNewADIJWriter demonstrates how to write ADIJ JSON document using NewADIJWriter.
 func ExampleNewJSONWriter() {
 	var sb strings.Builder
-	writer := NewJSONWriter(&sb, "  ")
+	writer := NewJSONRecordWriter(&sb, "  ")
 
 	hdr := NewRecord()
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
@@ -82,7 +82,7 @@ func ExampleNewJSONWriter() {
 	qso.Set(adifield.MODE, mode.SSB.String())
 	writer.Write(qso, false)
 
-	writer.Close()
+	writer.Flush()
 	fmt.Println(sb.String())
 
 	// Output:
