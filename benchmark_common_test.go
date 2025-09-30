@@ -2,6 +2,7 @@ package adif
 
 import (
 	_ "embed"
+	"errors"
 	"io"
 	"strings"
 	"testing"
@@ -21,11 +22,9 @@ func BenchmarkParseAllADIFiles(b *testing.B) {
 			for b.Loop() {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
 				p := NewADIRecordReader(reader, true)
-				for {
-					_, _, err := p.Next()
-					if err == io.EOF {
-						break
-					}
+				_, _, err := p.Next()
+				for err == nil {
+					_, _, err = p.Next()
 				}
 				reader.Close()
 			}
@@ -37,12 +36,13 @@ func BenchmarkParseAllADIFiles(b *testing.B) {
 func loadTestData() []Record {
 	var qsoListNative []Record
 	p := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
-	for {
-		record, _, err := p.Next()
-		if err == io.EOF {
-			break
-		}
+	record, _, err := p.Next()
+	for err == nil {
 		qsoListNative = append(qsoListNative, record)
+		record, _, err = p.Next()
+	}
+	if !errors.Is(err, io.EOF) {
+		panic(err)
 	}
 	return qsoListNative
 }
