@@ -36,9 +36,11 @@ type RecordWriter interface {
 	WriteRecord(record Record) error
 }
 
-// RecordWriteFlusher writes Amateur Data Interchange Format (ADIF) records sequentially.
+// RecordWriteCloser writes Amateur Data Interchange Format (ADIF) records sequentially.
 // When all records are written, Close() MUST be called.
-type RecordWriteFlusher interface {
+type RecordWriteCloser interface {
 	RecordWriter
-	Flush() error // Flush flushes buffered data to the underlying writer.
+	// Close writes buffered data (if any) to the underlying writer.
+	// IMPORTANT: this MUST be called when all records have been written to ensure all data is flushed to the underlying writer.
+	Close() error
 }

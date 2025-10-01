@@ -84,7 +84,7 @@ func ExampleNewJSONRecordWriter() {
 	qso.Set(adifield.MODE, mode.SSB.String())
 	writer.WriteRecord(qso)
 
-	writer.Flush()
+	writer.Close()
 	fmt.Println(sb.String())
 
 	// Output:
