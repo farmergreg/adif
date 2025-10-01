@@ -34,12 +34,7 @@ type RecordWriter interface {
 	// isHeader indicates if the record is a header record.
 	// When writing a header record, it MUST be the first record written.
 	WriteRecord(record Record) error
-}
 
-// RecordWriteCloser writes Amateur Data Interchange Format (ADIF) records sequentially.
-// When all records are written, Close() MUST be called.
-type RecordWriteCloser interface {
-	RecordWriter
 	// Close writes buffered data (if any) to the underlying writer.
 	// IMPORTANT: this MUST be called when all records have been written to ensure all data is flushed to the underlying writer.
 	Close() error

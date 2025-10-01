@@ -66,17 +66,16 @@ func (p *adiReader) Next() (Record, bool, error) {
 
 		switch field {
 		case adifield.EOR:
-			if count := result.Count(); count > p.preAllocateFields {
-				p.preAllocateFields = count
-			}
+			p.preAllocateFields = result.Count()
 			return result, false, nil
 		case adifield.EOH:
-			if !p.skipHeader {
-				return result, true, nil
+			if p.skipHeader {
+				// we are skipping returning the EOH record (if any)
+				// reset to prepare to read the next record
+				result.reset()
+				continue
 			}
-			// we are skipping returning the EOH record (if any)
-			// reset to prepare to read the next record
-			result.reset()
+			return result, true, nil
 		}
 
 		// n.b. if a duplicate field is found, it will replace the previous value

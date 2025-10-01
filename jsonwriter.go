@@ -6,7 +6,7 @@ import (
 	"maps"
 )
 
-var _ RecordWriteCloser = (*jsonWriter)(nil)
+var _ RecordWriter = (*jsonWriter)(nil)
 
 // jsonWriter implements ADIFRecordWriter for writing ADIF records in ADIJ format.
 type jsonWriter struct {
@@ -20,7 +20,7 @@ type jsonWriter struct {
 // An empty string means no indentation.
 // JSON is not an official ADIF document container format.
 // It is, however, useful for interoperability with other systems.
-func NewJSONRecordWriter(w io.Writer, indent string) RecordWriteCloser {
+func NewJSONRecordWriter(w io.Writer, indent string) RecordWriter {
 	return &jsonWriter{
 		w:      w,
 		doc:    &jsonDocument{},

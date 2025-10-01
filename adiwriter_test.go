@@ -36,6 +36,10 @@ func TestADIRecordWriterWrite(t *testing.T) {
 		}
 	}
 
+	if err = w.Close(); err != nil {
+		t.Fatal(err)
+	}
+
 	expectedADIF := "\n<adif_ver:5>3.1.4<programid:15>HamRadioLog.Net<programversion:5>1.0.0<eoh>\n<call:5>K9CTS<eor>\n"
 	if sb.String() != expectedADIF {
 		t.Errorf("Expected '%s', got '%s'", expectedADIF, sb.String())
@@ -52,6 +56,10 @@ func TestADIRecordWriterWrite_BigRecord(t *testing.T) {
 	w := NewADIRecordWriter(sb)
 	err := w.WriteRecord(qso)
 	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = w.Close(); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -79,6 +87,10 @@ func TestADIRecordWriterWriteError(t *testing.T) {
 	}
 
 	t.Logf("Error: %v", err)
+
+	if err = w.Close(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {

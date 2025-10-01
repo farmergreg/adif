@@ -84,7 +84,10 @@ func ExampleNewJSONRecordWriter() {
 	qso.Set(adifield.MODE, mode.SSB.String())
 	writer.WriteRecord(qso)
 
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		panic(err)
+	}
+
 	fmt.Println(sb.String())
 
 	// Output:
