@@ -10,7 +10,7 @@ func BenchmarkADIWrite(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		var sb strings.Builder
-		w := NewADIRecordWriter(&sb)
+		w := NewADIDocumentWriter(&sb)
 		for _, r := range qsoListNative {
 			w.WriteRecord(r)
 		}

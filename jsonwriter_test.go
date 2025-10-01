@@ -39,7 +39,7 @@ func TestJSONWriterEncodeFail(t *testing.T) {
 func TestJSONWriterDuplicateHeader(t *testing.T) {
 	// Create a writer that will cause json.Encoder.Encode to fail
 	sb := &strings.Builder{}
-	writer := NewJSONRecordWriter(sb, "  ")
+	writer := NewJSONDocumentWriter(sb, "  ")
 
 	qso := NewRecord()
 	qso.Set(adifield.ADIF_VER, spec.ADIF_VER)

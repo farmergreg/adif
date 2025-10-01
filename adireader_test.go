@@ -14,7 +14,7 @@ import (
 //go:embed testdata/*.adi
 var testFileFS embed.FS
 
-func TestADIRecordReaderVerifyRecordCount(t *testing.T) {
+func TestADIDocumentReaderVerifyRecordCount(t *testing.T) {
 	tests := map[string]int{
 		"ADIF_316_test_QSOs_2025_08_27.adi": 6191,
 		"Log4OM.adi":                        122,
@@ -32,7 +32,7 @@ func TestADIRecordReaderVerifyRecordCount(t *testing.T) {
 			}
 			defer reader.Close()
 
-			p := NewADIRecordReader(reader, true)
+			p := NewADIDocumentReader(reader, true)
 			count := 0
 			for {
 				_, _, err := p.Next()
@@ -52,7 +52,7 @@ func TestADIRecordReaderVerifyRecordCount(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
+func TestADIDocumentReaderParseBasicFunctionality(t *testing.T) {
 	tests := []struct {
 		hasHeader   bool
 		recordCount int
@@ -73,7 +73,7 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewADIRecordReader(strings.NewReader(tt.data), false)
+			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
 
 			records := make([]Record, 0, 10000)
 			foundHeader := false
@@ -115,7 +115,7 @@ func TestADIRecordReaderParseBasicFunctionality(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseEOREOH(t *testing.T) {
+func TestADIDocumentReaderParseEOREOH(t *testing.T) {
 	tests := []struct {
 		expected  int
 		hasHeader bool
@@ -138,7 +138,7 @@ func TestADIRecordReaderParseEOREOH(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewADIRecordReader(strings.NewReader(tt.data), false)
+			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
 
 			records := make([]Record, 0, 10000)
 			for {
@@ -159,9 +159,9 @@ func TestADIRecordReaderParseEOREOH(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseLoTWEOF(t *testing.T) {
+func TestADIDocumentReaderParseLoTWEOF(t *testing.T) {
 	raw := "<" + string(adifield.APP_LOTW_EOF) + ">"
-	p := NewADIRecordReader(strings.NewReader(raw), false)
+	p := NewADIDocumentReader(strings.NewReader(raw), false)
 
 	qso, _, err := p.Next()
 	if err != io.EOF {
@@ -173,9 +173,9 @@ func TestADIRecordReaderParseLoTWEOF(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
+func TestADIDocumentReaderParseWithMissingEOH(t *testing.T) {
 	raw := "<ADIF_VER:5>3.1.5<eor>"
-	p := NewADIRecordReader(strings.NewReader(raw), false)
+	p := NewADIDocumentReader(strings.NewReader(raw), false)
 
 	qso, _, err := p.Next()
 	if err != nil {
@@ -195,9 +195,9 @@ func TestADIRecordReaderParseWithMissingEOH(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseWithNumbersInFieldName(t *testing.T) {
+func TestADIDocumentReaderParseWithNumbersInFieldName(t *testing.T) {
 	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
-	p := NewADIRecordReader(strings.NewReader(raw), false)
+	p := NewADIDocumentReader(strings.NewReader(raw), false)
 
 	qso, _, err := p.Next()
 
@@ -210,7 +210,7 @@ func TestADIRecordReaderParseWithNumbersInFieldName(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseNoRecords(t *testing.T) {
+func TestADIDocumentReaderParseNoRecords(t *testing.T) {
 	// Arrange
 	tests := []struct {
 		name        string
@@ -255,7 +255,7 @@ func TestADIRecordReaderParseNoRecords(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Arrange
-			p := NewADIRecordReader(strings.NewReader(tt.data), false)
+			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
 
 			// Act
 			qso, _, err := p.Next()
@@ -270,7 +270,7 @@ func TestADIRecordReaderParseNoRecords(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseSingleRecord(t *testing.T) {
+func TestADIDocumentReaderParseSingleRecord(t *testing.T) {
 	tests := []struct {
 		name           string
 		adifSource     string
@@ -301,7 +301,7 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Use small buffer to test ReadSlice / ErrBufferFull handling
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
-			p := NewADIRecordReader(br, false)
+			p := NewADIDocumentReader(br, false)
 
 			qso, isHeader, err := p.Next()
 			if err != nil {
@@ -319,10 +319,10 @@ func TestADIRecordReaderParseSingleRecord(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseSkipHeader(t *testing.T) {
+func TestADIDocumentReaderParseSkipHeader(t *testing.T) {
 	// Arrange
 	adif := "<PROGRAMID:7>MonoLog<EOH>\n<COMMENT:4>GOOD<EOR>"
-	p := NewADIRecordReader(strings.NewReader(adif), true)
+	p := NewADIDocumentReader(strings.NewReader(adif), true)
 
 	// Act & Assert
 	record, _, err := p.Next()
@@ -345,13 +345,13 @@ func TestADIRecordReaderParseSkipHeader(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseLongFieldName(t *testing.T) {
+func TestADIDocumentReaderParseLongFieldName(t *testing.T) {
 	const len int = 2000
 	fieldName := "app_k9cts_" + strings.Repeat("X", len)
 
 	// Arrange
 	adif := fmt.Sprintf("<%s:4>TEST<eor>", fieldName)
-	p := NewADIRecordReader(strings.NewReader(adif), false)
+	p := NewADIDocumentReader(strings.NewReader(adif), false)
 
 	// Act
 	record, _, err := p.Next()
@@ -366,9 +366,9 @@ func TestADIRecordReaderParseLongFieldName(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderParseLargeData(t *testing.T) {
+func TestADIDocumentReaderParseLargeData(t *testing.T) {
 	// Arrange
-	p := NewADIRecordReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
+	p := NewADIDocumentReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
 
 	// Act
 	record, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
@@ -380,12 +380,12 @@ func TestADIRecordReaderParseLargeData(t *testing.T) {
 	}
 }
 
-func TestADIRecordReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
+func TestADIDocumentReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
 	mockReader := &mockFailReader{
 		maxBytes:    5,
 		backingData: []byte("<COMMENT:10>" + strings.Repeat("1", 10) + "<EOR>"),
 	}
-	rdr := NewADIRecordReader(mockReader, false)
+	rdr := NewADIDocumentReader(mockReader, false)
 	_, _, err := rdr.Next()
 	if err == nil {
 		t.Errorf("Expected error, got nil")

@@ -14,24 +14,22 @@ type Record interface {
 	Count() int                                   // Count returns the number of fields in the record.
 }
 
-// RecordReader reads Amateur Data Interchange Format (ADIF) records sequentially.
-type RecordReader interface {
-
-	// Next reads and returns the next Record in the input.
+// DocumentReader reads Amateur Data Interchange Format (ADIF) records sequentially.
+type DocumentReader interface {
+	// Next reads and returns the next Record.
 	// It returns io.EOF when no more records are available.
 	// isHeader indicates if the record is a header record.
 	Next() (record Record, isHeader bool, err error)
 }
 
-// RecordWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
-type RecordWriter interface {
+// DocumentWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
+type DocumentWriter interface {
 	// WriteHeader writes the ADIF header record to the output.
-	// It MUST be called before writing records.
+	// It MUST be called before using WriteRecord.
 	// If WriteHeader is called more than once, it returns an error.
 	WriteHeader(record Record) error
 
 	// WriteRecord writes ADIF record(s) to the output.
-	// isHeader indicates if the record is a header record.
 	// When writing a header record, it MUST be the first record written.
 	WriteRecord(record Record) error
 

@@ -6,21 +6,21 @@ import (
 	"maps"
 )
 
-var _ RecordWriter = (*jsonWriter)(nil)
+var _ DocumentWriter = (*jsonWriter)(nil)
 
-// jsonWriter implements ADIFRecordWriter for writing ADIF records in ADIJ format.
+// jsonWriter implements ADIFDocumentWriter for writing ADIF records in ADIJ format.
 type jsonWriter struct {
 	w      io.Writer
 	doc    *jsonDocument
 	indent string
 }
 
-// NewJSONRecordWriter creates a new ADIFRecordWriter that writes ADIJ JSON to the provided io.Writer.
+// NewJSONDocumentWriter creates a new ADIFDocumentWriter that writes ADIJ JSON to the provided io.Writer.
 // The indent parameter specifies the string to use for indentation (e.g. "\t" or "  ").
 // An empty string means no indentation.
 // JSON is not an official ADIF document container format.
 // It is, however, useful for interoperability with other systems.
-func NewJSONRecordWriter(w io.Writer, indent string) RecordWriter {
+func NewJSONDocumentWriter(w io.Writer, indent string) DocumentWriter {
 	return &jsonWriter{
 		w:      w,
 		doc:    &jsonDocument{},
@@ -28,7 +28,7 @@ func NewJSONRecordWriter(w io.Writer, indent string) RecordWriter {
 	}
 }
 
-// WriteHeader implements ADIFRecordWriter.WriteHeader for writing ADIF headers in ADIJ format.
+// WriteHeader implements ADIFDocumentWriter.WriteHeader for writing ADIF headers in ADIJ format.
 func (j *jsonWriter) WriteHeader(record Record) error {
 	if j.doc.Header != nil {
 		return ErrHeaderAlreadyWritten
@@ -37,7 +37,7 @@ func (j *jsonWriter) WriteHeader(record Record) error {
 	return nil
 }
 
-// WriteRecord implements ADIFRecordWriter.WriteRecord for writing ADIF records in ADIJ format.
+// WriteRecord implements ADIFDocumentWriter.WriteRecord for writing ADIF records in ADIJ format.
 func (j *jsonWriter) WriteRecord(record Record) error {
 	r := maps.Collect(record.All())
 	j.doc.Records = append(j.doc.Records, r)

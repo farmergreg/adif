@@ -12,7 +12,7 @@ func BenchmarkADIRead(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		qsoList = make([]Record, 0, 10000)
-		p := NewADIRecordReader(strings.NewReader(benchmarkFile), false)
+		p := NewADIDocumentReader(strings.NewReader(benchmarkFile), false)
 		q, _, err := p.Next()
 		for err == nil {
 			qsoList = append(qsoList, q)

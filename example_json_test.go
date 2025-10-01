@@ -11,7 +11,7 @@ import (
 	"github.com/farmergreg/spec/v6/enum/mode"
 )
 
-func ExampleNewJSONRecordReader() {
+func ExampleNewJSONDocumentReader() {
 	jsonExample := `{
   "header": {
     "created_timestamp": "20250907 212700",
@@ -37,7 +37,7 @@ func ExampleNewJSONRecordReader() {
 }`
 
 	// Create a reader from the ADIJ data
-	reader, err := NewJSONRecordReader(strings.NewReader(jsonExample), false)
+	reader, err := NewJSONDocumentReader(strings.NewReader(jsonExample), false)
 	if err != nil {
 		fmt.Printf("Error creating reader: %v\n", err)
 		return
@@ -70,9 +70,9 @@ func ExampleNewJSONRecordReader() {
 }
 
 // ExampleNewADIJWriter demonstrates how to write ADIJ JSON document using NewADIJWriter.
-func ExampleNewJSONRecordWriter() {
+func ExampleNewJSONDocumentWriter() {
 	var sb strings.Builder
-	writer := NewJSONRecordWriter(&sb, "  ")
+	writer := NewJSONDocumentWriter(&sb, "  ")
 
 	hdr := NewRecord()
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")

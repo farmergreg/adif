@@ -10,7 +10,7 @@ import (
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
-var _ RecordReader = (*adiReader)(nil)
+var _ DocumentReader = (*adiReader)(nil)
 
 // adiReader is a high-performance ADIF Reader that can parse ADIF *.adi formatted records.
 type adiReader struct {
@@ -29,18 +29,19 @@ type adiReader struct {
 	skipHeader bool
 }
 
-// NewADIRecordReader returns an ADIFReader that can parse ADIF *.adi formatted records.
+// NewADIDocumentReader returns an ADIFReader that can parse ADIF *.adi formatted records.
 // If skipHeader is true, Next() will not return the header record if it exists.
 // This is a streaming parser that processes the input as it is read, using minimal memory.
-func NewADIRecordReader(r io.Reader, skipHeader bool) *adiReader {
+func NewADIDocumentReader(r io.Reader, skipHeader bool) *adiReader {
 	br, ok := r.(*bufio.Reader)
 	if !ok {
 		br = bufio.NewReader(r)
 	}
 
 	p := &adiReader{
-		r:          br,
-		skipHeader: skipHeader,
+		r:                 br,
+		skipHeader:        skipHeader,
+		preAllocateFields: 16,
 	}
 	p.appFieldMap = make(map[string]adifield.Field, 128)
 	p.bufValue = make([]byte, 4096)

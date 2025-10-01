@@ -11,7 +11,7 @@ import (
 	"github.com/farmergreg/spec/v6/enum/mode"
 )
 
-func ExampleNewADIRecordReader() {
+func ExampleNewADIDocumentReader() {
 	// Example ADI data
 	adiData := `
 <ADIF_VERS:5>3.1.0
@@ -21,7 +21,7 @@ func ExampleNewADIRecordReader() {
 <CALL:5>W9PVA<QSO_DATE:8>20230102<TIME_ON:4>1300<BAND:3>40M<MODE:2>CW<eor>
 `
 
-	reader := NewADIRecordReader(strings.NewReader(adiData), true)
+	reader := NewADIDocumentReader(strings.NewReader(adiData), true)
 	record, _, err := reader.Next()
 	for err == nil {
 		fmt.Printf("Call: %s, Date: %s, Time: %s, Band: %s, Mode: %s\n",
@@ -42,10 +42,10 @@ func ExampleNewADIRecordReader() {
 	// Call: W9PVA, Date: 20230102, Time: 1300, Band: 40M, Mode: CW
 }
 
-// ExampleNewADIRecordWriter demonstrates how to write an ADI document using NewADIRecordWriter.
-func ExampleNewADIRecordWriter() {
+// ExampleNewADIDocumentWriter demonstrates how to write an ADI document using NewADIDocumentWriter.
+func ExampleNewADIDocumentWriter() {
 	var sb strings.Builder
-	writer := NewADIRecordWriter(&sb)
+	writer := NewADIDocumentWriter(&sb)
 
 	hdr := NewRecord()
 	hdr.Set(adifield.CREATED_TIMESTAMP, "20250907 212700")
