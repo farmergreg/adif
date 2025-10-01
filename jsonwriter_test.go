@@ -26,7 +26,7 @@ func TestJSONWriterEncodeFail(t *testing.T) {
 		t.Error("Unexpected error from Write:", err)
 	}
 
-	err = writer.Close()
+	err = writer.Flush()
 	if err == nil {
 		t.Error("Expected error from Close, but got nil")
 	}

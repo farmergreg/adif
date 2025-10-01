@@ -58,7 +58,7 @@ func ExampleNewADIDocumentWriter() {
 	qso.Set(adifield.New("APP_Example"), "Example")
 	writer.WriteRecord(qso)
 
-	if err := writer.Close(); err != nil {
+	if err := writer.Flush(); err != nil {
 		panic(err)
 	}
 

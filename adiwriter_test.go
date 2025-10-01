@@ -36,7 +36,7 @@ func TestADIDocumentWriterWrite(t *testing.T) {
 		}
 	}
 
-	if err = w.Close(); err != nil {
+	if err = w.Flush(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -59,7 +59,7 @@ func TestADIDocumentWriterWrite_BigRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = w.Close(); err != nil {
+	if err = w.Flush(); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -88,7 +88,7 @@ func TestADIDocumentWriterWriteError(t *testing.T) {
 
 	t.Logf("Error: %v", err)
 
-	if err = w.Close(); err != nil {
+	if err = w.Flush(); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -142,7 +142,7 @@ func TestADIDocumentWriterTwoHeaders(t *testing.T) {
 		t.Fatalf("Expected ErrHeaderAlreadyWritten but got %v", err)
 	}
 
-	if err = w.Close(); err != nil {
+	if err = w.Flush(); err != nil {
 		t.Fatal(err)
 	}
 }
