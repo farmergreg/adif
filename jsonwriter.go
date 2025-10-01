@@ -30,7 +30,7 @@ func NewJSONDocumentWriter(w io.Writer, indent string) DocumentWriter {
 
 // WriteHeader implements ADIFDocumentWriter.WriteHeader for writing ADIF headers in ADIJ format.
 func (j *jsonWriter) WriteHeader(record Record) error {
-	if j.doc.Header != nil {
+	if j.doc.Header != nil || len(j.doc.Records) > 0 {
 		return ErrHeaderAlreadyWritten
 	}
 	j.doc.Header = maps.Collect(record.All())

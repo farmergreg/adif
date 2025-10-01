@@ -124,3 +124,25 @@ func TestAppendAsAdifNoLength(t *testing.T) {
 		t.Errorf("Expected 0, got %d", len)
 	}
 }
+
+func TestADIDocumentWriterTwoHeaders(t *testing.T) {
+	hdr := NewRecord()
+	hdr.Set(adifield.PROGRAMVERSION, "1.0.0")
+
+	sb := &strings.Builder{}
+	w := NewADIDocumentWriterWithPreamble(sb, "")
+
+	err := w.WriteHeader(hdr)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = w.WriteHeader(hdr)
+	if err != ErrHeaderAlreadyWritten {
+		t.Fatalf("Expected ErrHeaderAlreadyWritten but got %v", err)
+	}
+
+	if err = w.Close(); err != nil {
+		t.Fatal(err)
+	}
+}

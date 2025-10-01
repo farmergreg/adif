@@ -100,6 +100,7 @@ func (w *adiWriter) WriteHeader(r Record) error {
 }
 
 func (w *adiWriter) WriteRecord(r Record) error {
+	w.isHeaderWritten = true
 	return w.writeInternal(r, false)
 }
 
