@@ -69,6 +69,6 @@ func ExampleNewADIDocumentWriter() {
 	// K9CTS High Performance ADIF Processing Library
 	//    https://github.com/farmergreg/adif
 	//
-	// <created_timestamp:15>20250907 212700<eoh>
-	// <band:3>20m<mode:3>ssb<call:5>K9CTS<app_example:7>Example<eor>
+	// <CREATED_TIMESTAMP:15>20250907 212700<EOH>
+	// <BAND:3>20M<MODE:3>SSB<CALL:5>K9CTS<APP_EXAMPLE:7>Example<EOR>
 }
