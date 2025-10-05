@@ -67,7 +67,7 @@ func (p *adiReader) Next() (Record, bool, error) {
 
 		switch field {
 		case adifield.EOR:
-			p.preAllocateFields = result.Count()
+			p.preAllocateFields = result.FieldCount()
 			return result, false, nil
 		case adifield.EOH:
 			if p.skipHeader {

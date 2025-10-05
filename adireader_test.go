@@ -182,8 +182,8 @@ func TestADIDocumentReaderParseWithMissingEOH(t *testing.T) {
 		t.Errorf("Expected nil error, got %v", err)
 	}
 	expectedFields := 1
-	if qso.Count() != expectedFields {
-		t.Errorf("Expected %d fields, got %d", expectedFields, qso.Count())
+	if qso.FieldCount() != expectedFields {
+		t.Errorf("Expected %d fields, got %d", expectedFields, qso.FieldCount())
 	}
 	if qso.Get(adifield.ADIF_VER) != "3.1.5" {
 		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.Get(adifield.ADIF_VER))
