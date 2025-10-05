@@ -13,25 +13,25 @@ import (
 
 func ExampleNewJSONDocumentReader() {
 	jsonExample := `{
-  "header": {
-    "created_timestamp": "20250907 212700",
-    "programid": "ExampleProgram",
-    "programversion": "1.0"
+  "HEADER": {
+    "CREATED_TIMESTAMP": "20250907 212700",
+    "PROGRAMID": "ExampleProgram",
+    "PROGRAMVERSION": "1.0"
   },
-  "records": [
+  "RECORDS": [
     {
-      "band": "20m",
-      "call": "K9CTS",
-      "mode": "ssb",
-      "qso_date": "20250907",
-      "time_on": "2127"
+      "BAND": "20m",
+      "CALL": "K9CTS",
+      "MODE": "ssb",
+      "QSO_DATE": "20250907",
+      "TIME_ON": "2127"
     },
     {
-      "band": "40m",
-      "call": "W9PVA",
-      "mode": "cw",
-      "qso_date": "20250907",
-      "time_on": "2130"
+      "BAND": "40m",
+      "CALL": "W9PVA",
+      "MODE": "cw",
+      "QSO_DATE": "20250907",
+      "TIME_ON": "2130"
     }
   ]
 }`
@@ -92,14 +92,14 @@ func ExampleNewJSONDocumentWriter() {
 
 	// Output:
 	// {
-	//   "header": {
-	//     "created_timestamp": "20250907 212700"
+	//   "HEADER": {
+	//     "CREATED_TIMESTAMP": "20250907 212700"
 	//   },
-	//   "records": [
+	//   "RECORDS": [
 	//     {
-	//       "band": "20m",
-	//       "call": "K9CTS",
-	//       "mode": "ssb"
+	//       "BAND": "20M",
+	//       "CALL": "K9CTS",
+	//       "MODE": "SSB"
 	//     }
 	//   ]
 	// }
