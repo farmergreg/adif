@@ -107,6 +107,11 @@ func (w *adiWriter) WriteRecord(r Record) error {
 
 func (w *adiWriter) writeInternal(r Record, endOfRecord byte) error {
 	adiLength := appendADIFRecordAsADIPreCalculate(r)
+	if adiLength == 6 { // "<eor>\n" / "<eoh>\n"
+		// nothing to write
+		return nil
+	}
+
 	bufPtr := adiWriterBufferPool.Get().(*[]byte)
 	buf := *bufPtr
 
@@ -128,10 +133,6 @@ func (w *adiWriter) writeInternal(r Record, endOfRecord byte) error {
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
 func appendAsADI(r Record, endOfRecord byte, buf []byte) []byte {
-	if r.FieldCount() == 0 {
-		return buf
-	}
-
 	// Priority fields first (in order, but nothing about this is guaranteed to be stable between versions of this library)
 	for _, field := range adiWriterPriorityFieldOrder {
 		buf = appendADIFRecordAsADI(buf, field, r.Get(field))

@@ -74,8 +74,3 @@ func (r *adiRecord) Fields() func(func(adifield.Field, string) bool) {
 		}
 	}
 }
-
-// FieldCount implements ADIFRecord.FieldCount
-func (r *adiRecord) FieldCount() int {
-	return len(r.fields)
-}

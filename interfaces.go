@@ -11,7 +11,6 @@ type Record interface {
 	Set(field adifield.Field, value string) // Set sets the value for the specified field.
 
 	Fields() func(func(adifield.Field, string) bool) // Fields returns an iterator that yields field-value pairs for all fields in the record.
-	FieldCount() int                                 // FieldCount returns the number of fields in the record.
 }
 
 // DocumentReader reads Amateur Data Interchange Format (ADIF) records sequentially.

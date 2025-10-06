@@ -24,7 +24,3 @@ func (r *mockADIFRecord) Fields() func(func(adifield.Field, string) bool) {
 		yield(adifield.COMMENT, "")
 	}
 }
-
-func (r *mockADIFRecord) FieldCount() int {
-	return 1
-}
