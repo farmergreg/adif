@@ -108,7 +108,7 @@ func TestAppendADIFRecordAsADIPreCalculate(t *testing.T) {
 	preCalculateLength := appendADIFRecordAsADIPreCalculate(qso)
 	buf := make([]byte, 0, preCalculateLength)
 
-	buf = appendAsADI(qso, false, buf)
+	buf = appendAsADI(qso, 'R', buf)
 	actualLength := len(buf)
 
 	if preCalculateLength != actualLength {

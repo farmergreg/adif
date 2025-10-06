@@ -60,8 +60,8 @@ type adiWriter struct {
 	// This text will be added to the start of a file if there is a header record.
 	// To satisfy the ADIF specification which states:
 	// If the first character in an ADI file is <, it contains no Header.
-	headerPreamble  string
-	isHeaderWritten bool
+	headerPreamble string
+	wroteData      bool
 }
 
 var adiWriterBufferPool = sync.Pool{
@@ -85,10 +85,9 @@ func NewADIDocumentWriterWithPreamble(w io.Writer, adiPreamble string) DocumentW
 }
 
 func (w *adiWriter) WriteHeader(r Record) error {
-	if w.isHeaderWritten {
+	if w.wroteData {
 		return ErrHeaderAlreadyWritten
 	}
-	w.isHeaderWritten = true
 
 	if w.headerPreamble == "" {
 		// preamble is mandatory per the ADIF specification.
@@ -96,15 +95,17 @@ func (w *adiWriter) WriteHeader(r Record) error {
 	} else {
 		w.w.Write([]byte(w.headerPreamble))
 	}
-	return w.writeInternal(r, true)
+
+	w.wroteData = true
+	return w.writeInternal(r, 'H')
 }
 
 func (w *adiWriter) WriteRecord(r Record) error {
-	w.isHeaderWritten = true
-	return w.writeInternal(r, false)
+	w.wroteData = true
+	return w.writeInternal(r, 'R')
 }
 
-func (w *adiWriter) writeInternal(r Record, isHeader bool) error {
+func (w *adiWriter) writeInternal(r Record, endOfRecord byte) error {
 	adiLength := appendADIFRecordAsADIPreCalculate(r)
 	bufPtr := adiWriterBufferPool.Get().(*[]byte)
 	buf := *bufPtr
@@ -115,7 +116,7 @@ func (w *adiWriter) writeInternal(r Record, isHeader bool) error {
 	}
 	buf = buf[:0]
 
-	buf = appendAsADI(r, isHeader, buf)
+	buf = appendAsADI(r, endOfRecord, buf)
 	_, err := w.w.Write(buf)
 
 	adiWriterBufferPool.Put(bufPtr)
@@ -126,7 +127,7 @@ func (w *adiWriter) writeInternal(r Record, isHeader bool) error {
 // The buffer should have sufficient capacity to avoid reallocations.
 // You should use appendAsADIPreCalculate() to determine the required buffer capacity.
 // Field order is NOT guaranteed to be stable.
-func appendAsADI(r Record, isHeader bool, buf []byte) []byte {
+func appendAsADI(r Record, endOfRecord byte, buf []byte) []byte {
 	if r.FieldCount() == 0 {
 		return buf
 	}
@@ -144,12 +145,7 @@ func appendAsADI(r Record, isHeader bool, buf []byte) []byte {
 		buf = appendADIFRecordAsADI(buf, field, value)
 	}
 
-	if isHeader {
-		buf = append(buf, "<EOH>\n"...)
-	} else {
-		buf = append(buf, "<EOR>\n"...)
-	}
-
+	buf = append(buf, '<', 'E', 'O', endOfRecord, '>', '\n')
 	return buf
 }
 
