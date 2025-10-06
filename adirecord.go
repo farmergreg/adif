@@ -17,14 +17,11 @@ type adiRecord struct {
 
 // NewRecord creates a new Record with the default initial capacity.
 func NewRecord() Record {
-	return newRecordWithCapacity(-1)
+	return newRecordWithCapacity(7)
 }
 
 // newRecordWithCapacity creates a new adiRecord with a specific initial capacity.
 func newRecordWithCapacity(initialCapacity int) *adiRecord {
-	if initialCapacity < 1 {
-		initialCapacity = 7
-	}
 	r := adiRecord{
 		fields: make(map[adifield.Field]string, initialCapacity),
 	}

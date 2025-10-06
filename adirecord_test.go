@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewADIRecordWithCapacity(t *testing.T) {
-	_ = newRecordWithCapacity(10)
+	_ = newRecordWithCapacity(7)
 }
 
 func TestNewADIRecord(t *testing.T) {
