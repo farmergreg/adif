@@ -1,7 +1,6 @@
 # ⚡ High Performance ADI Parser for Go
 
 This library provides high-performance processing of [ADIF](https://adif.org/) (Amateur Data Interchange Format) ADI files used for ham radio logs.
-It's idiomatic, developer-friendly API seamlessly integrates with your codebase and the go standard library.
 
 [![Tests](https://github.com/farmergreg/adif/actions/workflows/test.yml/badge.svg)](https://github.com/farmergreg/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/farmergreg/adif/v5)](https://goreportcard.com/report/github.com/farmergreg/adif/v5)
