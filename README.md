@@ -31,7 +31,7 @@ go get github.com/farmergreg/adif/v5
 Please see the [Go ADIF Parser Benchmarks](https://github.com/farmergreg/adif-benchmark) project for benchmarks.
 
 TLDR, this library processes ADI data 3x faster than the go standard library can process the same data in json format.
-This library is 2.4x faster than the nearest ADI parser.
+This library is 2.4x faster than the nearest competing ADI parser.
 
 ## 🔧 Technical Deep Dive (ADI Parser)
 
