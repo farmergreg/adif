@@ -41,7 +41,7 @@ func NewADIDocumentReader(r io.Reader, skipHeader bool) DocumentReader {
 	p := &adiReader{
 		r:                 br,
 		skipHeader:        skipHeader,
-		preAllocateFields: -1, // use default initial capacity
+		preAllocateFields: 7,
 	}
 	p.appFieldMap = make(map[string]adifield.Field, 128)
 	p.bufValue = make([]byte, 4096)
