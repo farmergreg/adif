@@ -1,4 +1,4 @@
-# World's Fastest ADI Parser?
+# World's Fastest ADIF / ADI Parser?
 
 [![Tests](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml/badge.svg)](https://github.com/hamradiolog-net/adif/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hamradiolog-net/adif)](https://goreportcard.com/report/github.com/hamradiolog-net/adif)
@@ -6,7 +6,7 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/go.mod)
 [![License](https://img.shields.io/github/license/hamradiolog-net/adif)](https://github.com/hamradiolog-net/adif/blob/main/LICENSE)
 
-This ADI parser is an attempt to create a fast, memory efficient ADIF parser for ADI formatted data.
+This ADI parser is an attempt to create a fast, memory efficient [ADIF](https://adif.org/) parser for ADI formatted Ham Radio logs.
 
 This library outperforms other ADI libraries that I've tested to date by a wide margin.
 

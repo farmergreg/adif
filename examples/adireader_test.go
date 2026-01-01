@@ -26,7 +26,7 @@ func ExampleADIFReader_Next() {
 			panic(err)
 		}
 
-		fmt.Println(qso[adifield.CALL])
+		fmt.Println(qso[adifield.CALL]) // n.b. the field keys must be UPPERCASE
 		fmt.Println()
 
 		fmt.Print(qso.String())

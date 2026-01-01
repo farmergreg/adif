@@ -16,7 +16,7 @@ func ExampleNewRecord() {
 	record[adifield.APP_+"K9CTS_TEST"] = "TEST"
 
 	if record[adifield.CALL] != "W1AW" {
-		panic("Expected W1AW, got " + record[adifield.CALL])
+		panic("Expected W1AW, got " + record[adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	}
 
 	fmt.Print(record.String())
@@ -38,8 +38,9 @@ func ExampleRecord_ReadFrom() {
 		panic(err)
 	}
 
-	fmt.Println(r[adifield.CALL])
+	fmt.Println(r[adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
+
 	fmt.Print(r.String())
 	fmt.Println(adif.TagEOR)
 

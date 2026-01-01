@@ -14,8 +14,10 @@ type Document struct {
 	Header Record `json:"header,omitempty"`
 
 	// Records is a slice of Record.
+	// It contains the QSO records.
 	Records []Record `json:"records"`
 }
 
-// Record represents one ADIF record which may be a Header or a QSO.
+// Record is a map of ADIF fields to their values, representing either a header or QSO record.
+// The field keys must be UPPERCASE strings of type adifield.Field.
 type Record map[adifield.Field]string

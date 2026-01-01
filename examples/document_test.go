@@ -13,7 +13,7 @@ func ExampleDocument_ReadFrom() {
 	doc := adif.NewDocument()
 	doc.ReadFrom(strings.NewReader(adi))
 
-	fmt.Println(doc.Records[0][adifield.CALL])
+	fmt.Println(doc.Records[0][adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
 
 	fmt.Println(doc.String())
@@ -36,7 +36,7 @@ func ExampleDocument_WriteTo() {
 	sb := &strings.Builder{}
 	doc.WriteTo(sb)
 
-	fmt.Println(doc.Records[0][adifield.CALL])
+	fmt.Println(doc.Records[0][adifield.CALL]) // n.b. the field keys must be UPPERCASE
 	fmt.Println()
 
 	fmt.Println(sb.String())
