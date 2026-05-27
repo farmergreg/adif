@@ -105,6 +105,9 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, err err
 	var ok bool
 	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
 	if field, ok = p.appFieldMap[fieldStringUnsafe]; !ok {
+		if len(p.appFieldMap) > 1024 {
+			return "", "", ErrAdiReaderTooManyUniqueFields
+		}
 		fieldStringSafe := strings.Clone(fieldStringUnsafe)
 		field = adifield.New(fieldStringSafe)
 		p.appFieldMap[fieldStringSafe] = field

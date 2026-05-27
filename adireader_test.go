@@ -376,6 +376,25 @@ func TestADIDocumentReaderParseLargeData(t *testing.T) {
 	}
 }
 
+func TestADIDocumentReaderTooManyUniqueFields(t *testing.T) {
+	// Build an ADI record with more than 1024 unique field names.
+	// The reader enforces a limit to prevent unbounded memory growth from adversarial input.
+	var sb strings.Builder
+	for i := range 1026 {
+		fmt.Fprintf(&sb, "<APP_TEST_%04d:1>X", i)
+	}
+	sb.WriteString("<EOR>")
+
+	p := NewADIDocumentReader(strings.NewReader(sb.String()), false)
+	record, _, err := p.Next()
+	if err != ErrAdiReaderTooManyUniqueFields {
+		t.Errorf("expected ErrAdiReaderTooManyUniqueFields, got %v", err)
+	}
+	if record != nil {
+		t.Errorf("expected nil record, got %v", record)
+	}
+}
+
 func TestADIDocumentReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
 	mockReader := &mockFailReader{
 		maxBytes:    5,
