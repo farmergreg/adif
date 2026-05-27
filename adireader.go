@@ -143,7 +143,7 @@ func (p *adiReader) parseOneField() (field adifield.Field, value string, err err
 		return "", "", ErrAdiReaderMalformedADI
 	}
 	value = string(p.bufValue[:c])
-	return field, value, nil
+	return field, value, err
 }
 
 // readDataSpecifierVolatile reads and returns the next data specifier as a byte slice, and any error encountered.
