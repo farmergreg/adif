@@ -125,6 +125,18 @@ func TestAppendAsAdifNoLength(t *testing.T) {
 	}
 }
 
+func TestADIDocumentWriterWriteHeaderPreambleError(t *testing.T) {
+	hdr := NewRecord()
+	hdr.Set(adifield.PROGRAMID, "Test")
+
+	w := NewADIDocumentWriterWithPreamble(&mockAlwaysErrorWriter{}, "preamble")
+
+	err := w.WriteHeader(hdr)
+	if err != errMockWrite {
+		t.Fatalf("expected errMockWrite, got %v", err)
+	}
+}
+
 func TestADIDocumentWriterTwoHeaders(t *testing.T) {
 	hdr := NewRecord()
 	hdr.Set(adifield.PROGRAMVERSION, "1.0.0")

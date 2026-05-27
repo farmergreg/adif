@@ -89,11 +89,15 @@ func (w *adiWriter) WriteHeader(r Record) error {
 		return ErrHeaderAlreadyWritten
 	}
 
+	var preamble []byte
 	if w.headerPreamble == "" {
 		// preamble is mandatory per the ADIF specification.
-		w.w.Write([]byte{'\n'})
+		preamble = []byte{'\n'}
 	} else {
-		w.w.Write([]byte(w.headerPreamble))
+		preamble = []byte(w.headerPreamble)
+	}
+	if _, err := w.w.Write(preamble); err != nil {
+		return err
 	}
 
 	w.wroteData = true
