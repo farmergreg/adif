@@ -24,12 +24,12 @@ type DocumentReader interface {
 // DocumentWriter writes Amateur Data Interchange Format (ADIF) records sequentially.
 type DocumentWriter interface {
 	// WriteHeader writes the ADIF header record to the output.
-	// It MUST be called before using WriteRecord.
+	// Headers are optional and must appear before records.
 	// If WriteHeader is called more than once, it returns an error.
 	WriteHeader(record Record) error
 
 	// WriteRecord writes ADIF record(s) to the output.
-	// When writing a header record, it MUST be the first record written.
+	// If writing a header record with WriteHeader, it MUST be the first record written.
 	WriteRecord(record Record) error
 
 	// Flush writes buffered data to the underlying writer.
