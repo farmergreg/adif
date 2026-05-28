@@ -118,14 +118,15 @@ func flushWriter(w io.Writer) error {
 }
 
 func (w *Writer) writeRecord(r Record, endTag byte) error {
-	if len(r) == 0 {
-		return nil
-	}
-
 	bufPtr := writerBufPool.Get().(*[]byte)
 	buf := (*bufPtr)[:0]
 
-	buf = appendRecordADI(r, endTag, buf)
+	buf = appendFieldsADI(r, buf)
+	if len(buf) == 0 {
+		writerBufPool.Put(bufPtr)
+		return nil
+	}
+	buf = append(buf, '<', 'E', 'O', endTag, '>', '\n')
 	_, err := w.w.Write(buf)
 
 	*bufPtr = buf

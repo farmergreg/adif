@@ -62,6 +62,25 @@ func TestWriter_Write(t *testing.T) {
 	}
 }
 
+func TestWriter_Write_EmptyRecordsProduceNoOutput(t *testing.T) {
+	emptyMap := NewRecord()
+
+	allBlankValues := NewRecord()
+	allBlankValues[adifield.CALL] = ""
+	allBlankValues[adifield.BAND] = ""
+
+	for _, r := range []Record{emptyMap, allBlankValues} {
+		var sb strings.Builder
+		w := NewWriterWithPreamble(&sb, "")
+		if err := w.Write(r); err != nil {
+			t.Fatal(err)
+		}
+		if got := sb.String(); got != "" {
+			t.Errorf("expected no output for empty record, got %q", got)
+		}
+	}
+}
+
 func TestWriter_Write_BigRecord(t *testing.T) {
 	// Force the internal write buffer to reallocate.
 	size := rand.Intn(10_000_000) + (1024 * 50)
