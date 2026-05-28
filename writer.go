@@ -148,12 +148,6 @@ func appendFieldsADI(r Record, buf []byte) []byte {
 	return buf
 }
 
-// appendRecordADI serializes r in ADI format, ending with <EOR>\n or <EOH>\n.
-func appendRecordADI(r Record, endTag byte, buf []byte) []byte {
-	buf = appendFieldsADI(r, buf)
-	return append(buf, '<', 'E', 'O', endTag, '>', '\n')
-}
-
 // recordSizeADI returns the total serialized byte length of r in ADI format,
 // including the trailing EOR or EOH tag and newline.
 func recordSizeADI(r Record) int {

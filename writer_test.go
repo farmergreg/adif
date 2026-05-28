@@ -160,7 +160,8 @@ func TestRecordSizeADI_Accuracy(t *testing.T) {
 
 	preCalcSize := recordSizeADI(r)
 	buf := make([]byte, 0, preCalcSize)
-	buf = appendRecordADI(r, 'R', buf)
+	buf = appendFieldsADI(r, buf)
+	buf = append(buf, '<', 'E', 'O', 'R', '>', '\n')
 
 	if preCalcSize != len(buf) {
 		t.Errorf("pre-calculated size %d != actual size %d", preCalcSize, len(buf))
