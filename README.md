@@ -11,7 +11,7 @@ This library provides high-performance processing of [ADIF](https://adif.org/) (
 ## ✨ Features
 
 - 🔬 **Tested**: 100% test coverage!
-- 🔧 **Developer Friendly**: Clean, idiomatic, mock friendly interfaces
+- 🔧 **Developer Friendly**: Clean, idiomatic Go API with three usage patterns: streaming, in-memory, and writing
 - 🚀 **Blazing Fast**: 2.4x-20x faster than [other libraries](https://github.com/farmergreg/adif-benchmark)
 - 💡 **Memory Efficient**: Uses 2.2x less memory and makes 3.8 fewer allocations than the nearest competitor.
 
@@ -21,9 +21,15 @@ This library provides high-performance processing of [ADIF](https://adif.org/) (
 go get github.com/farmergreg/adif/v5
 ```
 
-1) [ADI Processing Example](./example_adi_test.go)
-2) ADX XML Processing: Not implemented. PR(s) welcome!
-3) [JSON Processing Example](./example_json_test.go): Experimental. Not optimized; not part of the ADIF Specification.
+### Usage Patterns
+
+| Type | Use when |
+|------|----------|
+| [`Scanner`](./scanner.go) | Streaming large files record-by-record without loading them fully into memory |
+| [`Document`](./document.go) | Loading a complete ADI file into memory for random access |
+| [`Writer`](./writer.go) | Writing ADI records to any `io.Writer` |
+
+See [example_test.go](./example_test.go) for runnable examples of all three patterns.
 
 ## Benchmarks
 

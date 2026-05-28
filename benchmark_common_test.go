@@ -2,8 +2,6 @@ package adif
 
 import (
 	_ "embed"
-	"errors"
-	"io"
 	"strings"
 	"testing"
 )
@@ -21,30 +19,16 @@ func BenchmarkParseAllADIFiles(b *testing.B) {
 		b.Run(f.Name(), func(b *testing.B) {
 			for b.Loop() {
 				reader, _ := testFileFS.Open("testdata/" + f.Name())
-				p := NewADIDocumentReader(reader, true)
-				_, _, err := p.Next()
-				for err == nil {
-					_, _, err = p.Next()
+				s := NewScanner(reader)
+				for s.Scan() {
+				}
+				if err := s.Err(); err != nil {
+					b.Fatal(err)
 				}
 				reader.Close()
 			}
 		})
-
 	}
-}
-
-func loadTestData() []Record {
-	var qsoListNative []Record
-	p := NewADIDocumentReader(strings.NewReader(benchmarkFile), false)
-	record, _, err := p.Next()
-	for err == nil {
-		qsoListNative = append(qsoListNative, record)
-		record, _, err = p.Next()
-	}
-	if !errors.Is(err, io.EOF) {
-		panic(err)
-	}
-	return qsoListNative
 }
 
 func BenchmarkInternalParseDataLength(b *testing.B) {
@@ -64,12 +48,24 @@ func BenchmarkInternalParseDataLength(b *testing.B) {
 				v, err := parseDataLength(td.input)
 				if td.want == -1 {
 					if err == nil {
-						b.Fatalf("Expected error for input '%s', got nil", td.input)
+						b.Fatalf("expected error for input %q", td.input)
 					}
 				} else if v != td.want {
-					b.Fatalf("Expected %d, got %d", td.want, v)
+					b.Fatalf("got %d, want %d", v, td.want)
 				}
 			}
 		})
 	}
+}
+
+func loadTestData() []Record {
+	var records []Record
+	s := NewScanner(strings.NewReader(benchmarkFile))
+	for s.Scan() {
+		records = append(records, s.Record())
+	}
+	if err := s.Err(); err != nil {
+		panic(err)
+	}
+	return records
 }

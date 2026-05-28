@@ -1,27 +1,22 @@
 package adif
 
 import (
-	"errors"
-	"io"
 	"strings"
 	"testing"
 )
 
 func BenchmarkADIRead(b *testing.B) {
-	var qsoList []Record
+	var records []Record
 	b.ResetTimer()
 	for b.Loop() {
-		qsoList = make([]Record, 0, 10000)
-		p := NewADIDocumentReader(strings.NewReader(benchmarkFile), false)
-		q, _, err := p.Next()
-		for err == nil {
-			qsoList = append(qsoList, q)
-			q, _, err = p.Next()
+		records = make([]Record, 0, 10000)
+		s := NewScanner(strings.NewReader(benchmarkFile))
+		for s.Scan() {
+			records = append(records, s.Record())
 		}
-		if !errors.Is(err, io.EOF) {
+		if err := s.Err(); err != nil {
 			b.Fatal(err)
 		}
 	}
-
-	_ = len(qsoList)
+	_ = len(records)
 }

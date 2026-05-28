@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"embed"
 	"fmt"
-	"io"
 	"strings"
 	"testing"
 
@@ -14,7 +13,7 @@ import (
 //go:embed testdata/*.adi
 var testFileFS embed.FS
 
-func TestADIDocumentReaderVerifyRecordCount(t *testing.T) {
+func TestScannerVerifyRecordCount(t *testing.T) {
 	tests := map[string]int{
 		"ADIF_316_test_QSOs_2025_08_27.adi": 6191,
 		"Log4OM.adi":                        122,
@@ -26,33 +25,31 @@ func TestADIDocumentReaderVerifyRecordCount(t *testing.T) {
 
 	for filename, expectedCount := range tests {
 		t.Run(filename, func(t *testing.T) {
-			reader, err := testFileFS.Open("testdata/" + filename)
+			f, err := testFileFS.Open("testdata/" + filename)
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer reader.Close()
+			defer f.Close()
 
-			p := NewADIDocumentReader(reader, true)
 			count := 0
-			for {
-				_, _, err := p.Next()
-				if err == io.EOF {
-					break
+			s := NewScanner(f)
+			for s.Scan() {
+				if !s.IsHeader() {
+					count++
 				}
-				if err != nil {
-					t.Fatal(err)
-				}
-				count++
+			}
+			if err := s.Err(); err != nil {
+				t.Fatal(err)
 			}
 
 			if count != expectedCount {
-				t.Errorf("Record count mismatch: got %d, want %d", count, expectedCount)
+				t.Errorf("record count: got %d, want %d", count, expectedCount)
 			}
 		})
 	}
 }
 
-func TestADIDocumentReaderParseBasicFunctionality(t *testing.T) {
+func TestScannerParseBasicFunctionality(t *testing.T) {
 	tests := []struct {
 		hasHeader   bool
 		recordCount int
@@ -73,49 +70,42 @@ func TestADIDocumentReaderParseBasicFunctionality(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
-
-			records := make([]Record, 0, 10000)
+			s := NewScanner(strings.NewReader(tt.data))
+			records := make([]Record, 0)
 			foundHeader := false
-			for {
-				record, isHeader, err := p.Next()
-				foundHeader = foundHeader || isHeader
-				if err == io.EOF {
-					break
-				}
-				if err != nil {
-					t.Fatal(err)
-				}
-				records = append(records, record)
+			for s.Scan() {
+				foundHeader = foundHeader || s.IsHeader()
+				records = append(records, s.Record())
+			}
+			if err := s.Err(); err != nil {
+				t.Fatal(err)
 			}
 
 			if len(records) != tt.recordCount {
-				t.Errorf("Record count mismatch: got %d, want %d", len(records), tt.recordCount)
+				t.Errorf("record count: got %d, want %d", len(records), tt.recordCount)
 			}
-
 			if tt.recordCount == 0 {
 				return
 			}
 
-			var index = 0
+			index := 0
 			if tt.hasHeader {
 				if !foundHeader {
-					t.Errorf("Expected first record to be a header")
+					t.Error("expected a header record")
 				}
-				if records[0].Get(adifield.PROGRAMID) != "TEST" {
-					t.Errorf("Expected header record to have PROGRAMID 'TEST', got %s", records[0].Get(adifield.PROGRAMID))
+				if records[0][adifield.PROGRAMID] != "TEST" {
+					t.Errorf("header PROGRAMID: got %q, want %q", records[0][adifield.PROGRAMID], "TEST")
 				}
 				index++
 			}
-
-			if records[index].Get(adifield.CALL) != "W9PVA" {
-				t.Errorf("Expected record to have CALL 'W9PVA', got %s", records[index].Get(adifield.CALL))
+			if records[index][adifield.CALL] != "W9PVA" {
+				t.Errorf("CALL: got %q, want %q", records[index][adifield.CALL], "W9PVA")
 			}
 		})
 	}
 }
 
-func TestADIDocumentReaderParseEOREOH(t *testing.T) {
+func TestScannerParseEOREOH(t *testing.T) {
 	tests := []struct {
 		expected  int
 		hasHeader bool
@@ -138,93 +128,81 @@ func TestADIDocumentReaderParseEOREOH(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
-
-			records := make([]Record, 0, 10000)
-			for {
-				record, _, err := p.Next()
-				if err == io.EOF {
-					break
-				}
-				if err != nil {
-					t.Fatal(err)
-				}
-				records = append(records, record)
+			s := NewScanner(strings.NewReader(tt.data))
+			count := 0
+			for s.Scan() {
+				count++
 			}
-
-			if len(records) != tt.expected {
-				t.Errorf("Record count mismatch: got %d, want %d", len(records), tt.expected)
+			if err := s.Err(); err != nil {
+				t.Fatal(err)
+			}
+			if count != tt.expected {
+				t.Errorf("record count: got %d, want %d", count, tt.expected)
 			}
 		})
 	}
 }
 
-func TestADIDocumentReaderParseLoTWEOF(t *testing.T) {
+func TestScannerParseLoTWEOF(t *testing.T) {
 	raw := "<" + string(adifield.APP_LOTW_EOF) + ">"
-	p := NewADIDocumentReader(strings.NewReader(raw), false)
-
-	qso, _, err := p.Next()
-	if err != io.EOF {
-		t.Errorf("Expected EOF error, got %v", err)
+	s := NewScanner(strings.NewReader(raw))
+	if s.Scan() {
+		t.Error("expected Scan to return false")
 	}
-
-	if qso != nil {
-		t.Errorf("Expected nil record, got %v", qso)
+	if s.Err() != nil {
+		t.Errorf("expected nil error (EOF), got %v", s.Err())
+	}
+	if s.Record() != nil {
+		t.Errorf("expected nil record, got %v", s.Record())
 	}
 }
 
-func TestADIDocumentReaderParseWithMissingEOH(t *testing.T) {
+func TestScannerParseWithMissingEOH(t *testing.T) {
 	raw := "<ADIF_VER:5>3.1.5<eor>"
-	p := NewADIDocumentReader(strings.NewReader(raw), false)
-
-	qso, _, err := p.Next()
-	if err != nil {
-		t.Errorf("Expected nil error, got %v", err)
+	s := NewScanner(strings.NewReader(raw))
+	if !s.Scan() {
+		t.Fatal("expected a record")
 	}
-	if qso.Get(adifield.ADIF_VER) != "3.1.5" {
-		t.Errorf("Expected ADIF_VER '3.1.5', got %s", qso.Get(adifield.ADIF_VER))
+	if s.Record()[adifield.ADIF_VER] != "3.1.5" {
+		t.Errorf("ADIF_VER: got %q, want %q", s.Record()[adifield.ADIF_VER], "3.1.5")
 	}
-
-	_, _, err = p.Next()
-	if err != io.EOF {
-		t.Errorf("Expected EOF error, got %v", err)
+	if s.Scan() {
+		t.Error("expected no second record")
+	}
+	if s.Err() != nil {
+		t.Errorf("expected nil error (EOF), got %v", s.Err())
 	}
 }
 
-func TestADIDocumentReaderParseWithNumbersInFieldName(t *testing.T) {
+func TestScannerParseWithNumbersInFieldName(t *testing.T) {
 	raw := "<APP_LoTW_2xQSL:1>Y<EOR>"
-	p := NewADIDocumentReader(strings.NewReader(raw), false)
-
-	qso, _, err := p.Next()
-
-	if err != nil {
-		t.Fatal(err)
+	s := NewScanner(strings.NewReader(raw))
+	if !s.Scan() {
+		t.Fatal("expected a record")
 	}
-	val := qso.Get(adifield.New("app_lotw_2xqsl"))
+	val := s.Record()[adifield.New("app_lotw_2xqsl")]
 	if val != "Y" {
 		t.Errorf("got %q, want %q", val, "Y")
 	}
 }
 
-func TestADIDocumentReaderParseNoRecords(t *testing.T) {
-	// Arrange
+func TestScannerParseNoRecords(t *testing.T) {
 	tests := []struct {
 		name        string
 		data        string
-		expectedErr error // EOF means success, non-EOF means the adi reader rejected the input as malformed.
+		expectedErr error // nil means normal EOF; non-nil means a parse error
 	}{
-
 		{"Invalid Length", "<APP_WAAT:fake>", ErrAdiReaderMalformedADI},
-		{"Empty string", "", io.EOF},
-		{"Single space", " ", io.EOF},
-		{"Single colon", ":", io.EOF},
-		{"Double colon", "::", io.EOF},
-		{"Plain text", "no adif here...", io.EOF},
-		{"tag close", ">", io.EOF},
+		{"Empty string", "", nil},
+		{"Single space", " ", nil},
+		{"Single colon", ":", nil},
+		{"Double colon", "::", nil},
+		{"Plain text", "no adif here...", nil},
+		{"tag close", ">", nil},
 		{"tag open", "<", ErrAdiReaderMalformedADI},
 		{"Random text with tag", "< some random text", ErrAdiReaderMalformedADI},
 		{"Math expression 1", " 3 < 4 ", ErrAdiReaderMalformedADI},
-		{"Math expression 2", " 3 > 4 ", io.EOF},
+		{"Math expression 2", " 3 > 4 ", nil},
 		{"Incomplete tag 1", "<this is not adif", ErrAdiReaderMalformedADI},
 		{"Incomplete tag with colon and >", "<something random:>", ErrAdiReaderMalformedADI},
 		{"Incomplete tag with colon and space >", "<something random: >", ErrAdiReaderMalformedADI},
@@ -250,23 +228,21 @@ func TestADIDocumentReaderParseNoRecords(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Arrange
-			p := NewADIDocumentReader(strings.NewReader(tt.data), false)
-
-			// Act
-			qso, _, err := p.Next()
-			if tt.expectedErr != err {
-				t.Error("Expected non-EOF error, got EOF")
+			s := NewScanner(strings.NewReader(tt.data))
+			if s.Scan() {
+				t.Fatal("expected no records")
 			}
-
-			if qso != nil {
-				t.Errorf("Expected nil record, got %v", qso)
+			if s.Err() != tt.expectedErr {
+				t.Errorf("Err(): got %v, want %v", s.Err(), tt.expectedErr)
+			}
+			if s.Record() != nil {
+				t.Errorf("expected nil record, got %v", s.Record())
 			}
 		})
 	}
 }
 
-func TestADIDocumentReaderParseSingleRecord(t *testing.T) {
+func TestScannerParseSingleRecord(t *testing.T) {
 	tests := []struct {
 		name           string
 		adifSource     string
@@ -275,7 +251,7 @@ func TestADIDocumentReaderParseSingleRecord(t *testing.T) {
 		isHeaderRecord bool
 	}{
 		{"Header record", "<progRamid:4>MonoLog<EOH>", "PROGRAMID", "Mono", true},
-		{"Header record", "<progRamid:4>MonoLog<EoH>", "PROGRAMID", "Mono", true},
+		{"Header record lower EOH", "<progRamid:4>MonoLog<EoH>", "PROGRAMID", "Mono", true},
 		{"Short Record", "<WeB:1>X<Eor>", "WEB", "X", false},
 		{"Short Record with type", "<WeB:1:s>X<Eor>", "WEB", "X", false},
 		{"Zero length data", "<APP_MY_APP:0>\r\n<EOR>", "APP_MY_APP", "", false},
@@ -295,114 +271,108 @@ func TestADIDocumentReaderParseSingleRecord(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Use small buffer to test ReadSlice / ErrBufferFull handling
+			// Use a small buffer to exercise ReadSlice / ErrBufferFull handling.
 			br := bufio.NewReaderSize(strings.NewReader(tt.adifSource), 16)
-			p := NewADIDocumentReader(br, false)
-
-			qso, isHeader, err := p.Next()
-			if err != nil {
-				t.Fatal(err)
+			s := NewScanner(br)
+			if !s.Scan() {
+				t.Fatalf("expected a record; Err=%v", s.Err())
 			}
 
-			if qso.Get(adifield.New(tt.fieldName)) != tt.fieldData {
-				t.Errorf("Expected %s field to be %s, got %s", tt.fieldName, tt.fieldData, qso.Get(adifield.New(tt.fieldName)))
+			got := s.Record()[adifield.New(tt.fieldName)]
+			if got != tt.fieldData {
+				t.Errorf("%s: got %q, want %q", tt.fieldName, got, tt.fieldData)
 			}
-
-			if isHeader != tt.isHeaderRecord {
-				t.Errorf("Expected header record status %v, got %v", tt.isHeaderRecord, isHeader)
+			if s.IsHeader() != tt.isHeaderRecord {
+				t.Errorf("IsHeader: got %v, want %v", s.IsHeader(), tt.isHeaderRecord)
 			}
 		})
 	}
 }
 
-func TestADIDocumentReaderParseSkipHeader(t *testing.T) {
-	// Arrange
-	adif := "<PROGRAMID:7>MonoLog<EOH>\n<COMMENT:4>GOOD<EOR>"
-	p := NewADIDocumentReader(strings.NewReader(adif), true)
+func TestScannerSkipHeader(t *testing.T) {
+	adi := "<PROGRAMID:7>MonoLog<EOH>\n<COMMENT:4>GOOD<EOR>"
+	s := NewScanner(strings.NewReader(adi))
 
-	// Act & Assert
-	record, _, err := p.Next()
-	if err != nil {
+	// Callers skip headers by checking IsHeader and continuing.
+	foundQSO := false
+	for s.Scan() {
+		if s.IsHeader() {
+			continue
+		}
+		foundQSO = true
+		if s.Record()[adifield.PROGRAMID] != "" {
+			t.Errorf("expected empty PROGRAMID on QSO record")
+		}
+		if s.Record()[adifield.COMMENT] != "GOOD" {
+			t.Errorf("COMMENT: got %q, want %q", s.Record()[adifield.COMMENT], "GOOD")
+		}
+	}
+	if err := s.Err(); err != nil {
 		t.Fatal(err)
 	}
-	if record.Get(adifield.PROGRAMID) != "" {
-		t.Errorf("Expected empty PROGRAMID, got %s", record.Get(adifield.PROGRAMID))
-	}
-	if record.Get(adifield.COMMENT) != "GOOD" {
-		t.Errorf("Expected COMMENT 'GOOD', got %s", record.Get(adifield.COMMENT))
-	}
-
-	recordTwo, _, errTwo := p.Next()
-	if errTwo != io.EOF {
-		t.Errorf("Expected EOF error, got %v", errTwo)
-	}
-	if recordTwo != nil {
-		t.Errorf("Expected nil record, got %v", recordTwo)
+	if !foundQSO {
+		t.Error("expected at least one QSO record")
 	}
 }
 
-func TestADIDocumentReaderParseLongFieldName(t *testing.T) {
-	const len int = 2000
-	fieldName := "app_k9cts_" + strings.Repeat("X", len)
+func TestScannerParseLongFieldName(t *testing.T) {
+	const nameLen = 2000
+	fieldName := "app_k9cts_" + strings.Repeat("X", nameLen)
+	adi := fmt.Sprintf("<%s:4>TEST<eor>", fieldName)
 
-	// Arrange
-	adif := fmt.Sprintf("<%s:4>TEST<eor>", fieldName)
-	p := NewADIDocumentReader(strings.NewReader(adif), false)
-
-	// Act
-	record, _, err := p.Next()
-	_, _, _ = p.Next()
-
-	// Assert
-	if err != nil {
-		t.Fatal(err)
+	s := NewScanner(strings.NewReader(adi))
+	if !s.Scan() {
+		t.Fatalf("expected a record; Err=%v", s.Err())
 	}
-	if record.Get(adifield.New(fieldName)) != "TEST" {
-		t.Errorf("Expected %s field to be TEST, got %s", fieldName, record.Get(adifield.New(fieldName)))
+	got := s.Record()[adifield.New(fieldName)]
+	if got != "TEST" {
+		t.Errorf("got %q, want %q", got, "TEST")
 	}
 }
 
-func TestADIDocumentReaderParseLargeData(t *testing.T) {
-	// Arrange
-	p := NewADIDocumentReader(strings.NewReader("<COMMENT:1000002>0"+strings.Repeat("1", 1_000_000)+"01<EOR>"), false)
+func TestScannerParseLargeData(t *testing.T) {
+	large := "0" + strings.Repeat("1", 1_000_000) + "0"
+	adi := fmt.Sprintf("<COMMENT:%d>%s<EOR>", len(large), large)
 
-	// Act
-	record, _, err := p.Next() // Force the buffer to be resized to accommodate the large value
-	if err != nil {
-		t.Fatal(err)
+	s := NewScanner(strings.NewReader(adi))
+	if !s.Scan() {
+		t.Fatalf("expected a record; Err=%v", s.Err())
 	}
-	if record.Get(adifield.COMMENT) != "0"+strings.Repeat("1", 1_000_000)+"0" {
-		t.Errorf("Expected %s, got %s", strings.Repeat("1", 1_000_000), record.Get(adifield.COMMENT))
+	got := s.Record()[adifield.COMMENT]
+	if got != large {
+		t.Errorf("large value mismatch (length got=%d, want=%d)", len(got), len(large))
 	}
 }
 
-func TestADIDocumentReaderTooManyUniqueFields(t *testing.T) {
-	// Build an ADI record with more than 1024 unique field names.
-	// The reader enforces a limit to prevent unbounded memory growth from adversarial input.
+func TestScannerTooManyUniqueFields(t *testing.T) {
 	var sb strings.Builder
 	for i := range 1026 {
 		fmt.Fprintf(&sb, "<APP_TEST_%04d:1>X", i)
 	}
 	sb.WriteString("<EOR>")
 
-	p := NewADIDocumentReader(strings.NewReader(sb.String()), false)
-	record, _, err := p.Next()
-	if err != ErrAdiReaderTooManyUniqueFields {
-		t.Errorf("expected ErrAdiReaderTooManyUniqueFields, got %v", err)
+	s := NewScanner(strings.NewReader(sb.String()))
+	if s.Scan() {
+		t.Error("expected Scan to return false")
 	}
-	if record != nil {
-		t.Errorf("expected nil record, got %v", record)
+	if s.Err() != ErrAdiReaderTooManyUniqueFields {
+		t.Errorf("Err(): got %v, want %v", s.Err(), ErrAdiReaderTooManyUniqueFields)
+	}
+	if s.Record() != nil {
+		t.Errorf("expected nil record, got %v", s.Record())
 	}
 }
 
-func TestADIDocumentReaderReadDataSpecifierVolatileRetunsError(t *testing.T) {
-	mockReader := &mockFailReader{
+func TestScannerReadDataSpecifierVolatile_IOError(t *testing.T) {
+	mock := &mockFailReader{
 		maxBytes:    5,
 		backingData: []byte("<COMMENT:10>" + strings.Repeat("1", 10) + "<EOR>"),
 	}
-	rdr := NewADIDocumentReader(mockReader, false)
-	_, _, err := rdr.Next()
-	if err == nil {
-		t.Errorf("Expected error, got nil")
+	s := NewScanner(mock)
+	if s.Scan() {
+		t.Error("expected Scan to return false")
+	}
+	if s.Err() == nil {
+		t.Error("expected an error, got nil")
 	}
 }

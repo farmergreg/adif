@@ -1,0 +1,168 @@
+package adif
+
+import (
+	"io"
+	"sync"
+
+	"github.com/farmergreg/spec/v6/adifield"
+)
+
+const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n   https://github.com/farmergreg/adif\n\n"
+
+// adiWriterPriorityFieldOrder defines the order in which common QSO fields are written.
+// These fields appear first in every record; all others follow in alphabetical order.
+// This matches the minimum required fields from the ADIF spec and LoTW's submission list.
+var adiWriterPriorityFieldOrder = [...]adifield.Field{
+	// Minimum required fields per https://www.adif.org/315/ADIF_315_Resources.htm#ADIFImplementationNotesMinimumFields
+	adifield.QSO_DATE,
+	adifield.TIME_ON,
+	adifield.BAND,
+	adifield.MODE,
+	adifield.SUBMODE, // not strictly required but belongs with MODE
+	adifield.CALL,    // last so adjacent records are vertically aligned in the file
+
+	// LoTW submission fields per https://lotw.arrl.org/lotw-help/developer-submit-qsos/
+	adifield.FREQ,
+	adifield.FREQ_RX,
+	adifield.BAND_RX,
+	adifield.PROP_MODE,
+	adifield.SAT_NAME,
+	adifield.STATION_CALLSIGN,
+	adifield.OPERATOR,
+	adifield.MY_DXCC,
+	adifield.MY_STATE,
+	adifield.MY_CNTY,
+	adifield.GRIDSQUARE,
+	adifield.VUCC_GRIDS,
+	adifield.MY_CQ_ZONE,
+	adifield.MY_ITU_ZONE,
+}
+
+var adiWriterPriorityFieldMap = make(map[adifield.Field]struct{}, len(adiWriterPriorityFieldOrder))
+
+func init() {
+	for _, field := range adiWriterPriorityFieldOrder {
+		adiWriterPriorityFieldMap[field] = struct{}{}
+	}
+}
+
+var writerBufPool = sync.Pool{
+	New: func() any {
+		b := make([]byte, 0, 1024)
+		return &b
+	},
+}
+
+// Writer writes ADIF records to an underlying io.Writer in ADI format.
+// Obtain one with NewWriter, write records with WriteHeader and Write,
+// then call Flush once to ensure any buffered data in the underlying writer is flushed.
+//
+// Writer does not add its own buffering. Wrap the destination with bufio.NewWriter
+// for buffered output, and pass it to both NewWriter and Flush.
+type Writer struct {
+	w              io.Writer
+	headerPreamble string
+	wroteData      bool
+}
+
+// NewWriter returns a Writer that writes ADI records to w using the default header preamble.
+func NewWriter(w io.Writer) *Writer {
+	return NewWriterWithPreamble(w, adiHeaderPreamble)
+}
+
+// NewWriterWithPreamble returns a Writer with a custom preamble prepended to the header record.
+// Pass an empty string to use a single newline, which satisfies the ADIF spec requirement
+// that a header file must not start with '<'.
+func NewWriterWithPreamble(w io.Writer, preamble string) *Writer {
+	return &Writer{
+		w:              w,
+		headerPreamble: preamble,
+	}
+}
+
+// WriteHeader writes the ADIF header record.
+// The header must be written before any QSO records and may only be written once.
+func (w *Writer) WriteHeader(r Record) error {
+	if w.wroteData {
+		return ErrWriterHeaderAlreadyWritten
+	}
+	preamble := w.headerPreamble
+	if preamble == "" {
+		preamble = "\n" // minimal preamble required by the ADIF spec
+	}
+	if _, err := io.WriteString(w.w, preamble); err != nil {
+		return err
+	}
+	w.wroteData = true
+	return w.writeRecord(r, 'H')
+}
+
+// Write appends a QSO record to the output.
+func (w *Writer) Write(r Record) error {
+	w.wroteData = true
+	return w.writeRecord(r, 'R')
+}
+
+// Flush flushes the underlying io.Writer if it implements Flush() error (e.g. bufio.Writer).
+// It is a no-op for writers that do not buffer.
+func (w *Writer) Flush() error {
+	return flushWriter(w.w)
+}
+
+// flushWriter calls w.Flush() if w implements the Flush() error interface, otherwise it is a no-op.
+func flushWriter(w io.Writer) error {
+	if f, ok := w.(interface{ Flush() error }); ok {
+		return f.Flush()
+	}
+	return nil
+}
+
+func (w *Writer) writeRecord(r Record, endTag byte) error {
+	if len(r) == 0 {
+		return nil
+	}
+
+	bufPtr := writerBufPool.Get().(*[]byte)
+	buf := (*bufPtr)[:0]
+
+	buf = appendRecordADI(r, endTag, buf)
+	_, err := w.w.Write(buf)
+
+	*bufPtr = buf
+	writerBufPool.Put(bufPtr)
+	return err
+}
+
+// appendFieldsADI writes all fields of r to buf in ADI format without an end tag.
+// Priority fields are written first in a fixed order; remaining fields follow in map iteration order.
+func appendFieldsADI(r Record, buf []byte) []byte {
+	for _, field := range adiWriterPriorityFieldOrder {
+		buf = appendField(buf, field, r[field])
+	}
+	for field, value := range r {
+		if _, isPriority := adiWriterPriorityFieldMap[field]; !isPriority {
+			buf = appendField(buf, field, value)
+		}
+	}
+	return buf
+}
+
+// appendRecordADI serializes r in ADI format, ending with <EOR>\n or <EOH>\n.
+func appendRecordADI(r Record, endTag byte, buf []byte) []byte {
+	buf = appendFieldsADI(r, buf)
+	return append(buf, '<', 'E', 'O', endTag, '>', '\n')
+}
+
+// recordSizeADI returns the total serialized byte length of r in ADI format,
+// including the trailing EOR or EOH tag and newline.
+func recordSizeADI(r Record) int {
+	size := 0
+	for field, value := range r {
+		vl := len(value)
+		if vl == 0 {
+			continue
+		}
+		size += 3 + len(field) + vl + digitCount(vl) // '<', ':', '>'
+	}
+	return size + 6 // "<EOR>\n" or "<EOH>\n"
+}
