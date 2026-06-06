@@ -145,6 +145,26 @@ func TestWriter_WriteHeader_Twice(t *testing.T) {
 	}
 }
 
+func TestWriter_Write_FastMode(t *testing.T) {
+	r := NewRecord()
+	r[adifield.CALL] = "K9CTS"
+	r[adifield.BAND] = "20M"
+
+	var sb strings.Builder
+	w := NewWriterWithPreamble(&sb, "").SetWriteMode(ADIWriteModeFast)
+	if err := w.Write(r); err != nil {
+		t.Fatal(err)
+	}
+
+	got := sb.String()
+	if !strings.Contains(got, "<CALL:5>K9CTS") {
+		t.Errorf("CALL missing from Fast mode output: %q", got)
+	}
+	if !strings.Contains(got, "<BAND:3>20M") {
+		t.Errorf("BAND missing from Fast mode output: %q", got)
+	}
+}
+
 func TestWriter_Flush_Buffered(t *testing.T) {
 	// When the underlying writer is a bufio.Writer, Flush must delegate to it.
 	var sb strings.Builder

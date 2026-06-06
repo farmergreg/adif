@@ -9,6 +9,18 @@ import (
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
+// WriteMode controls the output format of the ADI Writer.
+type WriteMode int
+
+const (
+	// ADIWriteModePretty produces human-readable output with common ADIF fields presented first followed by the remaining fields in alphabetical order.
+	ADIWriteModePretty WriteMode = iota
+
+	// ADIWriteModeFast is the default WriteMode.
+	// It is optimized for speed and does not guarantee field order.
+	ADIWriteModeFast
+)
+
 const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n   https://github.com/farmergreg/adif\n\n"
 
 // adiWriterPriorityFieldOrder defines the order in which common QSO fields are written.
@@ -71,6 +83,7 @@ var writerFieldScratchPool = sync.Pool{
 type Writer struct {
 	w              io.Writer
 	headerPreamble string
+	mode           WriteMode
 	wroteData      bool
 }
 
@@ -112,6 +125,12 @@ func (w *Writer) Write(r Record) error {
 	return w.writeRecord(r, 'R')
 }
 
+// SetWriteMode sets the WriteMode for this Writer and returns the Writer for chaining.
+func (w *Writer) SetWriteMode(mode WriteMode) *Writer {
+	w.mode = mode
+	return w
+}
+
 // Flush flushes the underlying io.Writer if it implements Flush() error (e.g. bufio.Writer).
 // It is a no-op for writers that do not buffer.
 func (w *Writer) Flush() error {
@@ -130,11 +149,17 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 	bufPtr := writerBufPool.Get().(*[]byte)
 	buf := (*bufPtr)[:0]
 
-	buf = appendFieldsADI(r, buf)
+	if w.mode == ADIWriteModeFast {
+		buf = appendFieldsADIFast(r, buf)
+	} else {
+		buf = appendFieldsADIPretty(r, buf)
+	}
+
 	if len(buf) == 0 {
 		writerBufPool.Put(bufPtr)
 		return nil
 	}
+
 	buf = append(buf, '<', 'E', 'O', endTag, '>', '\n')
 	_, err := w.w.Write(buf)
 
@@ -143,9 +168,21 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 	return err
 }
 
-// appendFieldsADI writes all fields of r to buf in ADI format without an end tag.
-// Priority fields are written first in a fixed order; remaining fields follow in sorted order.
-func appendFieldsADI(r Record, buf []byte) []byte {
+// appendFieldsADIFast writes all fields of r to buf in ADI format as quickly and efficiently as possible.
+// It does not guarantee any particular field order.
+// It will not write the end tag.
+func appendFieldsADIFast(r Record, buf []byte) []byte {
+	for field, value := range r {
+		buf = appendField(buf, field, value)
+	}
+	return buf
+}
+
+// appendFieldsADIPretty writes all fields of r to buf in ADI format.
+// First, it writes priority fields in a fixed order.
+// Next, it writes remaining fields in alphabetical order.
+// It will not write the end tag.
+func appendFieldsADIPretty(r Record, buf []byte) []byte {
 	for _, field := range adiWriterPriorityFieldOrder {
 		buf = appendField(buf, field, r[field])
 	}

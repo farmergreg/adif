@@ -42,7 +42,7 @@ func ExampleScanner() {
 // ExampleWriter demonstrates writing an ADI document record by record.
 func ExampleWriter() {
 	var sb strings.Builder
-	w := adif.NewWriter(&sb)
+	w := adif.NewWriter(&sb).SetWriteMode(adif.ADIWriteModePretty)
 
 	hdr := adif.NewRecord()
 	hdr[adifield.CREATED_TIMESTAMP] = "20250907 212700"
@@ -53,6 +53,9 @@ func ExampleWriter() {
 	qso[adifield.BAND] = band.BAND_20M.String()
 	qso[adifield.MODE] = mode.SSB.String()
 	qso[adifield.New("APP_Example")] = "Example"
+
+	// Pretty is the default; this is just for demonstration of SetWriteMode.
+	w.SetWriteMode(adif.ADIWriteModePretty)
 	w.Write(qso)
 
 	if err := w.Flush(); err != nil {

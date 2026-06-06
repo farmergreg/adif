@@ -62,11 +62,28 @@ func TestRecord_String_EmptyValuesOmitted(t *testing.T) {
 	}
 }
 
-func TestRecord_WriteTo(t *testing.T) {
+func TestRecord_WriteTo_Pretty(t *testing.T) {
 	r := NewRecord()
 	r[adifield.CALL] = "K9CTS"
 	var sb strings.Builder
 	n, err := r.WriteTo(&sb)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "<CALL:5>K9CTS"
+	if sb.String() != want {
+		t.Errorf("got %q, want %q", sb.String(), want)
+	}
+	if n != int64(len(want)) {
+		t.Errorf("n=%d, want %d", n, len(want))
+	}
+}
+
+func TestRecord_WriteToMode_Fast(t *testing.T) {
+	r := NewRecord()
+	r[adifield.CALL] = "K9CTS"
+	var sb strings.Builder
+	n, err := r.WriteToMode(&sb, ADIWriteModeFast)
 	if err != nil {
 		t.Fatal(err)
 	}

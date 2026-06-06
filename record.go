@@ -24,7 +24,7 @@ func NewRecord() Record {
 }
 
 // String returns the record's fields serialized in ADI format, without an EOR or EOH tag.
-// Priority fields are written first in a fixed order; remaining fields follow in map iteration order.
+// Priority fields are written first in a fixed order; remaining fields follow in alphabetical order.
 // Implements fmt.Stringer.
 func (r Record) String() string {
 	var sb strings.Builder
@@ -33,12 +33,21 @@ func (r Record) String() string {
 }
 
 // WriteTo writes the record's fields in ADI format to w, without an EOR or EOH tag.
-// Priority fields are written first in a fixed order; remaining fields follow in map iteration order.
+// Priority fields are written first in a fixed order; remaining fields follow in alphabetical order.
 // Implements io.WriterTo.
 func (r Record) WriteTo(w io.Writer) (int64, error) {
-	// Use the shared writer buffer pool to avoid a per-call allocation and the cost of pre-sizing the buffer.
+	return r.WriteToMode(w, ADIWriteModePretty)
+}
+
+// WriteToMode writes the record's fields in ADI format to w using the given WriteMode, without an EOR or EOH tag.
+func (r Record) WriteToMode(w io.Writer, mode WriteMode) (int64, error) {
 	bufPtr := writerBufPool.Get().(*[]byte)
-	buf := appendFieldsADI(r, (*bufPtr)[:0])
+	var buf []byte
+	if mode == ADIWriteModeFast {
+		buf = appendFieldsADIFast(r, (*bufPtr)[:0])
+	} else {
+		buf = appendFieldsADIPretty(r, (*bufPtr)[:0])
+	}
 	n, err := w.Write(buf)
 	*bufPtr = buf
 	writerBufPool.Put(bufPtr)
