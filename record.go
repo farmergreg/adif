@@ -2,7 +2,6 @@ package adif
 
 import (
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/farmergreg/spec/v6/adifield"
@@ -44,19 +43,4 @@ func (r Record) WriteTo(w io.Writer) (int64, error) {
 	*bufPtr = buf
 	writerBufPool.Put(bufPtr)
 	return int64(n), err
-}
-
-// appendField appends a single ADIF field in ADI format to buf.
-// Returns buf unchanged when value is empty.
-func appendField(buf []byte, field adifield.Field, value string) []byte {
-	if value == "" {
-		return buf
-	}
-	buf = append(buf, '<')
-	buf = append(buf, field...)
-	buf = append(buf, ':')
-	buf = strconv.AppendInt(buf, int64(len(value)), 10)
-	buf = append(buf, '>')
-	buf = append(buf, value...)
-	return buf
 }

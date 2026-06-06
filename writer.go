@@ -2,6 +2,7 @@ package adif
 
 import (
 	"io"
+	"strconv"
 	"sync"
 
 	"github.com/farmergreg/spec/v6/adifield"
@@ -145,5 +146,20 @@ func appendFieldsADI(r Record, buf []byte) []byte {
 			buf = appendField(buf, field, value)
 		}
 	}
+	return buf
+}
+
+// appendField appends a single ADIF field in ADI format to buf.
+// Returns buf unchanged when value is empty.
+func appendField(buf []byte, field adifield.Field, value string) []byte {
+	if value == "" {
+		return buf
+	}
+	buf = append(buf, '<')
+	buf = append(buf, field...)
+	buf = append(buf, ':')
+	buf = strconv.AppendInt(buf, int64(len(value)), 10)
+	buf = append(buf, '>')
+	buf = append(buf, value...)
 	return buf
 }
