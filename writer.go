@@ -147,17 +147,3 @@ func appendFieldsADI(r Record, buf []byte) []byte {
 	}
 	return buf
 }
-
-// recordSizeADI returns the total serialized byte length of r in ADI format,
-// including the trailing EOR or EOH tag and newline.
-func recordSizeADI(r Record) int {
-	size := 0
-	for field, value := range r {
-		vl := len(value)
-		if vl == 0 {
-			continue
-		}
-		size += 3 + len(field) + vl + digitCount(vl) // '<', ':', '>'
-	}
-	return size + 6 // "<EOR>\n" or "<EOH>\n"
-}

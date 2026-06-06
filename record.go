@@ -2,7 +2,6 @@ package adif
 
 import (
 	"io"
-	"math"
 	"strconv"
 	"strings"
 
@@ -38,10 +37,12 @@ func (r Record) String() string {
 // Priority fields are written first in a fixed order; remaining fields follow in map iteration order.
 // Implements io.WriterTo.
 func (r Record) WriteTo(w io.Writer) (int64, error) {
-	size := recordSizeADI(r) - 6 // recordSizeADI includes the EOR/EOH tag; we omit it here
-	buf := make([]byte, 0, size)
-	buf = appendFieldsADI(r, buf)
+	// Use the shared writer buffer pool to avoid a per-call allocation and the cost of pre-sizing the buffer.
+	bufPtr := writerBufPool.Get().(*[]byte)
+	buf := appendFieldsADI(r, (*bufPtr)[:0])
 	n, err := w.Write(buf)
+	*bufPtr = buf
+	writerBufPool.Put(bufPtr)
 	return int64(n), err
 }
 
@@ -58,22 +59,4 @@ func appendField(buf []byte, field adifield.Field, value string) []byte {
 	buf = append(buf, '>')
 	buf = append(buf, value...)
 	return buf
-}
-
-// digitCount returns the number of base-10 digits needed to represent n.
-func digitCount(n int) int {
-	switch {
-	case n < 10:
-		return 1
-	case n < 100:
-		return 2
-	case n < 1_000:
-		return 3
-	case n < 10_000:
-		return 4
-	case n < 100_000:
-		return 5
-	default:
-		return int(math.Log10(float64(n))) + 1
-	}
 }

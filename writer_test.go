@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/farmergreg/spec/v6/adifield"
-	"github.com/farmergreg/spec/v6/spec"
 )
 
 func TestWriter_Write(t *testing.T) {
@@ -143,51 +142,6 @@ func TestWriter_WriteHeader_Twice(t *testing.T) {
 	}
 	if err := w.Flush(); err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestRecordSizeADI_Accuracy(t *testing.T) {
-	size := rand.Intn(10_000_000) + (1024 * 50)
-	r := NewRecord()
-	r[adifield.PROGRAMID] = "HamRadioLog.Net"
-	r[adifield.PROGRAMVERSION] = strings.Repeat("1", size)
-	r[adifield.ADIF_VER] = spec.ADIF_VER
-	r[adifield.New("APP_9")] = strings.Repeat("1", 9)
-	r[adifield.New("APP_99")] = strings.Repeat("1", 99)
-	r[adifield.New("APP_999")] = strings.Repeat("1", 999)
-	r[adifield.New("APP_9999")] = strings.Repeat("1", 9999)
-	r[adifield.New("APP_99999")] = strings.Repeat("1", 99999)
-
-	preCalcSize := recordSizeADI(r)
-	buf := make([]byte, 0, preCalcSize)
-	buf = appendFieldsADI(r, buf)
-	buf = append(buf, '<', 'E', 'O', 'R', '>', '\n')
-
-	if preCalcSize != len(buf) {
-		t.Errorf("pre-calculated size %d != actual size %d", preCalcSize, len(buf))
-	}
-}
-
-func TestRecordSizeADI_Empty(t *testing.T) {
-	r := NewRecord()
-	size := recordSizeADI(r)
-	if size != 6 { // "<EOR>\n" = 6 bytes
-		t.Errorf("got %d, want 6", size)
-	}
-}
-
-func TestRecordSizeADI_SkipsEmptyValues(t *testing.T) {
-	// A field explicitly set to "" must not contribute to the size.
-	withEmpty := NewRecord()
-	withEmpty[adifield.CALL] = "K9CTS"
-	withEmpty[adifield.COMMENT] = "" // should be skipped
-
-	withoutEmpty := NewRecord()
-	withoutEmpty[adifield.CALL] = "K9CTS"
-
-	if recordSizeADI(withEmpty) != recordSizeADI(withoutEmpty) {
-		t.Errorf("empty-value field should not affect size: got %d, want %d",
-			recordSizeADI(withEmpty), recordSizeADI(withoutEmpty))
 	}
 }
 
