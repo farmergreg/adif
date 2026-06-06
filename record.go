@@ -1,6 +1,7 @@
 package adif
 
 import (
+	"encoding/json"
 	"io"
 	"strings"
 
@@ -47,4 +48,18 @@ func (r Record) WriteToMode(w io.Writer, mode WriteMode) (int64, error) {
 	*bufPtr = buf
 	writerBufPool.Put(bufPtr)
 	return int64(n), err
+}
+
+// UnmarshalJSON implements json.Unmarshaler, allowing a Record to be unmarshaled from a JSON object with string keys and values.
+// It ensures that field keys are normalized to uppercase and converted to adifield.Field types.
+func (r *Record) UnmarshalJSON(data []byte) error {
+	var raw map[string]string
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*r = make(Record, len(raw))
+	for k, v := range raw {
+		(*r)[adifield.New(strings.ToUpper(k))] = v
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package adif
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -108,5 +109,55 @@ func TestRecord_WriteTo_Empty(t *testing.T) {
 	}
 	if n != 0 {
 		t.Errorf("n=%d, want 0", n)
+	}
+}
+
+func TestRecord_UnmarshalJSON_Valid(t *testing.T) {
+	var r Record
+	if err := json.Unmarshal([]byte(`{"CALL":"K9CTS","BAND":"20M"}`), &r); err != nil {
+		t.Fatal(err)
+	}
+	if got := r[adifield.CALL]; got != "K9CTS" {
+		t.Errorf("CALL: got %q, want %q", got, "K9CTS")
+	}
+	if got := r[adifield.BAND]; got != "20M" {
+		t.Errorf("BAND: got %q, want %q", got, "20M")
+	}
+}
+
+func TestRecord_UnmarshalJSON_KeysNormalizedToUppercase(t *testing.T) {
+	var r Record
+	if err := json.Unmarshal([]byte(`{"call":"K9CTS","band":"20M"}`), &r); err != nil {
+		t.Fatal(err)
+	}
+	if got := r[adifield.CALL]; got != "K9CTS" {
+		t.Errorf("CALL: got %q, want %q", got, "K9CTS")
+	}
+	if got := r[adifield.BAND]; got != "20M" {
+		t.Errorf("BAND: got %q, want %q", got, "20M")
+	}
+}
+
+func TestRecord_UnmarshalJSON_Empty(t *testing.T) {
+	var r Record
+	if err := json.Unmarshal([]byte(`{}`), &r); err != nil {
+		t.Fatal(err)
+	}
+	if len(r) != 0 {
+		t.Errorf("len=%d, want 0", len(r))
+	}
+}
+
+func TestRecord_UnmarshalJSON_InvalidJSON(t *testing.T) {
+	var r Record
+	if err := json.Unmarshal([]byte(`not json`), &r); err == nil {
+		t.Error("expected error for invalid JSON, got nil")
+	}
+}
+
+func TestRecord_UnmarshalJSON_NonStringValue(t *testing.T) {
+	var r Record
+	if err := json.Unmarshal([]byte(`{"CALL":42}`), &r); err == nil {
+		t.Error("expected error for non-string value, got nil")
 	}
 }
