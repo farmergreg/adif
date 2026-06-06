@@ -31,6 +31,9 @@ func (d *Document) ReadFrom(r io.Reader) (int64, error) {
 	s := NewScanner(cr)
 	for s.Scan() {
 		if s.IsHeader() {
+			if d.Header != nil || len(d.Records) > 0 {
+				return cr.n, ErrDocumentUnexpectedHeader
+			}
 			d.Header = s.Record()
 		} else {
 			d.Records = append(d.Records, s.Record())

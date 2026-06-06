@@ -15,7 +15,7 @@ var errMockFlush = errors.New("mock flush error")
 type mockFlushErrorWriter struct{}
 
 func (m *mockFlushErrorWriter) Write(p []byte) (int, error) { return len(p), nil }
-func (m *mockFlushErrorWriter) Flush() error               { return errMockFlush }
+func (m *mockFlushErrorWriter) Flush() error                { return errMockFlush }
 
 func TestNewDocument(t *testing.T) {
 	d := NewDocument()
@@ -72,6 +72,15 @@ func TestDocument_ReadFrom_WithHeader(t *testing.T) {
 	}
 	if d.Records[0][adifield.CALL] != "W9PVA" {
 		t.Errorf("Records[0] CALL: got %q, want %q", d.Records[0][adifield.CALL], "W9PVA")
+	}
+}
+
+func TestDocument_ReadFrom_MultipleHeaders(t *testing.T) {
+	adi := "<PROGRAMID:7>MonoLog<EOH><PROGRAMID:5>Other<EOH><CALL:5>W9PVA<EOR>"
+	d := NewDocument()
+	_, err := d.ReadFrom(strings.NewReader(adi))
+	if !errors.Is(err, ErrDocumentUnexpectedHeader) {
+		t.Fatalf("got %v, want ErrDocumentMultipleHeaders", err)
 	}
 }
 
