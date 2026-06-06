@@ -2,6 +2,7 @@ package adif
 
 import (
 	"io"
+	"slices"
 	"strconv"
 	"sync"
 
@@ -51,6 +52,13 @@ var writerBufPool = sync.Pool{
 	New: func() any {
 		b := make([]byte, 0, 1024)
 		return &b
+	},
+}
+
+var writerFieldScratchPool = sync.Pool{
+	New: func() any {
+		s := make([]adifield.Field, 0, 32)
+		return &s
 	},
 }
 
@@ -136,16 +144,26 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 }
 
 // appendFieldsADI writes all fields of r to buf in ADI format without an end tag.
-// Priority fields are written first in a fixed order; remaining fields follow in map iteration order.
+// Priority fields are written first in a fixed order; remaining fields follow in sorted order.
 func appendFieldsADI(r Record, buf []byte) []byte {
 	for _, field := range adiWriterPriorityFieldOrder {
 		buf = appendField(buf, field, r[field])
 	}
-	for field, value := range r {
+
+	scratchPtr := writerFieldScratchPool.Get().(*[]adifield.Field)
+	scratch := (*scratchPtr)[:0]
+	for field := range r {
 		if _, isPriority := adiWriterPriorityFieldMap[field]; !isPriority {
-			buf = appendField(buf, field, value)
+			scratch = append(scratch, field)
 		}
 	}
+	slices.Sort(scratch)
+	for _, field := range scratch {
+		buf = appendField(buf, field, r[field])
+	}
+	*scratchPtr = scratch
+	writerFieldScratchPool.Put(scratchPtr)
+
 	return buf
 }
 
