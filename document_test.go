@@ -79,7 +79,7 @@ func TestDocument_ReadFrom_MultipleHeaders(t *testing.T) {
 	adi := "<PROGRAMID:7>MonoLog<EOH><PROGRAMID:5>Other<EOH><CALL:5>W9PVA<EOR>"
 	d := NewDocument()
 	_, err := d.ReadFrom(strings.NewReader(adi))
-	if !errors.Is(err, ErrDocumentUnexpectedHeader) {
+	if !errors.Is(err, ErrUnexpectedHeader) {
 		t.Fatalf("got %v, want ErrDocumentMultipleHeaders", err)
 	}
 }

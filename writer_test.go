@@ -137,7 +137,7 @@ func TestWriter_WriteHeader_Twice(t *testing.T) {
 	if err := w.WriteHeader(hdr); err != nil {
 		t.Fatal(err)
 	}
-	if err := w.WriteHeader(hdr); err != ErrWriterHeaderAlreadyWritten {
+	if err := w.WriteHeader(hdr); err != ErrHeaderAlreadyWritten {
 		t.Fatalf("got %v, want ErrWriterHeaderAlreadyWritten", err)
 	}
 	if err := w.Flush(); err != nil {

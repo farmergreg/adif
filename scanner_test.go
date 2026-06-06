@@ -192,38 +192,38 @@ func TestScannerParseNoRecords(t *testing.T) {
 		data        string
 		expectedErr error // nil means normal EOF; non-nil means a parse error
 	}{
-		{"Invalid Length", "<APP_WAAT:fake>", ErrAdiReaderMalformedADI},
+		{"Invalid Length", "<APP_WAAT:fake>", ErrMalformedADI},
 		{"Empty string", "", nil},
 		{"Single space", " ", nil},
 		{"Single colon", ":", nil},
 		{"Double colon", "::", nil},
 		{"Plain text", "no adif here...", nil},
 		{"tag close", ">", nil},
-		{"tag open", "<", ErrAdiReaderMalformedADI},
-		{"Random text with tag", "< some random text", ErrAdiReaderMalformedADI},
-		{"Math expression 1", " 3 < 4 ", ErrAdiReaderMalformedADI},
+		{"tag open", "<", ErrMalformedADI},
+		{"Random text with tag", "< some random text", ErrMalformedADI},
+		{"Math expression 1", " 3 < 4 ", ErrMalformedADI},
 		{"Math expression 2", " 3 > 4 ", nil},
-		{"Incomplete tag 1", "<this is not adif", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with colon and >", "<something random:>", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with colon and space >", "<something random: >", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with colon and space", "<something random: ", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with colon", "<something random:", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with number", "<something random:8", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with n", "<something random:n", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with type 1", "<something random:8:", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with type 2", "<something random:n:", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with type 3", "<something random:8:x", ErrAdiReaderMalformedADI},
-		{"Incomplete tag with type 4", "<something random:n:x", ErrAdiReaderMalformedADI},
-		{"Incomplete data field", "<APP_TEST:1>", ErrAdiReaderMalformedADI},
-		{"Incomplete data field, with type", "<APP_TEST:1:x>", ErrAdiReaderMalformedADI},
-		{"Empty tag", "<>", ErrAdiReaderMalformedADI},
-		{"Empty tag with text", "<>fake", ErrAdiReaderMalformedADI},
-		{"Empty tag with colon", "<:>fake", ErrAdiReaderMalformedADI},
-		{"Empty tag with double colon", "<::>fake", ErrAdiReaderMalformedADI},
-		{"Empty tag with triple colon", "<:::>fake", ErrAdiReaderMalformedADI},
-		{"Empty tag with quad colon", "<::::>fake", ErrAdiReaderMalformedADI},
-		{"tag open and close", "<>", ErrAdiReaderMalformedADI},
-		{"tag open and close with colon", "<:>", ErrAdiReaderMalformedADI},
+		{"Incomplete tag 1", "<this is not adif", ErrMalformedADI},
+		{"Incomplete tag with colon and >", "<something random:>", ErrMalformedADI},
+		{"Incomplete tag with colon and space >", "<something random: >", ErrMalformedADI},
+		{"Incomplete tag with colon and space", "<something random: ", ErrMalformedADI},
+		{"Incomplete tag with colon", "<something random:", ErrMalformedADI},
+		{"Incomplete tag with number", "<something random:8", ErrMalformedADI},
+		{"Incomplete tag with n", "<something random:n", ErrMalformedADI},
+		{"Incomplete tag with type 1", "<something random:8:", ErrMalformedADI},
+		{"Incomplete tag with type 2", "<something random:n:", ErrMalformedADI},
+		{"Incomplete tag with type 3", "<something random:8:x", ErrMalformedADI},
+		{"Incomplete tag with type 4", "<something random:n:x", ErrMalformedADI},
+		{"Incomplete data field", "<APP_TEST:1>", ErrMalformedADI},
+		{"Incomplete data field, with type", "<APP_TEST:1:x>", ErrMalformedADI},
+		{"Empty tag", "<>", ErrMalformedADI},
+		{"Empty tag with text", "<>fake", ErrMalformedADI},
+		{"Empty tag with colon", "<:>fake", ErrMalformedADI},
+		{"Empty tag with double colon", "<::>fake", ErrMalformedADI},
+		{"Empty tag with triple colon", "<:::>fake", ErrMalformedADI},
+		{"Empty tag with quad colon", "<::::>fake", ErrMalformedADI},
+		{"tag open and close", "<>", ErrMalformedADI},
+		{"tag open and close with colon", "<:>", ErrMalformedADI},
 	}
 
 	for _, tt := range tests {
@@ -355,8 +355,8 @@ func TestScannerTooManyUniqueFields(t *testing.T) {
 	if s.Scan() {
 		t.Error("expected Scan to return false")
 	}
-	if s.Err() != ErrAdiReaderTooManyUniqueFields {
-		t.Errorf("Err(): got %v, want %v", s.Err(), ErrAdiReaderTooManyUniqueFields)
+	if s.Err() != ErrTooManyUniqueFields {
+		t.Errorf("Err(): got %v, want %v", s.Err(), ErrTooManyUniqueFields)
 	}
 	if s.Record() != nil {
 		t.Errorf("expected nil record, got %v", s.Record())

@@ -106,7 +106,7 @@ func NewWriterWithPreamble(w io.Writer, preamble string) *Writer {
 // The header must be written before any QSO records and may only be written once.
 func (w *Writer) WriteHeader(r Record) error {
 	if w.wroteData {
-		return ErrWriterHeaderAlreadyWritten
+		return ErrHeaderAlreadyWritten
 	}
 	preamble := w.headerPreamble
 	if preamble == "" {

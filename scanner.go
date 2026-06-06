@@ -117,7 +117,7 @@ func (s *Scanner) parseOneField() (field adifield.Field, value string, err error
 	// Step 2: Split on the first colon to get field name and length.
 	volatileField, volatileLength, foundFirstColon := bytes.Cut(volatileSpecifier, []byte(":"))
 	if len(volatileField) == 0 {
-		return "", "", ErrAdiReaderMalformedADI
+		return "", "", ErrMalformedADI
 	}
 
 	// Step 2.1: Intern the field name string to avoid repeated allocations.
@@ -125,7 +125,7 @@ func (s *Scanner) parseOneField() (field adifield.Field, value string, err error
 	fieldStringUnsafe := unsafe.String(&volatileField[0], len(volatileField))
 	if field, ok = s.appFieldMap[fieldStringUnsafe]; !ok {
 		if len(s.appFieldMap) > 1024 {
-			return "", "", ErrAdiReaderTooManyUniqueFields
+			return "", "", ErrTooManyUniqueFields
 		}
 		fieldStringSafe := strings.Clone(fieldStringUnsafe)
 		field = adifield.New(fieldStringSafe)
@@ -165,7 +165,7 @@ func (s *Scanner) parseOneField() (field adifield.Field, value string, err error
 
 	c, err := io.ReadFull(s.r, s.arena[start:start+length])
 	if c != length {
-		return "", "", ErrAdiReaderMalformedADI
+		return "", "", ErrMalformedADI
 	}
 	s.arena = s.arena[:start+length]
 	return field, unsafe.String(&s.arena[start], length), err
@@ -200,7 +200,7 @@ func (s *Scanner) readDataSpecifierVolatile() ([]byte, error) {
 			continue
 		}
 		if err == io.EOF {
-			return volatile, ErrAdiReaderMalformedADI
+			return volatile, ErrMalformedADI
 		}
 		return volatile, err
 	}
@@ -220,7 +220,7 @@ func (s *Scanner) discardUntilLessThan() error {
 func parseDataLength(data []byte) (int, error) {
 	// Limit to 9 digits (max 999,999,999) to prevent overflow.
 	if count := len(data); count == 0 || count > 9 {
-		return 0, ErrAdiReaderMalformedADI
+		return 0, ErrMalformedADI
 	}
 	value := 0
 	hasValidDigits := true
@@ -229,7 +229,7 @@ func parseDataLength(data []byte) (int, error) {
 		value = value*10 + int(b-'0')
 	}
 	if !hasValidDigits {
-		return 0, ErrAdiReaderMalformedADI
+		return 0, ErrMalformedADI
 	}
 	return value, nil
 }
