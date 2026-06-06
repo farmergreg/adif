@@ -149,12 +149,7 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 	bufPtr := writerBufPool.Get().(*[]byte)
 	buf := (*bufPtr)[:0]
 
-	if w.mode == ADIWriteModeFast {
-		buf = appendFieldsADIFast(r, buf)
-	} else {
-		buf = appendFieldsADIPretty(r, buf)
-	}
-
+	buf = appendFieldsADI(r, buf, w.mode)
 	if len(buf) == 0 {
 		writerBufPool.Put(bufPtr)
 		return nil
@@ -166,6 +161,15 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 	*bufPtr = buf
 	writerBufPool.Put(bufPtr)
 	return err
+}
+
+// appendFieldsADI writes all fields of r to buf in ADI format using the given WriteMode.
+// It will not write the end tag.
+func appendFieldsADI(r Record, buf []byte, mode WriteMode) []byte {
+	if mode == ADIWriteModeFast {
+		return appendFieldsADIFast(r, buf)
+	}
+	return appendFieldsADIPretty(r, buf)
 }
 
 // appendFieldsADIFast writes all fields of r to buf in ADI format as quickly and efficiently as possible.

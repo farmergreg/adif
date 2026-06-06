@@ -42,12 +42,7 @@ func (r Record) WriteTo(w io.Writer) (int64, error) {
 // WriteToMode writes the record's fields in ADI format to w using the given WriteMode, without an EOR or EOH tag.
 func (r Record) WriteToMode(w io.Writer, mode WriteMode) (int64, error) {
 	bufPtr := writerBufPool.Get().(*[]byte)
-	var buf []byte
-	if mode == ADIWriteModeFast {
-		buf = appendFieldsADIFast(r, (*bufPtr)[:0])
-	} else {
-		buf = appendFieldsADIPretty(r, (*bufPtr)[:0])
-	}
+	buf := appendFieldsADI(r, (*bufPtr)[:0], mode)
 	n, err := w.Write(buf)
 	*bufPtr = buf
 	writerBufPool.Put(bufPtr)
