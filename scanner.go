@@ -164,11 +164,11 @@ func (s *Scanner) parseOneField() (field adifield.Field, value string, err error
 	start := len(s.arena)
 
 	c, err := io.ReadFull(s.r, s.arena[start:start+length])
-	if err == io.EOF {
+	if c != length {
 		return "", "", ErrAdiReaderMalformedADI
 	}
-	s.arena = s.arena[:start+c]
-	return field, unsafe.String(&s.arena[start], c), err
+	s.arena = s.arena[:start+length]
+	return field, unsafe.String(&s.arena[start], length), err
 }
 
 // readDataSpecifierVolatile reads up to and including the next '>' and returns

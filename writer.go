@@ -13,11 +13,11 @@ import (
 type WriteMode int
 
 const (
-	// ADIWriteModePretty produces human-readable output with common ADIF fields presented first followed by the remaining fields in alphabetical order.
+	// ADIWriteModePretty is the default write mode.
+	// It produces human-readable output with common ADIF fields presented first followed by the remaining fields in alphabetical order.
 	ADIWriteModePretty WriteMode = iota
 
-	// ADIWriteModeFast is the default WriteMode.
-	// It is optimized for speed and does not guarantee field order.
+	// ADIWriteModeFast is optimized for speed and does not guarantee field order.
 	ADIWriteModeFast
 )
 
