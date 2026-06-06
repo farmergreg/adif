@@ -10,8 +10,8 @@ This library provides high-performance stream based processing of [ADIF](https:/
 
 ## Features
 
+- **Easy To Use**: A clean, idiomatic Go API is provided that integrates well with the standard library.
 - **Tested**: 100% test coverage!
-- **Developer Friendly**: Clean, idiomatic Go API with three usage patterns: streaming, in-memory, and writing
 - **Fast**: 3x-11x faster than [other libraries](https://github.com/farmergreg/adif-benchmark)
 - **Memory Efficient**: Uses 2.5x less memory and makes 21x fewer allocations than the nearest competitor.
 
