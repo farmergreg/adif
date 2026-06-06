@@ -10,6 +10,11 @@ import (
 	"github.com/farmergreg/spec/v6/adifield"
 )
 
+// scannerArenaChunkSize is the size of each value arena chunk.
+// Field values are copied into the current chunk and referenced as strings without per-value allocation.
+// A new chunk is allocated only when the next value does not fit, so committed bytes are never moved or mutated.
+const scannerArenaChunkSize = 16384
+
 // Scanner reads ADIF *.adi records sequentially from an io.Reader.
 // Use NewScanner to create one, then call Scan in a loop.
 // It follows the same pattern as bufio.Scanner.
@@ -26,7 +31,7 @@ import (
 type Scanner struct {
 	r                 *bufio.Reader
 	appFieldMap       map[string]adifield.Field
-	bufValue          []byte
+	arena             []byte
 	preAllocateFields int
 	current           Record
 	isHeader          bool
@@ -43,7 +48,7 @@ func NewScanner(r io.Reader) *Scanner {
 		r:                 br,
 		preAllocateFields: 7,
 		appFieldMap:       make(map[string]adifield.Field, 128),
-		bufValue:          make([]byte, 4096),
+		arena:             make([]byte, 0, scannerArenaChunkSize),
 	}
 }
 
@@ -146,17 +151,24 @@ func (s *Scanner) parseOneField() (field adifield.Field, value string, err error
 		return field, "", nil
 	}
 
-	// Step 5: Read exactly length bytes of field value.
-	if cap(s.bufValue) < length {
-		s.bufValue = make([]byte, length)
+	// Step 5: Read exactly length bytes of field value into the arena.
+	// Values are referenced as strings pointing into the arena, avoiding a per-value allocation.
+	// A fresh chunk is allocated only when the value does not fit, so previously committed bytes never move.
+	if cap(s.arena)-len(s.arena) < length {
+		chunkSize := scannerArenaChunkSize
+		if length > chunkSize {
+			chunkSize = length
+		}
+		s.arena = make([]byte, 0, chunkSize)
 	}
-	s.bufValue = s.bufValue[:length]
+	start := len(s.arena)
 
-	c, err := io.ReadFull(s.r, s.bufValue)
+	c, err := io.ReadFull(s.r, s.arena[start:start+length])
 	if err == io.EOF {
 		return "", "", ErrAdiReaderMalformedADI
 	}
-	return field, string(s.bufValue[:c]), err
+	s.arena = s.arena[:start+c]
+	return field, unsafe.String(&s.arena[start], c), err
 }
 
 // readDataSpecifierVolatile reads up to and including the next '>' and returns
