@@ -54,7 +54,8 @@ func ExampleWriter() {
 	qso[adifield.MODE] = mode.SSB.String()
 	qso[adifield.New("APP_Example")] = "Example"
 
-	// Pretty is the default; this is just for demonstration of SetWriteMode.
+	// Pretty is the default.
+	// This is just for demonstration purposes.
 	w.SetWriteMode(adif.WriteModePretty)
 	w.Write(qso)
 
