@@ -36,7 +36,7 @@ func (r Record) String() string {
 // Priority fields are written first in a fixed order; remaining fields follow in alphabetical order.
 // Implements io.WriterTo.
 func (r Record) WriteTo(w io.Writer) (int64, error) {
-	return r.WriteToMode(w, ADIWriteModePretty)
+	return r.WriteToMode(w, WriteModePretty)
 }
 
 // WriteToMode writes the record's fields in ADI format to w using the given WriteMode, without an EOR or EOH tag.

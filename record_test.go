@@ -83,7 +83,7 @@ func TestRecord_WriteToMode_Fast(t *testing.T) {
 	r := NewRecord()
 	r[adifield.CALL] = "K9CTS"
 	var sb strings.Builder
-	n, err := r.WriteToMode(&sb, ADIWriteModeFast)
+	n, err := r.WriteToMode(&sb, WriteModeFast)
 	if err != nil {
 		t.Fatal(err)
 	}

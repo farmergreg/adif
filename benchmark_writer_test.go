@@ -38,8 +38,8 @@ func BenchmarkADIWriteMode(b *testing.B) {
 		name string
 		mode WriteMode
 	}{
-		{"Fast", ADIWriteModeFast},
-		{"Pretty", ADIWriteModePretty},
+		{"Fast", WriteModeFast},
+		{"Pretty", WriteModePretty},
 	}
 
 	for _, m := range modes {

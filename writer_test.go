@@ -151,7 +151,7 @@ func TestWriter_Write_FastMode(t *testing.T) {
 	r[adifield.BAND] = "20M"
 
 	var sb strings.Builder
-	w := NewWriterWithPreamble(&sb, "").SetWriteMode(ADIWriteModeFast)
+	w := NewWriterWithPreamble(&sb, "").SetWriteMode(WriteModeFast)
 	if err := w.Write(r); err != nil {
 		t.Fatal(err)
 	}

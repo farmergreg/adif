@@ -13,12 +13,12 @@ import (
 type WriteMode int
 
 const (
-	// ADIWriteModePretty is the default write mode.
+	// WriteModePretty is the default write mode.
 	// It produces human-readable output with common ADIF fields presented first followed by the remaining fields in alphabetical order.
-	ADIWriteModePretty WriteMode = iota
+	WriteModePretty WriteMode = iota
 
-	// ADIWriteModeFast is optimized for speed and does not guarantee field order.
-	ADIWriteModeFast
+	// WriteModeFast is optimized for speed and does not guarantee field order.
+	WriteModeFast
 )
 
 const adiHeaderPreamble = "                    AM✠DG\nK9CTS High Performance ADIF Processing Library\n   https://github.com/farmergreg/adif\n\n"
@@ -166,7 +166,7 @@ func (w *Writer) writeRecord(r Record, endTag byte) error {
 // appendFieldsADI writes all fields of r to buf in ADI format using the given WriteMode.
 // It will not write the end tag.
 func appendFieldsADI(r Record, buf []byte, mode WriteMode) []byte {
-	if mode == ADIWriteModeFast {
+	if mode == WriteModeFast {
 		return appendFieldsADIFast(r, buf)
 	}
 	return appendFieldsADIPretty(r, buf)
